@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useMemo } from 'react'
+import html2canvas from 'html2canvas'
 
 interface Executive {
   id: string
@@ -64,6 +65,7 @@ export default function PublicSchedulePage() {
   const [printLineHeight, setPrintLineHeight] = useState("1.5")
   const [printCellPadding, setPrintCellPadding] = useState("normal")
   const [fitToPage, setFitToPage] = useState(false)
+  const [downloadingImage, setDownloadingImage] = useState(false)
   
   const [colTimeVisible, setColTimeVisible] = useState(true)
   const [colLocationVisible, setColLocationVisible] = useState(true)
@@ -190,6 +192,34 @@ export default function PublicSchedulePage() {
     const res = await fetch(`/api/schedules?month=${month}&year=${year}`)
     const data = await res.json()
     setMonthSchedules(data)
+  }
+
+  const handleDownloadImage = async () => {
+    const element = document.getElementById('schedule-table-container');
+    if (!element) return;
+    
+    try {
+      setDownloadingImage(true)
+      
+      const canvas = await html2canvas(element, {
+        scale: 2.5,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#ffffff'
+      });
+      
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
+      const link = document.createElement('a');
+      const dateKey = formatDateKey(selectedDate);
+      link.download = `วาระงานผู้บริหารปทุมธานี_${dateKey}.jpg`;
+      link.href = dataUrl;
+      link.click();
+    } catch (error) {
+      console.error('Failed to download image', error);
+      alert('เกิดข้อผิดพลาดในการสร้างไฟล์รูปภาพ');
+    } finally {
+      setDownloadingImage(false);
+    }
   }
 
   const currentTheme = themes.find(t => t.dayIndex === selectedDate.getDay())
@@ -323,6 +353,9 @@ export default function PublicSchedulePage() {
               <button className="nav-btn print-btn" onClick={() => window.print()}>
                 <span className="icon">🖨️</span> พิมพ์วาระงาน
               </button>
+              <button className="nav-btn download-image-btn" onClick={handleDownloadImage} disabled={downloadingImage}>
+                <span className="icon">🖼️</span> {downloadingImage ? 'กำลังสร้างรูป...' : 'บันทึกเป็นรูปภาพ (.jpg)'}
+              </button>
               <a href="/admin/schedules" className="admin-link">
                 เข้าสู่ระบบเจ้าหน้าที่
               </a>
@@ -365,7 +398,7 @@ export default function PublicSchedulePage() {
               {loading ? (
                 <div className="loading-state">กำลังดึงข้อมูล...</div>
               ) : (
-                <div className="table-container">
+                <div className="table-container" id="schedule-table-container">
                   {/* Official PDF/Excel Banner */}
                   <div className="official-banner-container">
                     <div className="banner-seal-wrapper">
@@ -668,6 +701,23 @@ export default function PublicSchedulePage() {
           background: #f8fafc;
           border-color: #cbd5e1;
           color: #0f172a;
+        }
+
+        .download-image-btn {
+          background: #0284c7 !important;
+          color: white !important;
+          border-color: #0369a1 !important;
+        }
+
+        .download-image-btn:hover {
+          background: #0369a1 !important;
+        }
+
+        .download-image-btn:disabled {
+          background: #bae6fd !important;
+          border-color: #bae6fd !important;
+          color: #0369a1 !important;
+          cursor: not-allowed;
         }
 
         .admin-link {

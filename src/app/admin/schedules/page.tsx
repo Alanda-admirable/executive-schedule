@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useMemo } from 'react'
+import html2canvas from 'html2canvas'
 
 interface Executive {
   id: string
@@ -79,6 +80,7 @@ export default function SchedulesAdmin() {
   const [selectedDate, setSelectedDate] = useState(formatDateKey(new Date()))
   const [loading, setLoading] = useState(true)
   const [isEditing, setIsEditing] = useState(false)
+  const [downloadingImage, setDownloadingImage] = useState(false)
   const [currentSchedule, setCurrentSchedule] = useState<Partial<Schedule>>({})
 
   // Word-like Print Settings State
@@ -233,6 +235,33 @@ export default function SchedulesAdmin() {
     localStorage.setItem('printSettings', JSON.stringify(defaultConfig))
     localStorage.setItem('printFontFamily', defaultConfig.fontFamily)
     localStorage.setItem('printFontSize', defaultConfig.fontSize)
+  }
+
+  const handleDownloadImage = async () => {
+    const element = document.getElementById('admin-print-preview-page');
+    if (!element) return;
+    
+    try {
+      setDownloadingImage(true)
+      
+      const canvas = await html2canvas(element, {
+        scale: 2.5,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#ffffff'
+      });
+      
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
+      const link = document.createElement('a');
+      link.download = `วาระงานผู้บริหารปทุมธานี_${selectedDate}.jpg`;
+      link.href = dataUrl;
+      link.click();
+    } catch (error) {
+      console.error('Failed to download image', error);
+      alert('เกิดข้อผิดพลาดในการสร้างไฟล์รูปภาพ');
+    } finally {
+      setDownloadingImage(false);
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -467,12 +496,22 @@ export default function SchedulesAdmin() {
         <div className="admin-card print-preview-container">
           <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', maxWidth: '1080px', alignItems: 'center', marginBottom: '20px' }} className="no-print">
             <div className="preview-label" style={{ marginBottom: 0 }}>จำลองเอกสารพิมพ์แนวนอน (A4 Landscape Print Preview)</div>
-            <button className="btn-admin btn-admin-primary" onClick={() => window.print()} style={{ background: '#166534' }}>
-              🖨️ กดสั่งพิมพ์หน้านี้ทันที
-            </button>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button className="btn-admin btn-admin-primary" onClick={() => window.print()} style={{ background: '#166534' }}>
+                🖨️ กดสั่งพิมพ์หน้านี้ทันที
+              </button>
+              <button 
+                className="btn-admin" 
+                onClick={handleDownloadImage} 
+                disabled={downloadingImage}
+                style={{ background: '#0284c7', color: 'white', borderColor: '#0369a1' }}
+              >
+                🖼️ {downloadingImage ? 'กำลังสร้างรูป...' : 'ดาวน์โหลดเป็นรูปภาพ (.jpg)'}
+              </button>
+            </div>
           </div>
           
-          <div className={`a4-landscape-page ${fitToPage ? 'preview-fit-to-page' : ''}`} style={{ fontFamily: fontFamily }}>
+          <div className={`a4-landscape-page ${fitToPage ? 'preview-fit-to-page' : ''}`} id="admin-print-preview-page" style={{ fontFamily: fontFamily }}>
             {/* Seal and Title Banner */}
             <div className="preview-banner-container">
               <div className="preview-seal-logo">
