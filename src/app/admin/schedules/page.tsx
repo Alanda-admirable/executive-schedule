@@ -44,7 +44,10 @@ const toThaiDigits = (value: string | number) => {
 }
 
 const formatThaiDateFull = (date: Date) => {
-  return `${toThaiDigits(date.getDate())} เดือน ${THAI_MONTHS[date.getMonth()]} พ.ศ. ${toThaiDigits(date.getFullYear() + 543)}`
+  const day = date.getDate();
+  const month = THAI_MONTHS[date.getMonth()];
+  const year = date.getFullYear() + 543;
+  return `${WEEKDAYS_TH[date.getDay()]}ที่ ${day} ${month} ${year}`;
 }
 
 // Helper to calculate spans for adjacent rows of the same executive
@@ -138,7 +141,7 @@ export default function SchedulesAdmin() {
     const day = parseInt(parts[2])
     const date = new Date(year, month, day)
     if (isNaN(date.getTime())) return ""
-    return `${WEEKDAYS_TH[date.getDay()]} ที่ ${formatThaiDateFull(date)}`
+    return formatThaiDateFull(date)
   }
 
   const getSelectedDayIndex = () => {
@@ -154,7 +157,12 @@ export default function SchedulesAdmin() {
   const isThaiDigitFont = fontFamily.includes('TH Sarabun 9') || fontFamily.includes('TH Sarabun ๙');
   const renderText = (text: string | null | undefined) => {
     if (!text) return '';
-    return isThaiDigitFont ? toThaiDigits(text) : text;
+    // Smart split: Replace | or spaces-wrapped / or spaces-wrapped ; with a newline, but preserve dates like '๕/๒๕๖๙'
+    const formatted = text
+      .replace(/\s*\|\s*/g, '\n')
+      .replace(/\s+;\s+/g, '\n')
+      .replace(/\s+\/\s+/g, '\n');
+    return isThaiDigitFont ? toThaiDigits(formatted) : formatted;
   }
   const headerStyle = getWeekdayHeaderStyle(selectedDayIndex);
 
@@ -611,10 +619,18 @@ export default function SchedulesAdmin() {
               <div className="preview-seal-logo">
                 <img src="/seal.jpg" alt="ตราปทุมธานี" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
               </div>
-              <div className="preview-banner" style={{ backgroundColor: getWeekdayBannerColor(selectedDayIndex) }}>
-                <h2 className="preview-banner-title">วาระงานผู้ว่าราชการจังหวัดและผู้บริหารของจังหวัดปทุมธานี {getPreviewDateText()}</h2>
-                <div className="preview-banner-sub">
-                  จัดทำโดย สำนักงานจังหวัดปทุมธานี สามารถดาวน์โหลดข้อมูลได้ที่ www.pathumthani.go.th หัวข้อ "วาระงานผู้ว่าราชการจังหวัดและผู้บริหารของจังหวัดปทุมธานี"
+              <div 
+                className="preview-banner" 
+                style={{ 
+                  backgroundColor: getWeekdayBannerColor(selectedDayIndex),
+                  fontFamily: fontFamily 
+                }}
+              >
+                <h2 className="preview-banner-title" style={{ fontFamily: fontFamily }}>
+                  {renderText(`วาระงานผู้ว่าราชการจังหวัดและผู้บริหารของจังหวัดปทุมธานี ${getPreviewDateText()}`)}
+                </h2>
+                <div className="preview-banner-sub" style={{ fontFamily: fontFamily }}>
+                  {renderText(`จัดทำโดย สำนักงานจังหวัดปทุมธานี สามารถดาวน์โหลดข้อมูลได้ที่ www.pathumthani.go.th หัวข้อ "วาระงานผู้ว่าราชการจังหวัดและผู้บริหารของจังหวัดปทุมธานี"`)}
                 </div>
               </div>
             </div>
@@ -826,11 +842,13 @@ export default function SchedulesAdmin() {
               </div>
               <div className="form-group">
                 <label className="form-label">รายละเอียดกำหนดการ / ภารกิจ</label>
-                <textarea className="form-input" style={{ height: '100px' }} value={currentSchedule.mission || ''} onChange={e => setCurrentSchedule({...currentSchedule, mission: e.target.value})} required placeholder="ระบุภารกิจหรือรายละเอียดกิจกรรม..." />
+                <textarea className="form-input" style={{ height: '80px' }} value={currentSchedule.mission || ''} onChange={e => setCurrentSchedule({...currentSchedule, mission: e.target.value})} required placeholder="ระบุภารกิจหรือรายละเอียดกิจกรรม..." />
+                <span className="input-hint">คำแนะนำ: กด Enter หรือใช้เครื่องหมาย / หรือ | เพื่อขึ้นบรรทัดใหม่</span>
               </div>
               <div className="form-group">
                 <label className="form-label">สถานที่</label>
-                <textarea className="form-input" style={{ height: '60px' }} value={currentSchedule.location || ''} onChange={e => setCurrentSchedule({...currentSchedule, location: e.target.value})} required placeholder="e.g. ห้องประชุมบัวหลวง ชั้น ๕ ศาลากลางจังหวัดปทุมธานี" />
+                <textarea className="form-input" style={{ height: '60px' }} value={currentSchedule.location || ''} onChange={e => setCurrentSchedule({...currentSchedule, location: e.target.value})} required placeholder="e.g. ห้องประชุมบัวหลวง ชั้น ๕ / ศาลากลางจังหวัดปทุมธานี" />
+                <span className="input-hint">คำแนะนำ: กด Enter หรือใช้เครื่องหมาย / หรือ | เพื่อแยกบรรทัดสถานที่</span>
               </div>
               <div className="form-row">
                 <div className="form-group">
@@ -839,7 +857,8 @@ export default function SchedulesAdmin() {
                 </div>
                 <div className="form-group">
                   <label className="form-label">การแต่งกาย</label>
-                  <textarea className="form-input" style={{ height: '60px' }} value={currentSchedule.dressCode || ''} onChange={e => setCurrentSchedule({...currentSchedule, dressCode: e.target.value})} placeholder="e.g. ชุดกากีคอพับแขนยาว" />
+                  <textarea className="form-input" style={{ height: '60px' }} value={currentSchedule.dressCode || ''} onChange={e => setCurrentSchedule({...currentSchedule, dressCode: e.target.value})} placeholder="e.g. เครื่องแบบราชการสีกากี / คอพับแขนยาว" />
+                  <span className="input-hint">คำแนะนำ: กด Enter หรือใช้เครื่องหมาย / หรือ | เพื่อแยกบรรทัดประเภทชุด</span>
                 </div>
               </div>
               <div className="actions">
@@ -1111,6 +1130,7 @@ export default function SchedulesAdmin() {
         .text-slate-400 { color: #94a3b8; font-size: 0.875rem; }
         
         .modal-title { font-size: 1.5rem; font-weight: 700; color: #0f172a; margin-bottom: 24px; }
+        .input-hint { font-size: 0.72rem; color: #64748b; margin-top: 4px; display: block; font-weight: 500; }
         .form-row { display: flex; gap: 16px; }
         .form-row > .form-group { flex: 1; }
         .actions { display: flex; gap: 12px; margin-top: 32px; }

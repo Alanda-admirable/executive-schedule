@@ -106,7 +106,12 @@ export default function PublicSchedulePage() {
   const isThaiDigitFont = printFontFamily.includes('TH Sarabun 9') || printFontFamily.includes('TH Sarabun ๙');
   const renderText = (text: string | null | undefined) => {
     if (!text) return '';
-    return isThaiDigitFont ? toThaiDigits(text) : text;
+    // Smart split: Replace | or spaces-wrapped / or spaces-wrapped ; with a newline, but preserve dates like '๕/๒๕๖๙'
+    const formatted = text
+      .replace(/\s*\|\s*/g, '\n')
+      .replace(/\s+;\s+/g, '\n')
+      .replace(/\s+\/\s+/g, '\n');
+    return isThaiDigitFont ? toThaiDigits(formatted) : formatted;
   }
 
   const formatDateKey = (date: Date) => {
@@ -316,7 +321,10 @@ export default function PublicSchedulePage() {
   }
 
   const formatThaiDateFull = (date: Date) => {
-    return `${toThaiDigits(date.getDate())} เดือน ${THAI_MONTHS[date.getMonth()]} พ.ศ. ${toThaiDigits(date.getFullYear() + 543)}`
+    const day = date.getDate();
+    const month = THAI_MONTHS[date.getMonth()];
+    const year = date.getFullYear() + 543;
+    return `${WEEKDAYS_TH[date.getDay()]}ที่ ${day} ${month} ${year}`;
   }
 
   // Get unique executives from currently selected day's schedules for the filter dropdown
@@ -530,12 +538,18 @@ export default function PublicSchedulePage() {
                         <img src="/seal.jpg" alt="ตราจังหวัดปทุมธานี" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                       </div>
                     </div>
-                    <div className="official-banner" style={{ backgroundColor: getWeekdayBannerColor(selectedDate.getDay()) }}>
-                      <h2 className="banner-title">
-                        วาระงานผู้ว่าราชการจังหวัดและผู้บริหารของจังหวัดปทุมธานี {WEEKDAYS_TH[selectedDate.getDay()]} ที่ {formatThaiDateFull(selectedDate)}
+                    <div 
+                      className="official-banner" 
+                      style={{ 
+                        backgroundColor: getWeekdayBannerColor(selectedDate.getDay()),
+                        fontFamily: printFontFamily
+                      }}
+                    >
+                      <h2 className="banner-title" style={{ fontFamily: printFontFamily }}>
+                        {renderText(`วาระงานผู้ว่าราชการจังหวัดและผู้บริหารของจังหวัดปทุมธานี ${formatThaiDateFull(selectedDate)}`)}
                       </h2>
-                      <div className="banner-footer">
-                        จัดทำโดย สำนักงานจังหวัดปทุมธานี สามารถดาวน์โหลดข้อมูลได้ที่ www.pathumthani.go.th หัวข้อ "วาระงานผู้ว่าราชการจังหวัดและผู้บริหารของจังหวัดปทุมธานี"
+                      <div className="banner-footer" style={{ fontFamily: printFontFamily }}>
+                        {renderText(`จัดทำโดย สำนักงานจังหวัดปทุมธานี สามารถดาวน์โหลดข้อมูลได้ที่ www.pathumthani.go.th หัวข้อ "วาระงานผู้ว่าราชการจังหวัดและผู้บริหารของจังหวัดปทุมธานี"`)}
                       </div>
                     </div>
                   </div>
