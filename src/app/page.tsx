@@ -904,13 +904,19 @@ export default function PublicSchedulePage() {
           box-shadow: 0 4px 10px rgba(22, 101, 52, 0.2);
         }
 
-        /* Layout - Swapped main column and sidebar column */
+        /* Layout - Table full width with Calendar below */
         .main-layout {
-          display: grid;
-          grid-template-columns: 1fr 340px;
-          gap: 24px;
+          display: flex;
+          flex-direction: column;
+          gap: 32px;
           padding-top: 24px;
           padding-bottom: 48px;
+        }
+
+        .calendar-section {
+          width: 100%;
+          max-width: 480px;
+          margin: 0 auto;
         }
 
         .card {
@@ -921,10 +927,9 @@ export default function PublicSchedulePage() {
           border: 1px solid #e2e8f0;
         }
 
-        /* Calendar Card (Sidebar) */
+        /* Calendar Card */
         .calendar-card {
-          position: sticky;
-          top: 96px;
+          position: relative;
         }
 
         .calendar-toolbar {
