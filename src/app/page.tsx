@@ -92,6 +92,7 @@ export default function PublicSchedulePage() {
   const [printLineHeight, setPrintLineHeight] = useState("1.5")
   const [printCellPadding, setPrintCellPadding] = useState("normal")
   const [fitToPage, setFitToPage] = useState(false)
+  const [printBannerFontSize, setPrintBannerFontSize] = useState("20px")
   const [downloadingImage, setDownloadingImage] = useState(false)
   
   const [colTimeVisible, setColTimeVisible] = useState(true)
@@ -142,6 +143,7 @@ export default function PublicSchedulePage() {
           if (config.lineHeight) setPrintLineHeight(config.lineHeight)
           if (config.cellPadding) setPrintCellPadding(config.cellPadding)
           if (config.fitToPage !== undefined) setFitToPage(config.fitToPage)
+          if (config.bannerFontSize) setPrintBannerFontSize(config.bannerFontSize)
           
           if (config.visibleColumns) {
             setColTimeVisible(config.visibleColumns.time !== false)
@@ -175,6 +177,7 @@ export default function PublicSchedulePage() {
         if (config.lineHeight) setPrintLineHeight(config.lineHeight)
         if (config.cellPadding) setPrintCellPadding(config.cellPadding)
         if (config.fitToPage !== undefined) setFitToPage(config.fitToPage)
+        if (config.bannerFontSize) setPrintBannerFontSize(config.bannerFontSize)
         
         if (config.visibleColumns) {
           setColTimeVisible(config.visibleColumns.time !== false)
@@ -545,7 +548,7 @@ export default function PublicSchedulePage() {
                         fontFamily: printFontFamily
                       }}
                     >
-                      <h2 className="banner-title" style={{ fontFamily: printFontFamily }}>
+                      <h2 className="banner-title" style={{ fontFamily: printFontFamily, fontSize: printBannerFontSize }}>
                         {renderText(`วาระงานผู้ว่าราชการจังหวัดและผู้บริหารของจังหวัดปทุมธานี ${formatThaiDateFull(selectedDate)}`)}
                       </h2>
                       <div className="banner-footer" style={{ fontFamily: printFontFamily }}>

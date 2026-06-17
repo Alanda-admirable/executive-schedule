@@ -122,6 +122,7 @@ export default function SchedulesAdmin() {
   const [lineHeight, setLineHeight] = useState("1.5")
   const [cellPadding, setCellPadding] = useState("normal")
   const [fitToPage, setFitToPage] = useState(false)
+  const [bannerFontSize, setBannerFontSize] = useState("20px")
   
   // Column Visibility State
   const [colTimeVisible, setColTimeVisible] = useState(true)
@@ -203,6 +204,7 @@ export default function SchedulesAdmin() {
         if (config.lineHeight) setLineHeight(config.lineHeight)
         if (config.cellPadding) setCellPadding(config.cellPadding)
         if (config.fitToPage !== undefined) setFitToPage(config.fitToPage)
+        if (config.bannerFontSize) setBannerFontSize(config.bannerFontSize)
         
         if (config.visibleColumns) {
           setColTimeVisible(config.visibleColumns.time !== false)
@@ -226,6 +228,7 @@ export default function SchedulesAdmin() {
       lineHeight,
       cellPadding,
       fitToPage,
+      bannerFontSize,
       visibleColumns: {
         time: colTimeVisible,
         location: colLocationVisible,
@@ -252,6 +255,7 @@ export default function SchedulesAdmin() {
       lineHeight: "1.5",
       cellPadding: "normal",
       fitToPage: false,
+      bannerFontSize: "20px",
       visibleColumns: {
         time: true,
         location: true,
@@ -268,6 +272,7 @@ export default function SchedulesAdmin() {
     setLineHeight(defaultConfig.lineHeight)
     setCellPadding(defaultConfig.cellPadding)
     setFitToPage(false)
+    setBannerFontSize("20px")
     setColTimeVisible(true)
     setColLocationVisible(true)
     setColAgencyVisible(true)
@@ -457,6 +462,25 @@ export default function SchedulesAdmin() {
             </select>
           </div>
 
+          {/* Banner Font Size */}
+          <div className="toolbar-section">
+            <span className="section-label">ขนาดหัวข้อใหญ่ (Banner)</span>
+            <select 
+              className="toolbar-select"
+              value={bannerFontSize}
+              onChange={e => { setBannerFontSize(e.target.value); savePrintSettings({ bannerFontSize: e.target.value }); }}
+            >
+              <option value="16px">10pt (16px)</option>
+              <option value="18px">12pt (18px)</option>
+              <option value="20px">13.5pt (20px) *มาตรฐาน</option>
+              <option value="22px">15pt (22px)</option>
+              <option value="24px">16.5pt (24px)</option>
+              <option value="26px">18pt (26px)</option>
+              <option value="28px">19.5pt (28px)</option>
+              <option value="32px">22pt (32px)</option>
+            </select>
+          </div>
+
           {/* Font Size Input */}
           <div className="toolbar-section">
             <span className="section-label">ขนาดอักษร (pt / px)</span>
@@ -626,7 +650,7 @@ export default function SchedulesAdmin() {
                   fontFamily: fontFamily 
                 }}
               >
-                <h2 className="preview-banner-title" style={{ fontFamily: fontFamily }}>
+                <h2 className="preview-banner-title" style={{ fontFamily: fontFamily, fontSize: bannerFontSize }}>
                   {renderText(`วาระงานผู้ว่าราชการจังหวัดและผู้บริหารของจังหวัดปทุมธานี ${getPreviewDateText()}`)}
                 </h2>
                 <div className="preview-banner-sub" style={{ fontFamily: fontFamily }}>
