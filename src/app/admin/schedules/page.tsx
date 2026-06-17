@@ -1194,10 +1194,10 @@ export default function SchedulesAdmin() {
         .font-semibold { font-weight: 600; color: #1e293b; }
         .time-badge { background: #eff6ff; color: #2563eb; padding: 4px 8px; border-radius: 6px; font-weight: 600; font-size: 0.8125rem; }
         
-        .mission-text { color: #1e293b; font-weight: 500; line-height: 1.4; }
-        .agency-text { color: #64748b; font-size: 0.75rem; margin-top: 4px; }
-        .location-text { color: #475569; font-size: 0.875rem; }
-        .dress-text { color: #64748b; font-size: 0.75rem; margin-top: 4px; }
+        .mission-text { color: #1e293b; font-weight: 500; line-height: 1.4; white-space: pre-wrap; }
+        .agency-text { color: #64748b; font-size: 0.75rem; margin-top: 4px; white-space: pre-wrap; }
+        .location-text { color: #475569; font-size: 0.875rem; white-space: pre-wrap; }
+        .dress-text { color: #64748b; font-size: 0.75rem; margin-top: 4px; white-space: pre-wrap; }
         
         .flex-actions { display: flex; gap: 8px; }
         .btn-sm { padding: 6px 12px; font-size: 0.75rem; }
