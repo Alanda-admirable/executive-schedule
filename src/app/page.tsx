@@ -480,6 +480,9 @@ export default function PublicSchedulePage() {
               <button className="nav-btn download-image-btn" onClick={handleDownloadImage} disabled={downloadingImage}>
                 <span className="icon">🖼️</span> {downloadingImage ? 'กำลังสร้างรูป...' : 'บันทึกเป็นรูปภาพ (.jpg)'}
               </button>
+              <a href="/admin" className="admin-link">
+                จัดการระบบ (Admin)
+              </a>
             </div>
           </div>
         </div>
