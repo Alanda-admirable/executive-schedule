@@ -1,5 +1,53 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Sarabun:wght@300;400;500;600;700;800&display=swap');
 
+@font-face {
+  font-family: 'TH Sarabun New';
+  src: url('/fonts/THSarabunNew.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'TH Sarabun New';
+  src: url('/fonts/THSarabunNew-Bold.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'TH Sarabun PSK';
+  src: url('/fonts/THSarabunNew.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'TH Sarabun PSK';
+  src: url('/fonts/THSarabunNew-Bold.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'TH Sarabun 9';
+  src: url('/fonts/THSarabunNew.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'TH Sarabun 9';
+  src: url('/fonts/THSarabunNew-Bold.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   --background: #ffffff;
   --foreground: #1e293b;

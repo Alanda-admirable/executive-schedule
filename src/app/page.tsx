@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import html2canvas from 'html2canvas'
 
 interface Executive {
@@ -43,6 +43,33 @@ const THAI_DIGITS = ["๐", "๑", "๒", "๓", "๔", "๕", "๖", "๗", "�
 const WEEKDAYS_TH = ["วันอาทิตย์", "วันจันทร์", "วันอังคาร", "วันพุธ", "วันพฤหัสบดี", "วันศุกร์", "วันเสาร์"];
 const WEEKDAYS_SHORT_TH = ["อา.", "จ.", "อ.", "พ.", "พฤ.", "ศ.", "ส."];
 
+// Helper to calculate spans for adjacent rows of the same executive
+const getSpans = (schedules: any[], field: string | ((s: any) => string | null)) => {
+  const spans: { span: number; show: boolean }[] = [];
+  let i = 0;
+  while (i < schedules.length) {
+    let span = 1;
+    const getVal = typeof field === 'function' ? field : (s: any) => s[field] as string | null;
+    const currentVal = (getVal(schedules[i]) || '').trim();
+    
+    while (i + span < schedules.length) {
+      const nextVal = (getVal(schedules[i + span]) || '').trim();
+      if (currentVal === nextVal && currentVal !== '' && currentVal !== '-') {
+        span++;
+      } else {
+        break;
+      }
+    }
+    
+    spans.push({ span, show: true });
+    for (let j = 1; j < span; j++) {
+      spans.push({ span: 1, show: false });
+    }
+    i += span;
+  }
+  return spans;
+};
+
 export default function PublicSchedulePage() {
   const [schedules, setSchedules] = useState<Schedule[]>([])
   const [monthSchedules, setMonthSchedules] = useState<Schedule[]>([])
@@ -74,6 +101,12 @@ export default function PublicSchedulePage() {
 
   const toThaiDigits = (value: string | number) => {
     return String(value ?? "").replace(/[0-9]/g, digit => THAI_DIGITS[Number(digit)]);
+  }
+
+  const isThaiDigitFont = printFontFamily.includes('TH Sarabun 9') || printFontFamily.includes('TH Sarabun ๙');
+  const renderText = (text: string | null | undefined) => {
+    if (!text) return '';
+    return isThaiDigitFont ? toThaiDigits(text) : text;
   }
 
   const formatDateKey = (date: Date) => {
@@ -334,6 +367,97 @@ export default function PublicSchedulePage() {
 
   const activeColCount = 2 + (colTimeVisible ? 1 : 0) + (colLocationVisible ? 1 : 0) + (colAgencyVisible ? 1 : 0) + (colDressVisible ? 1 : 0)
 
+  // === SMART TABLE ALGORITHM ===
+  // Track which cells are expanded (for text overflow)
+  const [expandedCells, setExpandedCells] = useState<Set<string>>(new Set())
+
+  const toggleCellExpand = useCallback((cellId: string) => {
+    setExpandedCells(prev => {
+      const next = new Set(prev)
+      if (next.has(cellId)) {
+        next.delete(cellId)
+      } else {
+        next.add(cellId)
+      }
+      return next
+    })
+  }, [])
+
+  // Count total visible rows for dynamic table-layout
+  const totalVisibleRows = useMemo(() => {
+    return groupedSchedules.reduce((sum, g) => sum + Math.max(g.schedules.length, 1), 0)
+  }, [groupedSchedules])
+
+  // Smart column widths: redistribute based on which columns are visible
+  const smartColWidths = useMemo(() => {
+    // Base proportions (out of 100)
+    const bases = {
+      exec: 15,
+      time: colTimeVisible ? 8 : 0,
+      mission: 32,
+      location: colLocationVisible ? 22 : 0,
+      agency: colAgencyVisible ? 12 : 0,
+      dress: colDressVisible ? 11 : 0,
+    }
+    const usedTotal = Object.values(bases).reduce((a, b) => a + b, 0)
+    // Redistribute remainder proportionally to exec + mission (the main columns)
+    const remainder = 100 - usedTotal
+    const mainTotal = bases.exec + bases.mission
+    bases.exec += remainder * (bases.exec / mainTotal)
+    bases.mission += remainder * (bases.mission / mainTotal)
+
+    return {
+      exec: `${Math.round(bases.exec)}%`,
+      time: `${Math.round(bases.time)}%`,
+      mission: `${Math.round(bases.mission)}%`,
+      location: `${Math.round(bases.location)}%`,
+      agency: `${Math.round(bases.agency)}%`,
+      dress: `${Math.round(bases.dress)}%`,
+    }
+  }, [colTimeVisible, colLocationVisible, colAgencyVisible, colDressVisible])
+
+  // Expandable text cell renderer
+  const ExpandableText = ({ text, cellId, align }: { text: string, cellId: string, align?: string }) => {
+    const isExpanded = expandedCells.has(cellId)
+    const lines = (text || '').split('\n')
+    const isLong = lines.length > 3 || text.length > 120
+
+    if (!isLong || isExpanded) {
+      return (
+        <div style={{ whiteSpace: 'pre-wrap', textAlign: align === 'center' ? 'center' : 'left' }}>
+          {text}
+          {isLong && isExpanded && (
+            <span
+              onClick={(e) => { e.stopPropagation(); toggleCellExpand(cellId) }}
+              style={{ color: '#3b82f6', cursor: 'pointer', fontSize: '0.75rem', marginLeft: '4px', whiteSpace: 'nowrap' }}
+            >▲ ย่อ</span>
+          )}
+        </div>
+      )
+    }
+
+    return (
+      <div
+        style={{ whiteSpace: 'pre-wrap', textAlign: align === 'center' ? 'center' : 'left', position: 'relative' }}
+      >
+        <div style={{
+          display: '-webkit-box',
+          WebkitLineClamp: 3,
+          WebkitBoxOrient: 'vertical' as const,
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'pre-wrap',
+        }}>
+          {text}
+        </div>
+        <span
+          onClick={(e) => { e.stopPropagation(); toggleCellExpand(cellId) }}
+          style={{ color: '#3b82f6', cursor: 'pointer', fontSize: '0.75rem', display: 'inline-block', marginTop: '2px' }}
+        >...ดูเพิ่มเติม</span>
+      </div>
+    )
+  }
+
   return (
     <div className={`app-container ${fitToPage ? 'print-fit-to-page' : ''}`}>
       <header className="main-header">
@@ -356,9 +480,6 @@ export default function PublicSchedulePage() {
               <button className="nav-btn download-image-btn" onClick={handleDownloadImage} disabled={downloadingImage}>
                 <span className="icon">🖼️</span> {downloadingImage ? 'กำลังสร้างรูป...' : 'บันทึกเป็นรูปภาพ (.jpg)'}
               </button>
-              <a href="/admin/schedules" className="admin-link">
-                เข้าสู่ระบบเจ้าหน้าที่
-              </a>
             </div>
           </div>
         </div>
@@ -411,7 +532,7 @@ export default function PublicSchedulePage() {
                         วาระงานผู้ว่าราชการจังหวัดและผู้บริหารของจังหวัดปทุมธานี {WEEKDAYS_TH[selectedDate.getDay()]} ที่ {formatThaiDateFull(selectedDate)}
                       </h2>
                       <div className="banner-footer">
-                        จัดทำโดยสำนักงานจังหวัดปทุมธานี สามารถดาวน์โหลดข้อมูลได้ที่ www.pathumthani.go.th หัวข้อ "วาระงานผู้ว่าราชการจังหวัดและผู้บริหารของจังหวัดปทุมธานี"
+                        จัดทำโดย สำนักงานจังหวัดปทุมธานี สามารถดาวน์โหลดข้อมูลได้ที่ www.pathumthani.go.th หัวข้อ "วาระงานผู้ว่าราชการจังหวัดและผู้บริหารของจังหวัดปทุมธานี"
                       </div>
                     </div>
                   </div>
@@ -423,17 +544,18 @@ export default function PublicSchedulePage() {
                         fontFamily: printFontFamily,
                         fontSize: printFontSize,
                         fontWeight: printFontWeight,
-                        lineHeight: printLineHeight
+                        lineHeight: printLineHeight,
+                        tableLayout: totalVisibleRows <= 5 ? 'auto' : 'fixed',
                       }}
                     >
                       <thead>
                         <tr>
-                          <th className="th-exec" style={{ backgroundColor: headerStyle.bg, color: headerStyle.text, borderColor: headerStyle.border, padding: getPaddingStyle() }}>ผู้บริหาร</th>
-                          {colTimeVisible && <th className="th-time" style={{ backgroundColor: headerStyle.bg, color: headerStyle.text, borderColor: headerStyle.border, padding: getPaddingStyle() }}>เวลา</th>}
-                           <th className="th-mission" style={{ backgroundColor: headerStyle.bg, color: headerStyle.text, borderColor: headerStyle.border, padding: getPaddingStyle() }}>วาระงาน</th>
-                          {colLocationVisible && <th className="th-location" style={{ backgroundColor: headerStyle.bg, color: headerStyle.text, borderColor: headerStyle.border, padding: getPaddingStyle() }}>สถานที่</th>}
-                          {colAgencyVisible && <th className="th-agency" style={{ backgroundColor: headerStyle.bg, color: headerStyle.text, borderColor: headerStyle.border, padding: getPaddingStyle() }}>หน่วยงาน</th>}
-                          {colDressVisible && <th className="th-dress" style={{ backgroundColor: headerStyle.bg, color: headerStyle.text, borderColor: headerStyle.border, padding: getPaddingStyle() }}>การแต่งกาย</th>}
+                          <th className="th-exec" style={{ backgroundColor: headerStyle.bg, color: headerStyle.text, borderColor: headerStyle.border, padding: getPaddingStyle(), width: smartColWidths.exec }}>ผู้บริหาร</th>
+                          {colTimeVisible && <th className="th-time" style={{ backgroundColor: headerStyle.bg, color: headerStyle.text, borderColor: headerStyle.border, padding: getPaddingStyle(), width: smartColWidths.time }}>เวลา</th>}
+                           <th className="th-mission" style={{ backgroundColor: headerStyle.bg, color: headerStyle.text, borderColor: headerStyle.border, padding: getPaddingStyle(), width: smartColWidths.mission }}>วาระงาน</th>
+                          {colLocationVisible && <th className="th-location" style={{ backgroundColor: headerStyle.bg, color: headerStyle.text, borderColor: headerStyle.border, padding: getPaddingStyle(), width: smartColWidths.location }}>สถานที่</th>}
+                          {colAgencyVisible && <th className="th-agency" style={{ backgroundColor: headerStyle.bg, color: headerStyle.text, borderColor: headerStyle.border, padding: getPaddingStyle(), width: smartColWidths.agency }}>หน่วยงาน</th>}
+                          {colDressVisible && <th className="th-dress" style={{ backgroundColor: headerStyle.bg, color: headerStyle.text, borderColor: headerStyle.border, padding: getPaddingStyle(), width: smartColWidths.dress }}>การแต่งกาย</th>}
                         </tr>
                       </thead>
                       <tbody>
@@ -463,7 +585,7 @@ export default function PublicSchedulePage() {
                                       <div className="exec-name" style={{ color: exec.color === '#000000' ? '#1e293b' : exec.color }}>
                                         {exec.name}
                                       </div>
-                                      <div className="exec-title">{exec.title}</div>
+                                      <div className="exec-title" style={{ color: exec.color === '#000000' ? '#64748b' : exec.color }}>{exec.title}</div>
                                     </div>
                                   </td>
                                   {colTimeVisible && <td className="td-time text-center font-bold" style={{ padding: getPaddingStyle() }}>-</td>}
@@ -474,6 +596,11 @@ export default function PublicSchedulePage() {
                                 </tr>
                               );
                             }
+
+                            // Precalculate spans for location, agency, and dressCode within this executive's list
+                            const agencySpans = getSpans(execSchedules, 'agency');
+                            const dressSpans = getSpans(execSchedules, s => s.dressCode);
+                            const locationSpans = getSpans(execSchedules, 'location');
 
                             // Otherwise, map schedules and use rowspan for the first one
                             return execSchedules.map((s, index) => (
@@ -494,7 +621,7 @@ export default function PublicSchedulePage() {
                                       <div className="exec-name" style={{ color: exec.color === '#000000' ? '#1e293b' : exec.color }}>
                                         {exec.name}
                                       </div>
-                                      <div className="exec-title">{exec.title}</div>
+                                      <div className="exec-title" style={{ color: exec.color === '#000000' ? '#64748b' : exec.color }}>{exec.title}</div>
                                     </div>
                                   </td>
                                 )}
@@ -508,16 +635,36 @@ export default function PublicSchedulePage() {
                                     )}
                                   </td>
                                 )}
-                                <td className="td-mission" style={{ padding: getPaddingStyle(), textAlign: printMissionAlign === 'center' ? 'center' : 'left' }}>{s.mission}</td>
-                                {colLocationVisible && (
-                                  <td className="td-location" style={{ padding: getPaddingStyle(), textAlign: printLocationAlign === 'center' ? 'center' : 'left' }}>{s.location}</td>
-                                )}
-                                {colAgencyVisible && (
-                                  <td className="td-agency text-center" style={{ padding: getPaddingStyle() }}>
-                                    <span className="agency-text">{s.agency}</span>
+                                <td className="td-mission" style={{ padding: getPaddingStyle() }}>
+                                  <ExpandableText text={renderText(s.mission)} cellId={`m-${s.id}`} align={printMissionAlign} />
+                                </td>
+                                {colLocationVisible && locationSpans[index].show && (
+                                  <td 
+                                    className="td-location" 
+                                    rowSpan={locationSpans[index].span}
+                                    style={{ padding: getPaddingStyle() }}
+                                  >
+                                    <ExpandableText text={renderText(s.location)} cellId={`l-${s.id}`} align={printLocationAlign} />
                                   </td>
                                 )}
-                                {colDressVisible && <td className="td-dress text-center" style={{ padding: getPaddingStyle() }}>{s.dressCode || '-'}</td>}
+                                {colAgencyVisible && agencySpans[index].show && (
+                                  <td 
+                                    className="td-agency text-center" 
+                                    rowSpan={agencySpans[index].span}
+                                    style={{ padding: getPaddingStyle() }}
+                                  >
+                                    <span className="agency-text">{renderText(s.agency)}</span>
+                                  </td>
+                                )}
+                                {colDressVisible && dressSpans[index].show && (
+                                  <td 
+                                    className="td-dress text-center" 
+                                    rowSpan={dressSpans[index].span}
+                                    style={{ padding: getPaddingStyle() }}
+                                  >
+                                    {renderText(s.dressCode || '-')}
+                                  </td>
+                                )}
                               </tr>
                             ));
                           })
@@ -1014,7 +1161,7 @@ export default function PublicSchedulePage() {
           text-align: center;
           padding: 12px 24px;
           width: 100%;
-          border: 1px solid #000000;
+          border: none;
           color: #000000 !important; /* Black text */
           box-sizing: border-box;
           gap: 4px;
@@ -1056,7 +1203,6 @@ export default function PublicSchedulePage() {
         .schedule-table {
           width: 100%;
           border-collapse: collapse;
-          table-layout: fixed;
           background-color: white;
         }
 
@@ -1071,19 +1217,15 @@ export default function PublicSchedulePage() {
           transition: background-color 0.2s, color 0.2s;
         }
 
-        .th-exec { width: 16%; }
-        .th-time { width: 8%; }
-        .th-mission { width: 33%; }
-        .th-location { width: 23%; }
-        .th-agency { width: 10%; }
-        .th-dress { width: 10%; }
-
-        /* Excel style table cells */
+        /* Excel style table cells — Smart Word Break */
         .schedule-table td {
           padding: 12px 10px;
           vertical-align: middle;
           border: 1px solid #cbd5e1;
           line-height: 1.5;
+          overflow-wrap: break-word;
+          word-break: break-word;
+          max-width: 0;
         }
 
         .schedule-row {
@@ -1135,13 +1277,13 @@ export default function PublicSchedulePage() {
         }
 
         .td-mission {
-          vertical-align: middle;
+          vertical-align: top;
           font-weight: 600;
           text-align: left;
         }
 
         .td-location {
-          vertical-align: middle;
+          vertical-align: top;
           font-weight: 600;
           text-align: left;
         }
@@ -1149,11 +1291,15 @@ export default function PublicSchedulePage() {
         .td-agency {
           vertical-align: middle;
           font-weight: 600;
+          overflow-wrap: break-word;
+          word-break: break-word;
         }
 
         .td-dress {
           vertical-align: middle;
           font-weight: 600;
+          overflow-wrap: break-word;
+          word-break: break-word;
         }
 
         .text-center {
@@ -1338,7 +1484,7 @@ export default function PublicSchedulePage() {
             align-items: center !important;
           }
           .official-banner {
-            border: 1px solid #000000 !important;
+            border: none !important;
             color: black !important;
             padding: 12px 20px !important;
             margin-bottom: 20px !important;

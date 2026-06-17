@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import html2canvas from 'html2canvas'
 
 interface Executive {
@@ -46,6 +46,33 @@ const toThaiDigits = (value: string | number) => {
 const formatThaiDateFull = (date: Date) => {
   return `${toThaiDigits(date.getDate())} เดือน ${THAI_MONTHS[date.getMonth()]} พ.ศ. ${toThaiDigits(date.getFullYear() + 543)}`
 }
+
+// Helper to calculate spans for adjacent rows of the same executive
+const getSpans = (schedules: any[], field: string | ((s: any) => string | null)) => {
+  const spans: { span: number; show: boolean }[] = [];
+  let i = 0;
+  while (i < schedules.length) {
+    let span = 1;
+    const getVal = typeof field === 'function' ? field : (s: any) => s[field] as string | null;
+    const currentVal = (getVal(schedules[i]) || '').trim();
+    
+    while (i + span < schedules.length) {
+      const nextVal = (getVal(schedules[i + span]) || '').trim();
+      if (currentVal === nextVal && currentVal !== '' && currentVal !== '-') {
+        span++;
+      } else {
+        break;
+      }
+    }
+    
+    spans.push({ span, show: true });
+    for (let j = 1; j < span; j++) {
+      spans.push({ span: 1, show: false });
+    }
+    i += span;
+  }
+  return spans;
+};
 
 const getWeekdayHeaderStyle = (dayIndex: number) => {
   const styles = [
@@ -123,6 +150,12 @@ export default function SchedulesAdmin() {
   }
 
   const selectedDayIndex = getSelectedDayIndex();
+
+  const isThaiDigitFont = fontFamily.includes('TH Sarabun 9') || fontFamily.includes('TH Sarabun ๙');
+  const renderText = (text: string | null | undefined) => {
+    if (!text) return '';
+    return isThaiDigitFont ? toThaiDigits(text) : text;
+  }
   const headerStyle = getWeekdayHeaderStyle(selectedDayIndex);
 
 
@@ -311,6 +344,66 @@ export default function SchedulesAdmin() {
     })
   }, [executives, schedules])
 
+  // === SMART TABLE ALGORITHM ===
+  const [expandedCells, setExpandedCells] = useState<Set<string>>(new Set())
+
+  const toggleCellExpand = useCallback((cellId: string) => {
+    setExpandedCells(prev => {
+      const next = new Set(prev)
+      if (next.has(cellId)) { next.delete(cellId) } else { next.add(cellId) }
+      return next
+    })
+  }, [])
+
+  const totalVisibleRows = useMemo(() => {
+    return groupedPreviewSchedules.reduce((sum, g) => sum + Math.max(g.schedules.length, 1), 0)
+  }, [groupedPreviewSchedules])
+
+  const smartColWidths = useMemo(() => {
+    const bases = {
+      exec: 15, time: colTimeVisible ? 8 : 0, mission: 32,
+      location: colLocationVisible ? 22 : 0, agency: colAgencyVisible ? 12 : 0, dress: colDressVisible ? 11 : 0,
+    }
+    const usedTotal = Object.values(bases).reduce((a, b) => a + b, 0)
+    const remainder = 100 - usedTotal
+    const mainTotal = bases.exec + bases.mission
+    bases.exec += remainder * (bases.exec / mainTotal)
+    bases.mission += remainder * (bases.mission / mainTotal)
+    return {
+      exec: `${Math.round(bases.exec)}%`, time: `${Math.round(bases.time)}%`,
+      mission: `${Math.round(bases.mission)}%`, location: `${Math.round(bases.location)}%`,
+      agency: `${Math.round(bases.agency)}%`, dress: `${Math.round(bases.dress)}%`,
+    }
+  }, [colTimeVisible, colLocationVisible, colAgencyVisible, colDressVisible])
+
+  const ExpandableText = ({ text, cellId, align }: { text: string, cellId: string, align?: string }) => {
+    const isExpanded = expandedCells.has(cellId)
+    const lines = (text || '').split('\n')
+    const isLong = lines.length > 3 || text.length > 120
+    if (!isLong || isExpanded) {
+      return (
+        <div style={{ whiteSpace: 'pre-wrap', textAlign: align === 'center' ? 'center' : 'left' }}>
+          {text}
+          {isLong && isExpanded && (
+            <span onClick={(e) => { e.stopPropagation(); toggleCellExpand(cellId) }}
+              style={{ color: '#3b82f6', cursor: 'pointer', fontSize: '0.75rem', marginLeft: '4px', whiteSpace: 'nowrap' }}
+            >▲ ย่อ</span>
+          )}
+        </div>
+      )
+    }
+    return (
+      <div style={{ whiteSpace: 'pre-wrap', textAlign: align === 'center' ? 'center' : 'left', position: 'relative' }}>
+        <div style={{ display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'pre-wrap' }}>
+          {text}
+        </div>
+        <span onClick={(e) => { e.stopPropagation(); toggleCellExpand(cellId) }}
+          style={{ color: '#3b82f6', cursor: 'pointer', fontSize: '0.75rem', display: 'inline-block', marginTop: '2px' }}
+        >...ดูเพิ่มเติม</span>
+      </div>
+    )
+  }
+
   return (
     <div className="admin-page">
       <div className="header">
@@ -347,6 +440,7 @@ export default function SchedulesAdmin() {
               value={fontFamily}
               onChange={e => { setFontFamily(e.target.value); savePrintSettings({ fontFamily: e.target.value }); }}
             >
+              <option value="'TH Sarabun 9', 'TH Sarabun New', 'TH Sarabun PSK', 'Sarabun', sans-serif">TH Sarabun ๙ (ตัวเลขไทย)</option>
               <option value="'TH Sarabun New', 'TH Sarabun PSK', 'Sarabun', sans-serif">TH Sarabun New (ฟอนต์ราชการ)</option>
               <option value="'Sarabun', sans-serif">Sarabun (Google Fonts)</option>
               <option value="'Angsana New', 'AngsanaUPC', sans-serif">Angsana New</option>
@@ -520,7 +614,7 @@ export default function SchedulesAdmin() {
               <div className="preview-banner" style={{ backgroundColor: getWeekdayBannerColor(selectedDayIndex) }}>
                 <h2 className="preview-banner-title">วาระงานผู้ว่าราชการจังหวัดและผู้บริหารของจังหวัดปทุมธานี {getPreviewDateText()}</h2>
                 <div className="preview-banner-sub">
-                  จัดทำโดยสำนักงานจังหวัดปทุมธานี สามารถดาวน์โหลดข้อมูลได้ที่ www.pathumthani.go.th หัวข้อ "วาระงานผู้ว่าราชการจังหวัดและผู้บริหารของจังหวัดปทุมธานี"
+                  จัดทำโดย สำนักงานจังหวัดปทุมธานี สามารถดาวน์โหลดข้อมูลได้ที่ www.pathumthani.go.th หัวข้อ "วาระงานผู้ว่าราชการจังหวัดและผู้บริหารของจังหวัดปทุมธานี"
                 </div>
               </div>
             </div>
@@ -531,17 +625,18 @@ export default function SchedulesAdmin() {
                 fontFamily: fontFamily, 
                 fontSize: fontSize,
                 fontWeight: fontWeight,
-                lineHeight: lineHeight
+                lineHeight: lineHeight,
+                tableLayout: totalVisibleRows <= 5 ? 'auto' : 'fixed',
               }}
             >
               <thead>
                 <tr style={{ backgroundColor: headerStyle.bg, color: headerStyle.text }}>
-                  <th style={{ width: '16%', border: '1px solid black', padding: '6px', borderColor: headerStyle.border }}>ผู้บริหาร</th>
-                  {colTimeVisible && <th style={{ width: '8%', border: '1px solid black', padding: '6px', borderColor: headerStyle.border }}>เวลา</th>}
-                  <th style={{ width: '33%', border: '1px solid black', padding: '6px', borderColor: headerStyle.border }}>วาระงาน</th>
-                  {colLocationVisible && <th style={{ width: '23%', border: '1px solid black', padding: '6px', borderColor: headerStyle.border }}>สถานที่</th>}
-                  {colAgencyVisible && <th style={{ width: '10%', border: '1px solid black', padding: '6px', borderColor: headerStyle.border }}>หน่วยงาน</th>}
-                  {colDressVisible && <th style={{ width: '10%', border: '1px solid black', padding: '6px', borderColor: headerStyle.border }}>การแต่งกาย</th>}
+                  <th style={{ width: smartColWidths.exec, border: '1px solid #94a3b8', padding: '6px', borderColor: headerStyle.border }}>ผู้บริหาร</th>
+                  {colTimeVisible && <th style={{ width: smartColWidths.time, border: '1px solid #94a3b8', padding: '6px', borderColor: headerStyle.border }}>เวลา</th>}
+                  <th style={{ width: smartColWidths.mission, border: '1px solid #94a3b8', padding: '6px', borderColor: headerStyle.border }}>วาระงาน</th>
+                  {colLocationVisible && <th style={{ width: smartColWidths.location, border: '1px solid #94a3b8', padding: '6px', borderColor: headerStyle.border }}>สถานที่</th>}
+                  {colAgencyVisible && <th style={{ width: smartColWidths.agency, border: '1px solid #94a3b8', padding: '6px', borderColor: headerStyle.border }}>หน่วยงาน</th>}
+                  {colDressVisible && <th style={{ width: smartColWidths.dress, border: '1px solid #94a3b8', padding: '6px', borderColor: headerStyle.border }}>การแต่งกาย</th>}
                 </tr>
               </thead>
               <tbody>
@@ -552,51 +647,65 @@ export default function SchedulesAdmin() {
                   if (execSchedules.length === 0) {
                     return (
                       <tr key={exec.id} style={{ color: exec.color === '#000000' ? '#1e293b' : exec.color }}>
-                        <td style={{ border: '1px solid black', padding: getPaddingStyle(), textAlign: 'center', fontWeight: 'bold', verticalAlign: 'middle' }}>
-                          <div>{exec.name}</div>
-                          <div style={{ fontSize: '0.72rem', opacity: 0.8 }}>{exec.title}</div>
+                        <td style={{ border: '1px solid #cbd5e1', padding: getPaddingStyle(), textAlign: 'center', fontWeight: 'bold', verticalAlign: 'middle', overflowWrap: 'break-word', wordBreak: 'break-word' }}>
+                          <div style={{ color: exec.color === '#000000' ? '#1e293b' : exec.color }}>{exec.name}</div>
+                          <div style={{ fontSize: '0.72rem', opacity: 0.8, color: exec.color === '#000000' ? '#64748b' : exec.color }}>{exec.title}</div>
                         </td>
-                        {colTimeVisible && <td style={{ border: '1px solid black', padding: getPaddingStyle(), textAlign: 'center' }}>-</td>}
-                        <td style={{ border: '1px solid black', padding: getPaddingStyle(), textAlign: 'left', fontWeight: 'bold' }}>ปฏิบัติราชการปกติ</td>
-                        {colLocationVisible && <td style={{ border: '1px solid black', padding: getPaddingStyle(), textAlign: 'center' }}>ศาลากลางจังหวัดปทุมธานี</td>}
-                        {colAgencyVisible && <td style={{ border: '1px solid black', padding: getPaddingStyle(), textAlign: 'center' }}>-</td>}
-                        {colDressVisible && <td style={{ border: '1px solid black', padding: getPaddingStyle(), textAlign: 'center' }}>-</td>}
+                        {colTimeVisible && <td style={{ border: '1px solid #cbd5e1', padding: getPaddingStyle(), textAlign: 'center' }}>-</td>}
+                        <td style={{ border: '1px solid #cbd5e1', padding: getPaddingStyle(), textAlign: 'left', fontWeight: 'bold' }}>ปฏิบัติราชการปกติ</td>
+                        {colLocationVisible && <td style={{ border: '1px solid #cbd5e1', padding: getPaddingStyle(), textAlign: 'center' }}>ศาลากลางจังหวัดปทุมธานี</td>}
+                        {colAgencyVisible && <td style={{ border: '1px solid #cbd5e1', padding: getPaddingStyle(), textAlign: 'center' }}>-</td>}
+                        {colDressVisible && <td style={{ border: '1px solid #cbd5e1', padding: getPaddingStyle(), textAlign: 'center' }}>-</td>}
                       </tr>
                     );
                   }
+
+                  // Precalculate spans for location, agency, and dressCode within this executive's list
+                  const agencySpans = getSpans(execSchedules, 'agency');
+                  const dressSpans = getSpans(execSchedules, s => s.dressCode);
+                  const locationSpans = getSpans(execSchedules, 'location');
 
                   return execSchedules.map((s, index) => (
                     <tr key={s.id} style={{ color: exec.color === '#000000' ? '#1e293b' : exec.color }}>
                       {index === 0 && (
                         <td 
                           rowSpan={execSchedules.length}
-                          style={{ border: '1px solid black', padding: getPaddingStyle(), textAlign: 'center', fontWeight: 'bold', verticalAlign: 'middle' }}
+                          style={{ border: '1px solid #cbd5e1', padding: getPaddingStyle(), textAlign: 'center', fontWeight: 'bold', verticalAlign: 'middle', overflowWrap: 'break-word', wordBreak: 'break-word' }}
                         >
-                          <div>{exec.name}</div>
-                          <div style={{ fontSize: '0.72rem', opacity: 0.8 }}>{exec.title}</div>
+                          <div style={{ color: exec.color === '#000000' ? '#1e293b' : exec.color }}>{exec.name}</div>
+                          <div style={{ fontSize: '0.72rem', opacity: 0.8, color: exec.color === '#000000' ? '#64748b' : exec.color }}>{exec.title}</div>
                         </td>
                       )}
                       {colTimeVisible && (
-                        <td style={{ border: '1px solid black', padding: getPaddingStyle(), textAlign: 'center', fontWeight: 'bold' }}>
-                          {s.startTime}
+                        <td style={{ border: '1px solid #cbd5e1', padding: getPaddingStyle(), textAlign: 'center', fontWeight: 'bold' }}>
+                          {isThaiDigitFont ? toThaiDigits(s.startTime) : s.startTime}
                         </td>
                       )}
-                      <td style={{ border: '1px solid black', padding: getPaddingStyle(), textAlign: missionAlign === 'center' ? 'center' : 'left' }}>
-                        {s.mission}
+                      <td style={{ border: '1px solid #cbd5e1', padding: getPaddingStyle(), overflowWrap: 'break-word', wordBreak: 'break-word', verticalAlign: 'top' }}>
+                        <ExpandableText text={renderText(s.mission)} cellId={`am-${s.id}`} align={missionAlign} />
                       </td>
-                      {colLocationVisible && (
-                        <td style={{ border: '1px solid black', padding: getPaddingStyle(), textAlign: locationAlign === 'center' ? 'center' : 'left' }}>
-                          {s.location}
+                      {colLocationVisible && locationSpans[index].show && (
+                        <td 
+                          rowSpan={locationSpans[index].span}
+                          style={{ border: '1px solid #cbd5e1', padding: getPaddingStyle(), overflowWrap: 'break-word', wordBreak: 'break-word', verticalAlign: 'top' }}
+                        >
+                          <ExpandableText text={renderText(s.location)} cellId={`al-${s.id}`} align={locationAlign} />
                         </td>
                       )}
-                      {colAgencyVisible && (
-                        <td style={{ border: '1px solid black', padding: getPaddingStyle(), textAlign: 'center' }}>
-                          {s.agency}
+                      {colAgencyVisible && agencySpans[index].show && (
+                        <td 
+                          rowSpan={agencySpans[index].span}
+                          style={{ border: '1px solid #cbd5e1', padding: getPaddingStyle(), textAlign: 'center', overflowWrap: 'break-word', wordBreak: 'break-word' }}
+                        >
+                          {renderText(s.agency)}
                         </td>
                       )}
-                      {colDressVisible && (
-                        <td style={{ border: '1px solid black', padding: getPaddingStyle(), textAlign: 'center' }}>
-                          {s.dressCode || '-'}
+                      {colDressVisible && dressSpans[index].show && (
+                        <td 
+                          rowSpan={dressSpans[index].span}
+                          style={{ border: '1px solid #cbd5e1', padding: getPaddingStyle(), textAlign: 'center', overflowWrap: 'break-word', wordBreak: 'break-word' }}
+                        >
+                          {renderText(s.dressCode || '-')}
                         </td>
                       )}
                     </tr>
@@ -721,7 +830,7 @@ export default function SchedulesAdmin() {
               </div>
               <div className="form-group">
                 <label className="form-label">สถานที่</label>
-                <input className="form-input" type="text" value={currentSchedule.location || ''} onChange={e => setCurrentSchedule({...currentSchedule, location: e.target.value})} required placeholder="e.g. ห้องประชุมบัวหลวง ชั้น ๕ ศาลากลางจังหวัดปทุมธานี" />
+                <textarea className="form-input" style={{ height: '60px' }} value={currentSchedule.location || ''} onChange={e => setCurrentSchedule({...currentSchedule, location: e.target.value})} required placeholder="e.g. ห้องประชุมบัวหลวง ชั้น ๕ ศาลากลางจังหวัดปทุมธานี" />
               </div>
               <div className="form-row">
                 <div className="form-group">
@@ -730,7 +839,7 @@ export default function SchedulesAdmin() {
                 </div>
                 <div className="form-group">
                   <label className="form-label">การแต่งกาย</label>
-                  <input className="form-input" type="text" value={currentSchedule.dressCode || ''} onChange={e => setCurrentSchedule({...currentSchedule, dressCode: e.target.value})} placeholder="e.g. ชุดกากีคอพับแขนยาว" />
+                  <textarea className="form-input" style={{ height: '60px' }} value={currentSchedule.dressCode || ''} onChange={e => setCurrentSchedule({...currentSchedule, dressCode: e.target.value})} placeholder="e.g. ชุดกากีคอพับแขนยาว" />
                 </div>
               </div>
               <div className="actions">
@@ -962,7 +1071,7 @@ export default function SchedulesAdmin() {
           flex-direction: column;
           align-items: center;
           text-align: center;
-          border: 1px solid black;
+          border: none;
           color: black !important;
           padding: 8px 16px;
           width: 100%;
@@ -989,6 +1098,12 @@ export default function SchedulesAdmin() {
           border-collapse: collapse;
           color: black;
           background: white;
+        }
+
+        .preview-table td {
+          overflow-wrap: break-word;
+          word-break: break-word;
+          max-width: 0;
         }
 
         /* Default Admin View Styling */

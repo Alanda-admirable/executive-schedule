@@ -6,6 +6,26 @@ async function main() {
   await prisma.schedule.deleteMany({})
   await prisma.executive.deleteMany({})
   await prisma.dayTheme.deleteMany({})
+  await prisma.user.deleteMany({})
+
+  // Seed Users
+  await prisma.user.create({
+    data: {
+      username: 'admin',
+      password: 'adminpassword',
+      name: 'ผู้ดูแลระบบสูงสุด',
+      role: 'ADMIN'
+    }
+  })
+
+  await prisma.user.create({
+    data: {
+      username: 'staff',
+      password: 'staffpassword',
+      name: 'เจ้าหน้าที่บันทึกข้อมูล',
+      role: 'STAFF'
+    }
+  })
 
   // Seed Day Themes
   const dayThemes = [

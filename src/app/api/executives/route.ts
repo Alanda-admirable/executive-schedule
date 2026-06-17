@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma'
 import { NextResponse } from 'next/server'
+import { cookies } from 'next/headers'
 
 export const dynamic = 'force-dynamic'
 
@@ -19,6 +20,29 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    const cookieStore = await cookies()
+    const sessionCookie = cookieStore.get('admin_session')
+    if (!sessionCookie) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    let session
+    try {
+      session = JSON.parse(sessionCookie.value)
+    } catch {
+      return NextResponse.json({ error: 'Invalid session' }, { status: 401 })
+    }
+
+    if (session.role !== 'ADMIN') {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+
+    // Update activity
+    await prisma.user.update({
+      where: { id: session.userId },
+      data: { lastActive: new Date() }
+    }).catch(err => console.error('Activity update failed:', err))
+
     const body = await request.json()
     const executive = await prisma.executive.create({
       data: {
