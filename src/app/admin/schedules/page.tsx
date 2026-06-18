@@ -439,15 +439,6 @@ export default function SchedulesAdmin() {
   }, [executives, schedules])
 
   // === SMART TABLE ALGORITHM ===
-  const [expandedCells, setExpandedCells] = useState<Set<string>>(new Set())
-
-  const toggleCellExpand = useCallback((cellId: string) => {
-    setExpandedCells(prev => {
-      const next = new Set(prev)
-      if (next.has(cellId)) { next.delete(cellId) } else { next.add(cellId) }
-      return next
-    })
-  }, [])
 
   const totalVisibleRows = useMemo(() => {
     return groupedPreviewSchedules.reduce((sum, g) => sum + Math.max(g.schedules.length, 1), 0)
@@ -470,33 +461,7 @@ export default function SchedulesAdmin() {
     }
   }, [colTimeVisible, colLocationVisible, colAgencyVisible, colDressVisible])
 
-  const ExpandableText = ({ text, cellId, align }: { text: string, cellId: string, align?: string }) => {
-    const isExpanded = expandedCells.has(cellId)
-    const lines = (text || '').split('\n')
-    const isLong = lines.length > 3 || text.length > 120
-    if (!isLong || isExpanded) {
-      return (
-        <div style={{ whiteSpace: 'pre-wrap', textAlign: align === 'center' ? 'center' : 'left' }}>
-          {text}
-          {isLong && isExpanded && (
-            <span onClick={(e) => { e.stopPropagation(); toggleCellExpand(cellId) }}
-              style={{ color: '#3b82f6', cursor: 'pointer', fontSize: '0.75rem', marginLeft: '4px', whiteSpace: 'nowrap' }}
-            >▲ ย่อ</span>
-          )}
-        </div>
-      )
-    }
-    return (
-      <div style={{ whiteSpace: 'pre-wrap', textAlign: align === 'center' ? 'center' : 'left', position: 'relative' }}>
-        <div style={{ display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'pre-wrap' }}>
-          {text}
-        </div>
-        <span onClick={(e) => { e.stopPropagation(); toggleCellExpand(cellId) }}
-          style={{ color: '#3b82f6', cursor: 'pointer', fontSize: '0.75rem', display: 'inline-block', marginTop: '2px' }}
-        >...ดูเพิ่มเติม</span>
-      </div>
-    )
-  }
+
 
   return (
     <div className="admin-page">
@@ -767,7 +732,7 @@ export default function SchedulesAdmin() {
                 <h2 className="preview-banner-title" style={{ fontFamily: fontFamily, fontSize: bannerFontSize }}>
                   {renderText(`วาระงานผู้ว่าราชการจังหวัดและผู้บริหารของจังหวัดปทุมธานี ${getPreviewDateText()}`)}
                 </h2>
-                <div className="preview-banner-sub" style={{ fontFamily: fontFamily, fontSize: `calc(${bannerFontSize} * 0.62)` }}>
+                <div className="preview-banner-sub" style={{ fontFamily: fontFamily, fontSize: bannerFontSize }}>
                   {renderText(`จัดทำโดย สำนักงานจังหวัดปทุมธานี สามารถดาวน์โหลดข้อมูลได้ที่ www.pathumthani.go.th หัวข้อ "วาระงานผู้ว่าราชการจังหวัดและผู้บริหารของจังหวัดปทุมธานี"`)}
                 </div>
               </div>
@@ -780,7 +745,7 @@ export default function SchedulesAdmin() {
                 fontSize: fontSize,
                 fontWeight: fontWeight,
                 lineHeight: lineHeight,
-                tableLayout: totalVisibleRows <= 5 ? 'auto' : 'fixed',
+                tableLayout: 'fixed',
               }}
             >
               <thead>
@@ -836,14 +801,14 @@ export default function SchedulesAdmin() {
                         </td>
                       )}
                       <td style={{ border: '1px solid #cbd5e1', padding: getPaddingStyle(), overflowWrap: 'break-word', wordBreak: 'break-word', verticalAlign: 'top' }}>
-                        <ExpandableText text={renderText(s.mission)} cellId={`am-${s.id}`} align={missionAlign} />
+                        <div style={{ whiteSpace: 'pre-wrap', textAlign: missionAlign === 'center' ? 'center' : 'left' }}>{renderText(s.mission)}</div>
                       </td>
                       {colLocationVisible && locationSpans[index].show && (
                         <td 
                           rowSpan={locationSpans[index].span}
                           style={{ border: '1px solid #cbd5e1', padding: getPaddingStyle(), overflowWrap: 'break-word', wordBreak: 'break-word', verticalAlign: 'top' }}
                         >
-                          <ExpandableText text={renderText(s.location)} cellId={`al-${s.id}`} align={locationAlign} />
+                          <div style={{ whiteSpace: 'pre-wrap', textAlign: locationAlign === 'center' ? 'center' : 'left' }}>{renderText(s.location)}</div>
                         </td>
                       )}
                       {colAgencyVisible && agencySpans[index].show && (
@@ -1344,6 +1309,7 @@ export default function SchedulesAdmin() {
 
         .preview-table {
           width: 100%;
+          min-width: 900px;
           border-collapse: collapse;
           color: black;
           background: white;

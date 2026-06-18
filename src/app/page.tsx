@@ -423,20 +423,6 @@ export default function PublicSchedulePage() {
   const activeColCount = 2 + (colTimeVisible ? 1 : 0) + (colLocationVisible ? 1 : 0) + (colAgencyVisible ? 1 : 0) + (colDressVisible ? 1 : 0)
 
   // === SMART TABLE ALGORITHM ===
-  // Track which cells are expanded (for text overflow)
-  const [expandedCells, setExpandedCells] = useState<Set<string>>(new Set())
-
-  const toggleCellExpand = useCallback((cellId: string) => {
-    setExpandedCells(prev => {
-      const next = new Set(prev)
-      if (next.has(cellId)) {
-        next.delete(cellId)
-      } else {
-        next.add(cellId)
-      }
-      return next
-    })
-  }, [])
 
   // Count total visible rows for dynamic table-layout
   const totalVisibleRows = useMemo(() => {
@@ -471,47 +457,7 @@ export default function PublicSchedulePage() {
     }
   }, [colTimeVisible, colLocationVisible, colAgencyVisible, colDressVisible])
 
-  // Expandable text cell renderer
-  const ExpandableText = ({ text, cellId, align }: { text: string, cellId: string, align?: string }) => {
-    const isExpanded = expandedCells.has(cellId)
-    const lines = (text || '').split('\n')
-    const isLong = lines.length > 3 || text.length > 120
 
-    if (!isLong || isExpanded) {
-      return (
-        <div style={{ whiteSpace: 'pre-wrap', textAlign: align === 'center' ? 'center' : 'left' }}>
-          {text}
-          {isLong && isExpanded && (
-            <span
-              onClick={(e) => { e.stopPropagation(); toggleCellExpand(cellId) }}
-              style={{ color: '#3b82f6', cursor: 'pointer', fontSize: '0.75rem', marginLeft: '4px', whiteSpace: 'nowrap' }}
-            >▲ ย่อ</span>
-          )}
-        </div>
-      )
-    }
-
-    return (
-      <div
-        style={{ whiteSpace: 'pre-wrap', textAlign: align === 'center' ? 'center' : 'left', position: 'relative' }}
-      >
-        <div style={{
-          display: '-webkit-box',
-          WebkitLineClamp: 3,
-          WebkitBoxOrient: 'vertical' as const,
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-          whiteSpace: 'pre-wrap',
-        }}>
-          {text}
-        </div>
-        <span
-          onClick={(e) => { e.stopPropagation(); toggleCellExpand(cellId) }}
-          style={{ color: '#3b82f6', cursor: 'pointer', fontSize: '0.75rem', display: 'inline-block', marginTop: '2px' }}
-        >...ดูเพิ่มเติม</span>
-      </div>
-    )
-  }
 
   return (
     <div className={`app-container ${fitToPage ? 'print-fit-to-page' : ''}`}>
@@ -595,7 +541,7 @@ export default function PublicSchedulePage() {
                       <h2 className="banner-title" style={{ fontFamily: printFontFamily, fontSize: printBannerFontSize }}>
                         {renderText(`วาระงานผู้ว่าราชการจังหวัดและผู้บริหารของจังหวัดปทุมธานี ${formatThaiDateFull(selectedDate)}`)}
                       </h2>
-                      <div className="banner-footer" style={{ fontFamily: printFontFamily, fontSize: `calc(${printBannerFontSize} * 0.62)` }}>
+                      <div className="banner-footer" style={{ fontFamily: printFontFamily, fontSize: printBannerFontSize }}>
                         {renderText(`จัดทำโดย สำนักงานจังหวัดปทุมธานี สามารถดาวน์โหลดข้อมูลได้ที่ www.pathumthani.go.th หัวข้อ "วาระงานผู้ว่าราชการจังหวัดและผู้บริหารของจังหวัดปทุมธานี"`)}
                       </div>
                     </div>
@@ -609,7 +555,7 @@ export default function PublicSchedulePage() {
                         fontSize: printFontSize,
                         fontWeight: printFontWeight,
                         lineHeight: printLineHeight,
-                        tableLayout: totalVisibleRows <= 5 ? 'auto' : 'fixed',
+                        tableLayout: 'fixed',
                       }}
                     >
                       <thead>
@@ -700,7 +646,7 @@ export default function PublicSchedulePage() {
                                   </td>
                                 )}
                                 <td className="td-mission" style={{ padding: getPaddingStyle() }}>
-                                  <ExpandableText text={renderText(s.mission)} cellId={`m-${s.id}`} align={printMissionAlign} />
+                                  <div style={{ whiteSpace: 'pre-wrap', textAlign: printMissionAlign === 'center' ? 'center' : 'left' }}>{renderText(s.mission)}</div>
                                 </td>
                                 {colLocationVisible && locationSpans[index].show && (
                                   <td 
@@ -708,7 +654,7 @@ export default function PublicSchedulePage() {
                                     rowSpan={locationSpans[index].span}
                                     style={{ padding: getPaddingStyle() }}
                                   >
-                                    <ExpandableText text={renderText(s.location)} cellId={`l-${s.id}`} align={printLocationAlign} />
+                                    <div style={{ whiteSpace: 'pre-wrap', textAlign: printLocationAlign === 'center' ? 'center' : 'left' }}>{renderText(s.location)}</div>
                                   </td>
                                 )}
                                 {colAgencyVisible && agencySpans[index].show && (
@@ -1271,6 +1217,7 @@ export default function PublicSchedulePage() {
         /* Official Excel Table Styling */
         .schedule-table {
           width: 100%;
+          min-width: 900px;
           border-collapse: collapse;
           background-color: white;
         }
@@ -1477,6 +1424,10 @@ export default function PublicSchedulePage() {
           }
           .banner-date {
             font-size: 0.9rem;
+          }
+          /* Hide agency/dress columns on mobile for column priority */
+          .th-agency, .td-agency, .th-dress, .td-dress {
+            display: none !important;
           }
         }
 
