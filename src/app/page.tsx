@@ -1573,6 +1573,11 @@ export default function PublicSchedulePage() {
           .schedule-row {
             break-inside: avoid !important;
           }
+          
+          /* Override mobile display: none !important to ensure columns show up in PDF print */
+          .th-agency, .td-agency, .th-dress, .td-dress {
+            display: table-cell !important;
+          }
 
           /* Single Page Fit Styles */
           .print-fit-to-page .schedule-table td,
