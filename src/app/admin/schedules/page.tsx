@@ -370,12 +370,19 @@ export default function SchedulesAdmin() {
     try {
       setDownloadingImage(true)
       
+      const originalStyle = element.getAttribute('style') || '';
+      element.style.width = '1080px';
+      element.style.minWidth = '1080px';
+      
       const canvas = await html2canvas(element, {
         scale: 2.5,
         useCORS: true,
         allowTaint: true,
-        backgroundColor: '#ffffff'
+        backgroundColor: '#ffffff',
+        windowWidth: 1200
       });
+      
+      element.setAttribute('style', originalStyle);
       
       const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
       const link = document.createElement('a');

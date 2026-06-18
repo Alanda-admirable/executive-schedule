@@ -286,12 +286,31 @@ export default function PublicSchedulePage() {
     try {
       setDownloadingImage(true)
       
+      const responsiveWrapper = element.querySelector('.table-responsive') as HTMLElement;
+      const originalResponsiveStyle = responsiveWrapper ? responsiveWrapper.getAttribute('style') || '' : '';
+      const originalContainerStyle = element.getAttribute('style') || '';
+      
+      // Temporarily expand width and make overflow visible to prevent html2canvas clipping/border bugs
+      element.style.width = '1120px';
+      element.style.minWidth = '1120px';
+      if (responsiveWrapper) {
+        responsiveWrapper.style.overflowX = 'visible';
+        responsiveWrapper.style.width = '100%';
+      }
+      
       const canvas = await html2canvas(element, {
         scale: 2.5,
         useCORS: true,
         allowTaint: true,
-        backgroundColor: '#ffffff'
+        backgroundColor: '#ffffff',
+        windowWidth: 1200
       });
+      
+      // Restore original styling
+      element.setAttribute('style', originalContainerStyle);
+      if (responsiveWrapper) {
+        responsiveWrapper.setAttribute('style', originalResponsiveStyle);
+      }
       
       const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
       const link = document.createElement('a');
