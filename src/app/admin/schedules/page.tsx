@@ -157,7 +157,7 @@ export default function SchedulesAdmin() {
   const [locationAlign, setLocationAlign] = useState("left")
   const [lineHeight, setLineHeight] = useState("1.5")
   const [cellPadding, setCellPadding] = useState("normal")
-  const [fitToPage, setFitToPage] = useState(false)
+  const [fitToPage, setFitToPage] = useState(true)
   const [bannerFontSize, setBannerFontSize] = useState("20px")
   
   // Column Visibility State
@@ -194,8 +194,7 @@ export default function SchedulesAdmin() {
   const renderText = (text: string | null | undefined) => {
     if (!text) return '';
     
-    // 1. Convert double or multiple spaces (2 or more) to a newline
-    let formatted = text.replace(/ {2,}/g, '\n');
+    let formatted = text;
 
     // 2. Convert space before prepositions (like " ณ") to a newline
     formatted = formatted.replace(/\s+ณ\s*/g, '\nณ ');
@@ -334,7 +333,7 @@ export default function SchedulesAdmin() {
       locationAlign: "left",
       lineHeight: "1.5",
       cellPadding: "normal",
-      fitToPage: false,
+      fitToPage: true,
       bannerFontSize: "20px",
       visibleColumns: {
         time: true,
@@ -351,7 +350,7 @@ export default function SchedulesAdmin() {
     setLocationAlign(defaultConfig.locationAlign)
     setLineHeight(defaultConfig.lineHeight)
     setCellPadding(defaultConfig.cellPadding)
-    setFitToPage(false)
+    setFitToPage(true)
     setBannerFontSize("20px")
     setColTimeVisible(true)
     setColLocationVisible(true)
@@ -417,10 +416,22 @@ export default function SchedulesAdmin() {
     const method = currentSchedule.id ? 'PATCH' : 'POST'
     const url = currentSchedule.id ? `/api/schedules/${currentSchedule.id}` : '/api/schedules'
 
+    // Default empty fields to "-"
+    const payload = {
+      ...currentSchedule,
+      date: selectedDate,
+      startTime: (currentSchedule.startTime || '').trim() || '-',
+      endTime: (currentSchedule.endTime || '').trim() || null,
+      mission: (currentSchedule.mission || '').trim() || '-',
+      location: (currentSchedule.location || '').trim() || '-',
+      agency: (currentSchedule.agency || '').trim() || '-',
+      dressCode: (currentSchedule.dressCode || '').trim() || null,
+    }
+
     const res = await fetch(url, {
       method,
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...currentSchedule, date: selectedDate }),
+      body: JSON.stringify(payload),
     })
 
     if (res.ok) {
@@ -698,20 +709,8 @@ export default function SchedulesAdmin() {
                   onChange={e => { setColDressVisible(e.target.checked); savePrintSettings({ visibleColumns: { time: colTimeVisible, location: colLocationVisible, agency: colAgencyVisible, dress: e.target.checked } }); }}
                 /> การแต่งกาย
               </label>
-              <label className="checkbox-label" style={{ color: '#b91c1c', fontWeight: 'bold', marginLeft: '16px', borderLeft: '1px solid #cbd5e1', paddingLeft: '16px' }}>
-                <input 
-                  type="checkbox" 
-                  checked={fitToPage}
-                  onChange={e => { setFitToPage(e.target.checked); savePrintSettings({ fitToPage: e.target.checked }); }}
-                /> 
-                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                  <span>🖨️ บีบให้พอดีหน้าเดียว (Fit to single page)</span>
-                  {fitToPage && (
-                    <span style={{ fontSize: '0.68rem', fontWeight: 500, color: '#dc2626', marginTop: '2px' }}>
-                      * ระบบจะลดขนาดและล็อกฟอนต์อัจฉริยะ (11px) อัตโนมัติ (การปรับขนาดปกติจะถูกละเว้น)
-                    </span>
-                  )}
-                </div>
+              <label className="checkbox-label" style={{ color: '#059669', fontWeight: 'bold', marginLeft: '16px', borderLeft: '1px solid #cbd5e1', paddingLeft: '16px' }}>
+                <span>✅ บีบให้พอดีหน้าเดียวอัตโนมัติ (Auto Fit to Page)</span>
               </label>
             </div>
           </div>
@@ -957,12 +956,12 @@ export default function SchedulesAdmin() {
               </div>
               <div className="form-row">
                 <div className="form-group">
-                  <label className="form-label">เวลาเริ่มต้น</label>
-                  <input className="form-input" type="time" value={currentSchedule.startTime || ''} onChange={e => setCurrentSchedule({...currentSchedule, startTime: e.target.value})} required />
+                  <label className="form-label">เวลาเริ่มต้น (ไม่บังคับ)</label>
+                  <input className="form-input" type="text" value={currentSchedule.startTime || ''} onChange={e => setCurrentSchedule({...currentSchedule, startTime: e.target.value})} placeholder="e.g. 08:30 หรือเว้นว่าง" />
                 </div>
                 <div className="form-group">
                   <label className="form-label">เวลาสิ้นสุด (ไม่บังคับ)</label>
-                  <input className="form-input" type="time" value={currentSchedule.endTime || ''} onChange={e => setCurrentSchedule({...currentSchedule, endTime: e.target.value})} />
+                  <input className="form-input" type="text" value={currentSchedule.endTime || ''} onChange={e => setCurrentSchedule({...currentSchedule, endTime: e.target.value})} placeholder="e.g. 16:30 หรือเว้นว่าง" />
                 </div>
               </div>
               <div className="form-group" style={{ position: 'relative' }}>
@@ -974,8 +973,7 @@ export default function SchedulesAdmin() {
                   onChange={e => setCurrentSchedule({...currentSchedule, mission: e.target.value})} 
                   onFocus={() => setActiveSuggestionField('mission')}
                   onBlur={() => setActiveSuggestionField(null)}
-                  required 
-                  placeholder="ระบุภารกิจหรือรายละเอียดกิจกรรม..." 
+                  placeholder="ระบุภารกิจหรือรายละเอียดกิจกรรม (ไม่บังคับ)" 
                 />
                 {activeSuggestionField === 'mission' && getFilteredSuggestions('mission', currentSchedule.mission).length > 0 && (
                   <div className="suggestions-dropdown">
@@ -1001,8 +999,7 @@ export default function SchedulesAdmin() {
                   onChange={e => setCurrentSchedule({...currentSchedule, location: e.target.value})} 
                   onFocus={() => setActiveSuggestionField('location')}
                   onBlur={() => setActiveSuggestionField(null)}
-                  required 
-                  placeholder="e.g. ห้องประชุมบัวหลวง ชั้น ๕ / ศาลากลางจังหวัดปทุมธานี" 
+                  placeholder="e.g. ห้องประชุมบัวหลวง ชั้น ๕ / ศาลากลางจังหวัดปทุมธานี (ไม่บังคับ)" 
                 />
                 {activeSuggestionField === 'location' && getFilteredSuggestions('location', currentSchedule.location).length > 0 && (
                   <div className="suggestions-dropdown">
@@ -1029,8 +1026,7 @@ export default function SchedulesAdmin() {
                     onChange={e => setCurrentSchedule({...currentSchedule, agency: e.target.value})} 
                     onFocus={() => setActiveSuggestionField('agency')}
                     onBlur={() => setActiveSuggestionField(null)}
-                    required 
-                    placeholder="e.g. สำนักงานจังหวัดปทุมธานี" 
+                    placeholder="e.g. สำนักงานจังหวัดปทุมธานี (ไม่บังคับ)" 
                   />
                   {activeSuggestionField === 'agency' && getFilteredSuggestions('agency', currentSchedule.agency).length > 0 && (
                     <div className="suggestions-dropdown">

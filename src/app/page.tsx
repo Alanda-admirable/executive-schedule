@@ -118,7 +118,7 @@ export default function PublicSchedulePage() {
   const [printLocationAlign, setPrintLocationAlign] = useState("left")
   const [printLineHeight, setPrintLineHeight] = useState("1.5")
   const [printCellPadding, setPrintCellPadding] = useState("normal")
-  const [fitToPage, setFitToPage] = useState(false)
+  const [fitToPage, setFitToPage] = useState(true)
   const [printBannerFontSize, setPrintBannerFontSize] = useState("20px")
   const [downloadingImage, setDownloadingImage] = useState(false)
   
@@ -134,8 +134,7 @@ export default function PublicSchedulePage() {
   const renderText = (text: string | null | undefined) => {
     if (!text) return '';
     
-    // 1. Convert double or multiple spaces (2 or more) to a newline
-    let formatted = text.replace(/ {2,}/g, '\n');
+    let formatted = text;
 
     // 2. Convert space before prepositions (like " ณ") to a newline
     formatted = formatted.replace(/\s+ณ\s*/g, '\nณ ');
