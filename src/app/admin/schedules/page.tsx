@@ -140,6 +140,15 @@ export default function SchedulesAdmin() {
   const [downloadingImage, setDownloadingImage] = useState(false)
   const [currentSchedule, setCurrentSchedule] = useState<Partial<Schedule>>({})
 
+  // Suggestion states
+  const [historySuggestions, setHistorySuggestions] = useState<{
+    missions: string[],
+    locations: string[],
+    agencies: string[],
+    dressCodes: string[]
+  }>({ missions: [], locations: [], agencies: [], dressCodes: [] })
+  const [activeSuggestionField, setActiveSuggestionField] = useState<string | null>(null)
+
   // Word-like Print Settings State
   const [fontFamily, setFontFamily] = useState("'TH Sarabun New', 'TH Sarabun PSK', 'Sarabun', sans-serif")
   const [fontSize, setFontSize] = useState("16px")
@@ -215,7 +224,34 @@ export default function SchedulesAdmin() {
   useEffect(() => {
     fetchExecutives()
     loadPrintSettings()
+    fetchSuggestions()
   }, [])
+
+  const fetchSuggestions = async () => {
+    try {
+      const res = await fetch('/api/schedules/suggestions')
+      if (res.ok) {
+        const data = await res.json()
+        setHistorySuggestions(data)
+      }
+    } catch (e) {
+      console.error("Failed to fetch suggestions", e)
+    }
+  }
+
+  const getFilteredSuggestions = (field: 'mission' | 'location' | 'agency' | 'dressCode', currentVal: string | null | undefined) => {
+    const list = 
+      field === 'mission' ? historySuggestions.missions :
+      field === 'location' ? historySuggestions.locations :
+      field === 'agency' ? historySuggestions.agencies :
+      historySuggestions.dressCodes;
+    
+    const val = (currentVal || '').toLowerCase().trim();
+    if (!val) {
+      return list.slice(0, 6);
+    }
+    return list.filter(item => item.toLowerCase().includes(val)).slice(0, 6);
+  }
 
   useEffect(() => {
     fetchSchedules()
@@ -369,6 +405,7 @@ export default function SchedulesAdmin() {
       setIsEditing(false)
       setCurrentSchedule({})
       fetchSchedules()
+      fetchSuggestions() // Refresh autocomplete history list
     }
   }
 
@@ -941,25 +978,112 @@ export default function SchedulesAdmin() {
                   <input className="form-input" type="time" value={currentSchedule.endTime || ''} onChange={e => setCurrentSchedule({...currentSchedule, endTime: e.target.value})} />
                 </div>
               </div>
-              <div className="form-group">
+              <div className="form-group" style={{ position: 'relative' }}>
                 <label className="form-label">รายละเอียดกำหนดการ / ภารกิจ</label>
-                <textarea className="form-input" style={{ height: '80px' }} value={currentSchedule.mission || ''} onChange={e => setCurrentSchedule({...currentSchedule, mission: e.target.value})} required placeholder="ระบุภารกิจหรือรายละเอียดกิจกรรม..." />
-                <span className="input-hint">คำแนะนำ: กด Enter หรือใช้เครื่องหมาย / หรือ | เพื่อขึ้นบรรทัดใหม่</span>
+                <textarea 
+                  className="form-input" 
+                  style={{ height: '80px' }} 
+                  value={currentSchedule.mission || ''} 
+                  onChange={e => setCurrentSchedule({...currentSchedule, mission: e.target.value})} 
+                  onFocus={() => setActiveSuggestionField('mission')}
+                  onBlur={() => setActiveSuggestionField(null)}
+                  required 
+                  placeholder="ระบุภารกิจหรือรายละเอียดกิจกรรม..." 
+                />
+                {activeSuggestionField === 'mission' && getFilteredSuggestions('mission', currentSchedule.mission).length > 0 && (
+                  <div className="suggestions-dropdown">
+                    {getFilteredSuggestions('mission', currentSchedule.mission).map((item, idx) => (
+                      <div 
+                        key={idx} 
+                        className="suggestion-item" 
+                        onMouseDown={() => setCurrentSchedule({...currentSchedule, mission: item})}
+                      >
+                        {item}
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <span className="input-hint">คำแนะนำ: เคาะวรรค 2 ครั้ง (Double Space) หรือกด Enter เพื่อขึ้นบรรทัดใหม่</span>
               </div>
-              <div className="form-group">
+              <div className="form-group" style={{ position: 'relative' }}>
                 <label className="form-label">สถานที่</label>
-                <textarea className="form-input" style={{ height: '60px' }} value={currentSchedule.location || ''} onChange={e => setCurrentSchedule({...currentSchedule, location: e.target.value})} required placeholder="e.g. ห้องประชุมบัวหลวง ชั้น ๕ / ศาลากลางจังหวัดปทุมธานี" />
-                <span className="input-hint">คำแนะนำ: กด Enter หรือใช้เครื่องหมาย / หรือ | เพื่อแยกบรรทัดสถานที่</span>
+                <textarea 
+                  className="form-input" 
+                  style={{ height: '60px' }} 
+                  value={currentSchedule.location || ''} 
+                  onChange={e => setCurrentSchedule({...currentSchedule, location: e.target.value})} 
+                  onFocus={() => setActiveSuggestionField('location')}
+                  onBlur={() => setActiveSuggestionField(null)}
+                  required 
+                  placeholder="e.g. ห้องประชุมบัวหลวง ชั้น ๕ / ศาลากลางจังหวัดปทุมธานี" 
+                />
+                {activeSuggestionField === 'location' && getFilteredSuggestions('location', currentSchedule.location).length > 0 && (
+                  <div className="suggestions-dropdown">
+                    {getFilteredSuggestions('location', currentSchedule.location).map((item, idx) => (
+                      <div 
+                        key={idx} 
+                        className="suggestion-item" 
+                        onMouseDown={() => setCurrentSchedule({...currentSchedule, location: item})}
+                      >
+                        {item}
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <span className="input-hint">คำแนะนำ: เคาะวรรค 2 ครั้ง (Double Space) หรือกด Enter เพื่อแยกบรรทัดสถานที่</span>
               </div>
               <div className="form-row">
-                <div className="form-group">
+                <div className="form-group" style={{ position: 'relative' }}>
                   <label className="form-label">หน่วยงานเจ้าภาพ</label>
-                  <input className="form-input" type="text" value={currentSchedule.agency || ''} onChange={e => setCurrentSchedule({...currentSchedule, agency: e.target.value})} required placeholder="e.g. สำนักงานจังหวัดปทุมธานี" />
+                  <input 
+                    className="form-input" 
+                    type="text" 
+                    value={currentSchedule.agency || ''} 
+                    onChange={e => setCurrentSchedule({...currentSchedule, agency: e.target.value})} 
+                    onFocus={() => setActiveSuggestionField('agency')}
+                    onBlur={() => setActiveSuggestionField(null)}
+                    required 
+                    placeholder="e.g. สำนักงานจังหวัดปทุมธานี" 
+                  />
+                  {activeSuggestionField === 'agency' && getFilteredSuggestions('agency', currentSchedule.agency).length > 0 && (
+                    <div className="suggestions-dropdown">
+                      {getFilteredSuggestions('agency', currentSchedule.agency).map((item, idx) => (
+                        <div 
+                          key={idx} 
+                          className="suggestion-item" 
+                          onMouseDown={() => setCurrentSchedule({...currentSchedule, agency: item})}
+                        >
+                          {item}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
-                <div className="form-group">
+                <div className="form-group" style={{ position: 'relative' }}>
                   <label className="form-label">การแต่งกาย</label>
-                  <textarea className="form-input" style={{ height: '60px' }} value={currentSchedule.dressCode || ''} onChange={e => setCurrentSchedule({...currentSchedule, dressCode: e.target.value})} placeholder="e.g. เครื่องแบบราชการสีกากี / คอพับแขนยาว" />
-                  <span className="input-hint">คำแนะนำ: กด Enter หรือใช้เครื่องหมาย / หรือ | เพื่อแยกบรรทัดประเภทชุด</span>
+                  <textarea 
+                    className="form-input" 
+                    style={{ height: '60px' }} 
+                    value={currentSchedule.dressCode || ''} 
+                    onChange={e => setCurrentSchedule({...currentSchedule, dressCode: e.target.value})} 
+                    onFocus={() => setActiveSuggestionField('dressCode')}
+                    onBlur={() => setActiveSuggestionField(null)}
+                    placeholder="e.g. เครื่องแบบราชการสีกากี / คอพับแขนยาว" 
+                  />
+                  {activeSuggestionField === 'dressCode' && getFilteredSuggestions('dressCode', currentSchedule.dressCode).length > 0 && (
+                    <div className="suggestions-dropdown">
+                      {getFilteredSuggestions('dressCode', currentSchedule.dressCode).map((item, idx) => (
+                        <div 
+                          key={idx} 
+                          className="suggestion-item" 
+                          onMouseDown={() => setCurrentSchedule({...currentSchedule, dressCode: item})}
+                        >
+                          {item}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  <span className="input-hint">คำแนะนำ: เคาะวรรค 2 ครั้ง (Double Space) หรือกด Enter เพื่อแยกบรรทัดประเภทชุด</span>
                 </div>
               </div>
               <div className="actions">
@@ -1247,6 +1371,38 @@ export default function SchedulesAdmin() {
         .form-row { display: flex; gap: 16px; }
         .form-row > .form-group { flex: 1; }
         .actions { display: flex; gap: 12px; margin-top: 32px; }
+        
+        .suggestions-dropdown {
+          position: absolute;
+          top: 100%;
+          left: 0;
+          right: 0;
+          background: white;
+          border: 1px solid #cbd5e1;
+          border-radius: 8px;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+          z-index: 1000;
+          max-height: 160px;
+          overflow-y: auto;
+          margin-top: 4px;
+        }
+        .suggestion-item {
+          padding: 8px 12px;
+          cursor: pointer;
+          font-size: 0.82rem;
+          color: #334155;
+          border-bottom: 1px solid #f1f5f9;
+          white-space: pre-line;
+          transition: background 0.15s;
+          text-align: left;
+        }
+        .suggestion-item:last-child {
+          border-bottom: none;
+        }
+        .suggestion-item:hover {
+          background: #eff6ff;
+          color: #1d4ed8;
+        }
         
         .font-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
         .font-semibold { font-weight: 600; color: #1e293b; }
