@@ -303,7 +303,22 @@ export default function PublicSchedulePage() {
         useCORS: true,
         allowTaint: true,
         backgroundColor: '#ffffff',
-        windowWidth: 1200
+        windowWidth: 1200,
+        onclone: (clonedDoc) => {
+          // Force relative positioning and background-clip on all table cells to resolve html2canvas rowspan border bugs
+          const cells = clonedDoc.querySelectorAll('.schedule-table th, .schedule-table td');
+          cells.forEach(cell => {
+            const el = cell as HTMLElement;
+            el.style.position = 'relative';
+            el.style.backgroundClip = 'padding-box';
+          });
+          // Set row backgrounds to transparent during capture to prevent them from overlaying spanned cells
+          const rows = clonedDoc.querySelectorAll('.schedule-row');
+          rows.forEach(row => {
+            const el = row as HTMLElement;
+            el.style.backgroundColor = 'transparent';
+          });
+        }
       });
       
       // Restore original styling
@@ -1255,6 +1270,8 @@ export default function PublicSchedulePage() {
           border-right: 1px solid #000000 !important;
           text-align: center;
           transition: background-color 0.2s, color 0.2s;
+          position: relative;
+          background-clip: padding-box;
         }
 
         /* Excel style table cells — Smart Word Break */
@@ -1269,6 +1286,8 @@ export default function PublicSchedulePage() {
           overflow-wrap: break-word;
           word-break: break-word;
           max-width: 0;
+          position: relative;
+          background-clip: padding-box;
         }
 
         .schedule-table th,
@@ -1278,7 +1297,7 @@ export default function PublicSchedulePage() {
         }
 
         .schedule-row {
-          background-color: white;
+          background-color: transparent;
           transition: background-color 0.15s ease;
         }
 

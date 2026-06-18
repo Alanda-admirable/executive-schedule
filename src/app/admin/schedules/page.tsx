@@ -379,7 +379,22 @@ export default function SchedulesAdmin() {
         useCORS: true,
         allowTaint: true,
         backgroundColor: '#ffffff',
-        windowWidth: 1200
+        windowWidth: 1200,
+        onclone: (clonedDoc) => {
+          // Force relative positioning and background-clip on all table cells to resolve html2canvas rowspan border bugs
+          const cells = clonedDoc.querySelectorAll('.preview-table th, .preview-table td');
+          cells.forEach(cell => {
+            const el = cell as HTMLElement;
+            el.style.position = 'relative';
+            el.style.backgroundClip = 'padding-box';
+          });
+          // Ensure all table rows are transparent during capture to prevent them from overlaying spanned cells
+          const rows = clonedDoc.querySelectorAll('.preview-table tr');
+          rows.forEach(row => {
+            const el = row as HTMLElement;
+            el.style.backgroundColor = 'transparent';
+          });
+        }
       });
       
       element.setAttribute('style', originalStyle);
@@ -756,13 +771,13 @@ export default function SchedulesAdmin() {
               }}
             >
               <thead>
-                <tr style={{ backgroundColor: headerStyle.bg, color: headerStyle.text }}>
-                  <th style={{ width: smartColWidths.exec, border: '1px solid #94a3b8', padding: '6px', borderColor: headerStyle.border }}>ผู้บริหาร</th>
-                  {colTimeVisible && <th style={{ width: smartColWidths.time, border: '1px solid #94a3b8', padding: '6px', borderColor: headerStyle.border }}>เวลา</th>}
-                  <th style={{ width: smartColWidths.mission, border: '1px solid #94a3b8', padding: '6px', borderColor: headerStyle.border }}>วาระงาน</th>
-                  {colLocationVisible && <th style={{ width: smartColWidths.location, border: '1px solid #94a3b8', padding: '6px', borderColor: headerStyle.border }}>สถานที่</th>}
-                  {colAgencyVisible && <th style={{ width: smartColWidths.agency, border: '1px solid #94a3b8', padding: '6px', borderColor: headerStyle.border }}>หน่วยงาน</th>}
-                  {colDressVisible && <th style={{ width: smartColWidths.dress, border: '1px solid #94a3b8', padding: '6px', borderColor: headerStyle.border }}>การแต่งกาย</th>}
+                <tr>
+                  <th style={{ width: smartColWidths.exec, padding: '12px 8px', backgroundColor: headerStyle.bg, color: headerStyle.text, borderColor: headerStyle.border }}>ผู้บริหาร</th>
+                  {colTimeVisible && <th style={{ width: smartColWidths.time, padding: '12px 8px', backgroundColor: headerStyle.bg, color: headerStyle.text, borderColor: headerStyle.border }}>เวลา</th>}
+                  <th style={{ width: smartColWidths.mission, padding: '12px 8px', backgroundColor: headerStyle.bg, color: headerStyle.text, borderColor: headerStyle.border }}>วาระงาน</th>
+                  {colLocationVisible && <th style={{ width: smartColWidths.location, padding: '12px 8px', backgroundColor: headerStyle.bg, color: headerStyle.text, borderColor: headerStyle.border }}>สถานที่</th>}
+                  {colAgencyVisible && <th style={{ width: smartColWidths.agency, padding: '12px 8px', backgroundColor: headerStyle.bg, color: headerStyle.text, borderColor: headerStyle.border }}>หน่วยงาน</th>}
+                  {colDressVisible && <th style={{ width: smartColWidths.dress, padding: '12px 8px', backgroundColor: headerStyle.bg, color: headerStyle.text, borderColor: headerStyle.border }}>การแต่งกาย</th>}
                 </tr>
               </thead>
               <tbody>
@@ -773,15 +788,15 @@ export default function SchedulesAdmin() {
                   if (execSchedules.length === 0) {
                     return (
                       <tr key={exec.id} style={{ color: exec.color === '#000000' ? '#1e293b' : exec.color }}>
-                        <td style={{ border: '1px solid #cbd5e1', padding: getPaddingStyle(), textAlign: 'center', fontWeight: 'bold', verticalAlign: 'middle', overflowWrap: 'break-word', wordBreak: 'break-word' }}>
+                        <td style={{ padding: getPaddingStyle(), textAlign: 'center', fontWeight: 'bold', verticalAlign: 'middle', overflowWrap: 'break-word', wordBreak: 'break-word' }}>
                           <div style={{ color: exec.color === '#000000' ? '#1e293b' : exec.color }}>{exec.name}</div>
                           <div style={{ fontSize: '0.72rem', opacity: 0.8, color: exec.color === '#000000' ? '#1e293b' : exec.color }}>{exec.title}</div>
                         </td>
-                        {colTimeVisible && <td style={{ border: '1px solid #cbd5e1', padding: getPaddingStyle(), textAlign: 'center' }}>-</td>}
-                        <td style={{ border: '1px solid #cbd5e1', padding: getPaddingStyle(), textAlign: missionAlign === 'center' ? 'center' : 'left', fontWeight: 'inherit' }}>ปฏิบัติราชการปกติ</td>
-                        {colLocationVisible && <td style={{ border: '1px solid #cbd5e1', padding: getPaddingStyle(), textAlign: locationAlign === 'center' ? 'center' : 'left' }}>ศาลากลางจังหวัดปทุมธานี</td>}
-                        {colAgencyVisible && <td style={{ border: '1px solid #cbd5e1', padding: getPaddingStyle(), textAlign: 'center' }}>-</td>}
-                        {colDressVisible && <td style={{ border: '1px solid #cbd5e1', padding: getPaddingStyle(), textAlign: 'center' }}>-</td>}
+                        {colTimeVisible && <td style={{ padding: getPaddingStyle(), textAlign: 'center' }}>-</td>}
+                        <td style={{ padding: getPaddingStyle(), textAlign: missionAlign === 'center' ? 'center' : 'left', fontWeight: 'inherit' }}>ปฏิบัติราชการปกติ</td>
+                        {colLocationVisible && <td style={{ padding: getPaddingStyle(), textAlign: locationAlign === 'center' ? 'center' : 'left' }}>ศาลากลางจังหวัดปทุมธานี</td>}
+                        {colAgencyVisible && <td style={{ padding: getPaddingStyle(), textAlign: 'center' }}>-</td>}
+                        {colDressVisible && <td style={{ padding: getPaddingStyle(), textAlign: 'center' }}>-</td>}
                       </tr>
                     );
                   }
@@ -796,24 +811,24 @@ export default function SchedulesAdmin() {
                       {index === 0 && (
                         <td 
                           rowSpan={execSchedules.length}
-                          style={{ border: '1px solid #cbd5e1', padding: getPaddingStyle(), textAlign: 'center', fontWeight: 'bold', verticalAlign: 'middle', overflowWrap: 'break-word', wordBreak: 'break-word' }}
+                          style={{ padding: getPaddingStyle(), textAlign: 'center', fontWeight: 'bold', verticalAlign: 'middle', overflowWrap: 'break-word', wordBreak: 'break-word' }}
                         >
                           <div style={{ color: exec.color === '#000000' ? '#1e293b' : exec.color }}>{exec.name}</div>
                           <div style={{ fontSize: '0.72rem', opacity: 0.8, color: exec.color === '#000000' ? '#1e293b' : exec.color }}>{exec.title}</div>
                         </td>
                       )}
                       {colTimeVisible && (
-                        <td style={{ border: '1px solid #cbd5e1', padding: getPaddingStyle(), textAlign: 'center', fontWeight: 'bold' }}>
+                        <td style={{ padding: getPaddingStyle(), textAlign: 'center', fontWeight: 'bold' }}>
                           {toThaiDigits(s.startTime)}
                         </td>
                       )}
-                      <td style={{ border: '1px solid #cbd5e1', padding: getPaddingStyle(), overflowWrap: 'break-word', wordBreak: 'break-word', verticalAlign: 'top' }}>
+                      <td style={{ padding: getPaddingStyle(), overflowWrap: 'break-word', wordBreak: 'break-word', verticalAlign: 'top' }}>
                         <div style={{ whiteSpace: 'pre-wrap', textAlign: missionAlign === 'center' ? 'center' : 'left' }}>{renderText(s.mission)}</div>
                       </td>
                       {colLocationVisible && locationSpans[index].show && (
                         <td 
                           rowSpan={locationSpans[index].span}
-                          style={{ border: '1px solid #cbd5e1', padding: getPaddingStyle(), overflowWrap: 'break-word', wordBreak: 'break-word', verticalAlign: 'top' }}
+                          style={{ padding: getPaddingStyle(), overflowWrap: 'break-word', wordBreak: 'break-word', verticalAlign: 'top' }}
                         >
                           <div style={{ whiteSpace: 'pre-wrap', textAlign: locationAlign === 'center' ? 'center' : 'left' }}>{renderText(s.location)}</div>
                         </td>
@@ -821,7 +836,7 @@ export default function SchedulesAdmin() {
                       {colAgencyVisible && agencySpans[index].show && (
                         <td 
                           rowSpan={agencySpans[index].span}
-                          style={{ border: '1px solid #cbd5e1', padding: getPaddingStyle(), textAlign: 'center', overflowWrap: 'break-word', wordBreak: 'break-word' }}
+                          style={{ padding: getPaddingStyle(), textAlign: 'center', overflowWrap: 'break-word', wordBreak: 'break-word' }}
                         >
                           {renderText(s.agency)}
                         </td>
@@ -829,7 +844,7 @@ export default function SchedulesAdmin() {
                       {colDressVisible && dressSpans[index].show && (
                         <td 
                           rowSpan={dressSpans[index].span}
-                          style={{ border: '1px solid #cbd5e1', padding: getPaddingStyle(), textAlign: 'center', overflowWrap: 'break-word', wordBreak: 'break-word' }}
+                          style={{ padding: getPaddingStyle(), textAlign: 'center', overflowWrap: 'break-word', wordBreak: 'break-word' }}
                         >
                           {renderText(s.dressCode || '-')}
                         </td>
@@ -1339,6 +1354,8 @@ export default function SchedulesAdmin() {
           border-left: none !important;
           border-bottom: 1px solid #000000 !important;
           border-right: 1px solid #000000 !important;
+          position: relative;
+          background-clip: padding-box;
         }
 
         /* Default Admin View Styling */
