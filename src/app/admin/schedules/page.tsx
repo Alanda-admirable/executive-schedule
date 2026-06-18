@@ -730,7 +730,7 @@ export default function SchedulesAdmin() {
                 <h2 className="preview-banner-title" style={{ fontFamily: fontFamily, fontSize: bannerFontSize }}>
                   {renderText(`วาระงานผู้ว่าราชการจังหวัดและผู้บริหารของจังหวัดปทุมธานี ${getPreviewDateText()}`)}
                 </h2>
-                <div className="preview-banner-sub" style={{ fontFamily: fontFamily }}>
+                <div className="preview-banner-sub" style={{ fontFamily: fontFamily, fontSize: `calc(${bannerFontSize} * 0.62)` }}>
                   {renderText(`จัดทำโดย สำนักงานจังหวัดปทุมธานี สามารถดาวน์โหลดข้อมูลได้ที่ www.pathumthani.go.th หัวข้อ "วาระงานผู้ว่าราชการจังหวัดและผู้บริหารของจังหวัดปทุมธานี"`)}
                 </div>
               </div>
@@ -766,11 +766,11 @@ export default function SchedulesAdmin() {
                       <tr key={exec.id} style={{ color: exec.color === '#000000' ? '#1e293b' : exec.color }}>
                         <td style={{ border: '1px solid #cbd5e1', padding: getPaddingStyle(), textAlign: 'center', fontWeight: 'bold', verticalAlign: 'middle', overflowWrap: 'break-word', wordBreak: 'break-word' }}>
                           <div style={{ color: exec.color === '#000000' ? '#1e293b' : exec.color }}>{exec.name}</div>
-                          <div style={{ fontSize: '0.72rem', opacity: 0.8, color: exec.color === '#000000' ? '#64748b' : exec.color }}>{exec.title}</div>
+                          <div style={{ fontSize: '0.72rem', opacity: 0.8, color: exec.color === '#000000' ? '#1e293b' : exec.color }}>{exec.title}</div>
                         </td>
                         {colTimeVisible && <td style={{ border: '1px solid #cbd5e1', padding: getPaddingStyle(), textAlign: 'center' }}>-</td>}
-                        <td style={{ border: '1px solid #cbd5e1', padding: getPaddingStyle(), textAlign: 'left', fontWeight: 'inherit' }}>ปฏิบัติราชการปกติ</td>
-                        {colLocationVisible && <td style={{ border: '1px solid #cbd5e1', padding: getPaddingStyle(), textAlign: 'center' }}>ศาลากลางจังหวัดปทุมธานี</td>}
+                        <td style={{ border: '1px solid #cbd5e1', padding: getPaddingStyle(), textAlign: missionAlign === 'center' ? 'center' : 'left', fontWeight: 'inherit' }}>ปฏิบัติราชการปกติ</td>
+                        {colLocationVisible && <td style={{ border: '1px solid #cbd5e1', padding: getPaddingStyle(), textAlign: locationAlign === 'center' ? 'center' : 'left' }}>ศาลากลางจังหวัดปทุมธานี</td>}
                         {colAgencyVisible && <td style={{ border: '1px solid #cbd5e1', padding: getPaddingStyle(), textAlign: 'center' }}>-</td>}
                         {colDressVisible && <td style={{ border: '1px solid #cbd5e1', padding: getPaddingStyle(), textAlign: 'center' }}>-</td>}
                       </tr>
@@ -790,7 +790,7 @@ export default function SchedulesAdmin() {
                           style={{ border: '1px solid #cbd5e1', padding: getPaddingStyle(), textAlign: 'center', fontWeight: 'bold', verticalAlign: 'middle', overflowWrap: 'break-word', wordBreak: 'break-word' }}
                         >
                           <div style={{ color: exec.color === '#000000' ? '#1e293b' : exec.color }}>{exec.name}</div>
-                          <div style={{ fontSize: '0.72rem', opacity: 0.8, color: exec.color === '#000000' ? '#64748b' : exec.color }}>{exec.title}</div>
+                          <div style={{ fontSize: '0.72rem', opacity: 0.8, color: exec.color === '#000000' ? '#1e293b' : exec.color }}>{exec.title}</div>
                         </td>
                       )}
                       {colTimeVisible && (
@@ -1235,6 +1235,7 @@ export default function SchedulesAdmin() {
         .preview-table td {
           font-family: inherit;
           font-size: inherit;
+          border: 1px solid #000000 !important;
         }
 
         /* Default Admin View Styling */

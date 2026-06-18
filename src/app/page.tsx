@@ -595,7 +595,7 @@ export default function PublicSchedulePage() {
                       <h2 className="banner-title" style={{ fontFamily: printFontFamily, fontSize: printBannerFontSize }}>
                         {renderText(`วาระงานผู้ว่าราชการจังหวัดและผู้บริหารของจังหวัดปทุมธานี ${formatThaiDateFull(selectedDate)}`)}
                       </h2>
-                      <div className="banner-footer" style={{ fontFamily: printFontFamily }}>
+                      <div className="banner-footer" style={{ fontFamily: printFontFamily, fontSize: `calc(${printBannerFontSize} * 0.62)` }}>
                         {renderText(`จัดทำโดย สำนักงานจังหวัดปทุมธานี สามารถดาวน์โหลดข้อมูลได้ที่ www.pathumthani.go.th หัวข้อ "วาระงานผู้ว่าราชการจังหวัดและผู้บริหารของจังหวัดปทุมธานี"`)}
                       </div>
                     </div>
@@ -649,12 +649,12 @@ export default function PublicSchedulePage() {
                                       <div className="exec-name" style={{ color: exec.color === '#000000' ? '#1e293b' : exec.color }}>
                                         {exec.name}
                                       </div>
-                                      <div className="exec-title" style={{ color: exec.color === '#000000' ? '#64748b' : exec.color }}>{exec.title}</div>
+                                      <div className="exec-title" style={{ color: exec.color === '#000000' ? '#1e293b' : exec.color }}>{exec.title}</div>
                                     </div>
                                   </td>
                                   {colTimeVisible && <td className="td-time text-center font-bold" style={{ padding: getPaddingStyle() }}>-</td>}
-                                  <td className="td-mission" style={{ padding: getPaddingStyle() }}>ปฏิบัติราชการปกติ</td>
-                                  {colLocationVisible && <td className="td-location text-center" style={{ padding: getPaddingStyle() }}>ศาลากลางจังหวัดปทุมธานี</td>}
+                                  <td className="td-mission" style={{ padding: getPaddingStyle(), textAlign: printMissionAlign === 'center' ? 'center' : 'left' }}>ปฏิบัติราชการปกติ</td>
+                                  {colLocationVisible && <td className="td-location" style={{ padding: getPaddingStyle(), textAlign: printLocationAlign === 'center' ? 'center' : 'left' }}>ศาลากลางจังหวัดปทุมธานี</td>}
                                   {colAgencyVisible && <td className="td-agency text-center" style={{ padding: getPaddingStyle() }}>-</td>}
                                   {colDressVisible && <td className="td-dress text-center" style={{ padding: getPaddingStyle() }}>-</td>}
                                 </tr>
@@ -685,7 +685,7 @@ export default function PublicSchedulePage() {
                                       <div className="exec-name" style={{ color: exec.color === '#000000' ? '#1e293b' : exec.color }}>
                                         {exec.name}
                                       </div>
-                                      <div className="exec-title" style={{ color: exec.color === '#000000' ? '#64748b' : exec.color }}>{exec.title}</div>
+                                       <div className="exec-title" style={{ color: exec.color === '#000000' ? '#1e293b' : exec.color }}>{exec.title}</div>
                                     </div>
                                   </td>
                                 )}
@@ -1280,7 +1280,7 @@ export default function PublicSchedulePage() {
           font-weight: 800;
           text-transform: uppercase;
           padding: 12px 8px;
-          border: 1px solid #94a3b8;
+          border: 1px solid #000000 !important;
           text-align: center;
           transition: background-color 0.2s, color 0.2s;
         }
@@ -1289,7 +1289,7 @@ export default function PublicSchedulePage() {
         .schedule-table td {
           padding: 12px 10px;
           vertical-align: middle;
-          border: 1px solid #cbd5e1;
+          border: 1px solid #000000 !important;
           line-height: inherit;
           overflow-wrap: break-word;
           word-break: break-word;
