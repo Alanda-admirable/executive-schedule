@@ -134,15 +134,28 @@ export default function PublicSchedulePage() {
   const isThaiDigitFont = printFontFamily.includes('TH Sarabun 9') || printFontFamily.includes('TH Sarabun ๙');
   const renderText = (text: string | null | undefined) => {
     if (!text) return '';
-    // Smart split: Replace | or spaces-wrapped / or spaces-wrapped ; with a newline, but preserve dates like '๕/๒๕๖๙'
-    let formatted = text
+    
+    // 1. Convert double or multiple spaces (2 or more) to a newline
+    let formatted = text.replace(/ {2,}/g, '\n');
+
+    // 2. Convert space before prepositions (like " ณ") to a newline
+    formatted = formatted.replace(/\s+ณ\s*/g, '\nณ ');
+
+    // 3. Keep single spaces as newlines if they are separators, but handle | or / or ;
+    formatted = formatted
       .replace(/\s*\|\s*/g, '\n')
       .replace(/\s+;\s+/g, '\n')
       .replace(/\s+\/\s+/g, '\n');
     
-    // Apply Thai smart line breaking to keep units like "พ.ศ. 2569" together
+    // 4. Prevent word-wrap break after common Thai prefixes/titles
+    formatted = formatted.replace(/(นาย|นาง|นางสาว|ว่าที่ร้อยตรี|ดร\.|พล\.ต\.|พ\.ต\.|ร\.ต\.|ปลัดจังหวัด|ผู้ว่าราชการจังหวัด|รองผู้ว่าราชการจังหวัด)\s+/g, '$1\u00A0');
+
+    // 5. Apply Thai smart line breaking to keep units like "พ.ศ. 2569" together
     formatted = thaiSmartBreak(formatted);
     
+    // 6. Clean up consecutive newlines
+    formatted = formatted.replace(/\n{2,}/g, '\n');
+
     return isThaiDigitFont ? toThaiDigits(formatted) : formatted;
   }
 
@@ -1265,7 +1278,6 @@ export default function PublicSchedulePage() {
         /* Dynamic Table Header borders and paddings */
         .schedule-table th {
           font-weight: 800;
-          font-size: 0.88rem;
           text-transform: uppercase;
           padding: 12px 8px;
           border: 1px solid #94a3b8;
@@ -1278,10 +1290,16 @@ export default function PublicSchedulePage() {
           padding: 12px 10px;
           vertical-align: middle;
           border: 1px solid #cbd5e1;
-          line-height: 1.5;
+          line-height: inherit;
           overflow-wrap: break-word;
           word-break: break-word;
           max-width: 0;
+        }
+
+        .schedule-table th,
+        .schedule-table td {
+          font-family: inherit;
+          font-size: inherit;
         }
 
         .schedule-row {
@@ -1334,26 +1352,26 @@ export default function PublicSchedulePage() {
 
         .td-mission {
           vertical-align: top;
-          font-weight: 600;
+          font-weight: inherit;
           text-align: left;
         }
 
         .td-location {
           vertical-align: top;
-          font-weight: 600;
+          font-weight: inherit;
           text-align: left;
         }
 
         .td-agency {
           vertical-align: middle;
-          font-weight: 600;
+          font-weight: inherit;
           overflow-wrap: break-word;
           word-break: break-word;
         }
 
         .td-dress {
           vertical-align: middle;
-          font-weight: 600;
+          font-weight: inherit;
           overflow-wrap: break-word;
           word-break: break-word;
         }

@@ -185,15 +185,28 @@ export default function SchedulesAdmin() {
   const isThaiDigitFont = fontFamily.includes('TH Sarabun 9') || fontFamily.includes('TH Sarabun ๙');
   const renderText = (text: string | null | undefined) => {
     if (!text) return '';
-    // Smart split: Replace | or spaces-wrapped / or spaces-wrapped ; with a newline, but preserve dates like '๕/๒๕๖๙'
-    let formatted = text
+    
+    // 1. Convert double or multiple spaces (2 or more) to a newline
+    let formatted = text.replace(/ {2,}/g, '\n');
+
+    // 2. Convert space before prepositions (like " ณ") to a newline
+    formatted = formatted.replace(/\s+ณ\s*/g, '\nณ ');
+
+    // 3. Keep single spaces as newlines if they are separators, but handle | or / or ;
+    formatted = formatted
       .replace(/\s*\|\s*/g, '\n')
       .replace(/\s+;\s+/g, '\n')
       .replace(/\s+\/\s+/g, '\n');
     
-    // Apply Thai smart line breaking to keep units like "พ.ศ. 2569" together
+    // 4. Prevent word-wrap break after common Thai prefixes/titles
+    formatted = formatted.replace(/(นาย|นาง|นางสาว|ว่าที่ร้อยตรี|ดร\.|พล\.ต\.|พ\.ต\.|ร\.ต\.|ปลัดจังหวัด|ผู้ว่าราชการจังหวัด|รองผู้ว่าราชการจังหวัด)\s+/g, '$1\u00A0');
+
+    // 5. Apply Thai smart line breaking to keep units like "พ.ศ. 2569" together
     formatted = thaiSmartBreak(formatted);
     
+    // 6. Clean up consecutive newlines
+    formatted = formatted.replace(/\n{2,}/g, '\n');
+
     return isThaiDigitFont ? toThaiDigits(formatted) : formatted;
   }
   const headerStyle = getWeekdayHeaderStyle(selectedDayIndex);
@@ -496,20 +509,37 @@ export default function SchedulesAdmin() {
           {/* Banner Font Size */}
           <div className="toolbar-section">
             <span className="section-label">ขนาดหัวข้อใหญ่ (Banner)</span>
-            <select 
-              className="toolbar-select"
-              value={bannerFontSize}
-              onChange={e => { setBannerFontSize(e.target.value); savePrintSettings({ bannerFontSize: e.target.value }); }}
-            >
-              <option value="16px">10pt (16px)</option>
-              <option value="18px">12pt (18px)</option>
-              <option value="20px">13.5pt (20px) *มาตรฐาน</option>
-              <option value="22px">15pt (22px)</option>
-              <option value="24px">16.5pt (24px)</option>
-              <option value="26px">18pt (26px)</option>
-              <option value="28px">19.5pt (28px)</option>
-              <option value="32px">22pt (32px)</option>
-            </select>
+            <div style={{ display: 'flex', gap: '6px' }}>
+              <input 
+                type="text" 
+                className="toolbar-input size-input" 
+                value={bannerFontSize}
+                onChange={e => { setBannerFontSize(e.target.value); savePrintSettings({ bannerFontSize: e.target.value }); }}
+                placeholder="e.g. 20px หรือ 14pt"
+              />
+              <select 
+                className="toolbar-select size-select"
+                value={["16px", "18px", "20px", "22px", "24px", "26px", "28px", "32px"].includes(bannerFontSize) ? bannerFontSize : "custom"}
+                onChange={e => { 
+                  if (e.target.value !== "custom") {
+                    setBannerFontSize(e.target.value); 
+                    savePrintSettings({ bannerFontSize: e.target.value }); 
+                  }
+                }}
+              >
+                <option value="16px">10pt (16px)</option>
+                <option value="18px">12pt (18px)</option>
+                <option value="20px">13.5pt (20px) *มาตรฐาน</option>
+                <option value="22px">15pt (22px)</option>
+                <option value="24px">16.5pt (24px)</option>
+                <option value="26px">18pt (26px)</option>
+                <option value="28px">19.5pt (28px)</option>
+                <option value="32px">22pt (32px)</option>
+                {!["16px", "18px", "20px", "22px", "24px", "26px", "28px", "32px"].includes(bannerFontSize) && (
+                  <option value="custom">กำหนดเอง ({bannerFontSize})</option>
+                )}
+              </select>
+            </div>
           </div>
 
           {/* Font Size Input */}
@@ -525,8 +555,13 @@ export default function SchedulesAdmin() {
               />
               <select 
                 className="toolbar-select size-select"
-                value={fontSize}
-                onChange={e => { setFontSize(e.target.value); savePrintSettings({ fontSize: e.target.value }); }}
+                value={["12px", "14px", "16px", "18px", "20px", "24px"].includes(fontSize) ? fontSize : "custom"}
+                onChange={e => { 
+                  if (e.target.value !== "custom") {
+                    setFontSize(e.target.value); 
+                    savePrintSettings({ fontSize: e.target.value }); 
+                  }
+                }}
               >
                 <option value="12px">9pt (12px)</option>
                 <option value="14px">10.5pt (14px)</option>
@@ -534,6 +569,9 @@ export default function SchedulesAdmin() {
                 <option value="18px">14pt (18px)</option>
                 <option value="20px">16pt (20px)</option>
                 <option value="24px">18pt (24px)</option>
+                {!["12px", "14px", "16px", "18px", "20px", "24px"].includes(fontSize) && (
+                  <option value="custom">กำหนดเอง ({fontSize})</option>
+                )}
               </select>
             </div>
           </div>
@@ -641,7 +679,15 @@ export default function SchedulesAdmin() {
                   type="checkbox" 
                   checked={fitToPage}
                   onChange={e => { setFitToPage(e.target.checked); savePrintSettings({ fitToPage: e.target.checked }); }}
-                /> 🖨️ บีบให้พอดีหน้าเดียว (Fit to single page)
+                /> 
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                  <span>🖨️ บีบให้พอดีหน้าเดียว (Fit to single page)</span>
+                  {fitToPage && (
+                    <span style={{ fontSize: '0.68rem', fontWeight: 500, color: '#dc2626', marginTop: '2px' }}>
+                      * ระบบจะลดขนาดและล็อกฟอนต์อัจฉริยะ (11px) อัตโนมัติ (การปรับขนาดปกติจะถูกละเว้น)
+                    </span>
+                  )}
+                </div>
               </label>
             </div>
           </div>
@@ -723,7 +769,7 @@ export default function SchedulesAdmin() {
                           <div style={{ fontSize: '0.72rem', opacity: 0.8, color: exec.color === '#000000' ? '#64748b' : exec.color }}>{exec.title}</div>
                         </td>
                         {colTimeVisible && <td style={{ border: '1px solid #cbd5e1', padding: getPaddingStyle(), textAlign: 'center' }}>-</td>}
-                        <td style={{ border: '1px solid #cbd5e1', padding: getPaddingStyle(), textAlign: 'left', fontWeight: 'bold' }}>ปฏิบัติราชการปกติ</td>
+                        <td style={{ border: '1px solid #cbd5e1', padding: getPaddingStyle(), textAlign: 'left', fontWeight: 'inherit' }}>ปฏิบัติราชการปกติ</td>
                         {colLocationVisible && <td style={{ border: '1px solid #cbd5e1', padding: getPaddingStyle(), textAlign: 'center' }}>ศาลากลางจังหวัดปทุมธานี</td>}
                         {colAgencyVisible && <td style={{ border: '1px solid #cbd5e1', padding: getPaddingStyle(), textAlign: 'center' }}>-</td>}
                         {colDressVisible && <td style={{ border: '1px solid #cbd5e1', padding: getPaddingStyle(), textAlign: 'center' }}>-</td>}
@@ -1002,6 +1048,7 @@ export default function SchedulesAdmin() {
           background: white !important;
           color: #334155 !important;
           outline: none;
+          flex-shrink: 0;
         }
 
         .toolbar-select option {
@@ -1011,6 +1058,7 @@ export default function SchedulesAdmin() {
 
         .font-family-select {
           min-width: 200px;
+          flex-shrink: 0;
         }
 
         .toolbar-input {
@@ -1022,14 +1070,17 @@ export default function SchedulesAdmin() {
           background: white !important;
           color: #334155 !important;
           outline: none;
+          flex-shrink: 0;
         }
 
         .size-input {
           width: 90px;
+          flex-shrink: 0;
         }
 
         .size-select {
           width: 130px;
+          flex-shrink: 0;
         }
 
         .btn-group {
@@ -1178,6 +1229,12 @@ export default function SchedulesAdmin() {
           overflow-wrap: break-word;
           word-break: break-word;
           max-width: 0;
+        }
+
+        .preview-table th,
+        .preview-table td {
+          font-family: inherit;
+          font-size: inherit;
         }
 
         /* Default Admin View Styling */
