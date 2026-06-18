@@ -131,7 +131,6 @@ export default function PublicSchedulePage() {
     return String(value ?? "").replace(/[0-9]/g, digit => THAI_DIGITS[Number(digit)]);
   }
 
-  const isThaiDigitFont = printFontFamily.includes('TH Sarabun 9') || printFontFamily.includes('TH Sarabun ๙');
   const renderText = (text: string | null | undefined) => {
     if (!text) return '';
     
@@ -156,7 +155,8 @@ export default function PublicSchedulePage() {
     // 6. Clean up consecutive newlines
     formatted = formatted.replace(/\n{2,}/g, '\n');
 
-    return isThaiDigitFont ? toThaiDigits(formatted) : formatted;
+    // Always convert Arabic digits to Thai digits for formal Thai document presentation
+    return toThaiDigits(formatted);
   }
 
   const formatDateKey = (date: Date) => {
@@ -368,9 +368,9 @@ export default function PublicSchedulePage() {
   }
 
   const formatThaiDateFull = (date: Date) => {
-    const day = date.getDate();
+    const day = toThaiDigits(date.getDate());
     const month = THAI_MONTHS[date.getMonth()];
-    const year = date.getFullYear() + 543;
+    const year = toThaiDigits(date.getFullYear() + 543);
     return `${WEEKDAYS_TH[date.getDay()]}ที่ ${day} ${month} ${year}`;
   }
 
@@ -1218,7 +1218,10 @@ export default function PublicSchedulePage() {
         .schedule-table {
           width: 100%;
           min-width: 900px;
-          border-collapse: collapse;
+          border-collapse: separate;
+          border-spacing: 0;
+          border-top: 1px solid #000000;
+          border-left: 1px solid #000000;
           background-color: white;
         }
 
@@ -1227,7 +1230,10 @@ export default function PublicSchedulePage() {
           font-weight: 800;
           text-transform: uppercase;
           padding: 12px 8px;
-          border: 1px solid #000000 !important;
+          border-top: none !important;
+          border-left: none !important;
+          border-bottom: 1px solid #000000 !important;
+          border-right: 1px solid #000000 !important;
           text-align: center;
           transition: background-color 0.2s, color 0.2s;
         }
@@ -1236,7 +1242,10 @@ export default function PublicSchedulePage() {
         .schedule-table td {
           padding: 12px 10px;
           vertical-align: middle;
-          border: 1px solid #000000 !important;
+          border-top: none !important;
+          border-left: none !important;
+          border-bottom: 1px solid #000000 !important;
+          border-right: 1px solid #000000 !important;
           line-height: inherit;
           overflow-wrap: break-word;
           word-break: break-word;
@@ -1525,13 +1534,22 @@ export default function PublicSchedulePage() {
           .schedule-table {
             width: 100% !important;
             min-width: 100% !important;
-            border-collapse: collapse !important;
+            border-collapse: separate !important;
+            border-spacing: 0 !important;
+            border-top: 1px solid #000000 !important;
+            border-left: 1px solid #000000 !important;
           }
           .schedule-table th {
-            border: 1px solid #000000 !important;
+            border-top: none !important;
+            border-left: none !important;
+            border-bottom: 1px solid #000000 !important;
+            border-right: 1px solid #000000 !important;
           }
           .schedule-table td {
-            border: 1px solid #000000 !important;
+            border-top: none !important;
+            border-left: none !important;
+            border-bottom: 1px solid #000000 !important;
+            border-right: 1px solid #000000 !important;
           }
           .schedule-row {
             break-inside: avoid !important;

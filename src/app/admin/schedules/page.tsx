@@ -71,9 +71,9 @@ const thaiSmartBreak = (text: string): string => {
 }
 
 const formatThaiDateFull = (date: Date) => {
-  const day = date.getDate();
+  const day = toThaiDigits(date.getDate());
   const month = THAI_MONTHS[date.getMonth()];
-  const year = date.getFullYear() + 543;
+  const year = toThaiDigits(date.getFullYear() + 543);
   return `${WEEKDAYS_TH[date.getDay()]}ที่ ${day} ${month} ${year}`;
 }
 
@@ -191,7 +191,6 @@ export default function SchedulesAdmin() {
 
   const selectedDayIndex = getSelectedDayIndex();
 
-  const isThaiDigitFont = fontFamily.includes('TH Sarabun 9') || fontFamily.includes('TH Sarabun ๙');
   const renderText = (text: string | null | undefined) => {
     if (!text) return '';
     
@@ -216,7 +215,8 @@ export default function SchedulesAdmin() {
     // 6. Clean up consecutive newlines
     formatted = formatted.replace(/\n{2,}/g, '\n');
 
-    return isThaiDigitFont ? toThaiDigits(formatted) : formatted;
+    // Always convert Arabic digits to Thai digits for formal Thai document presentation
+    return toThaiDigits(formatted);
   }
   const headerStyle = getWeekdayHeaderStyle(selectedDayIndex);
 
@@ -797,7 +797,7 @@ export default function SchedulesAdmin() {
                       )}
                       {colTimeVisible && (
                         <td style={{ border: '1px solid #cbd5e1', padding: getPaddingStyle(), textAlign: 'center', fontWeight: 'bold' }}>
-                          {isThaiDigitFont ? toThaiDigits(s.startTime) : s.startTime}
+                          {toThaiDigits(s.startTime)}
                         </td>
                       )}
                       <td style={{ border: '1px solid #cbd5e1', padding: getPaddingStyle(), overflowWrap: 'break-word', wordBreak: 'break-word', verticalAlign: 'top' }}>
@@ -1310,7 +1310,10 @@ export default function SchedulesAdmin() {
         .preview-table {
           width: 100%;
           min-width: 900px;
-          border-collapse: collapse;
+          border-collapse: separate;
+          border-spacing: 0;
+          border-top: 1px solid #000000;
+          border-left: 1px solid #000000;
           color: black;
           background: white;
         }
@@ -1325,7 +1328,10 @@ export default function SchedulesAdmin() {
         .preview-table td {
           font-family: inherit;
           font-size: inherit;
-          border: 1px solid #000000 !important;
+          border-top: none !important;
+          border-left: none !important;
+          border-bottom: 1px solid #000000 !important;
+          border-right: 1px solid #000000 !important;
         }
 
         /* Default Admin View Styling */
