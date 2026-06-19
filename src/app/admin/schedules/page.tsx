@@ -196,6 +196,9 @@ export default function SchedulesAdmin() {
     
     let formatted = text;
 
+    // Strip alignment markers before rendering
+    formatted = formatted.replace(/^\{\{[CLR]\}\}/, '');
+
     // 2. Convert space before prepositions (like " ณ") to a newline
     formatted = formatted.replace(/\s+ณ\s*/g, '\nณ ');
 
@@ -217,6 +220,43 @@ export default function SchedulesAdmin() {
     // Always convert Arabic digits to Thai digits for formal Thai document presentation
     return toThaiDigits(formatted);
   }
+
+  // Extract per-item alignment marker from text: {{C}} = center, {{R}} = right, {{L}} = left
+  const extractItemAlign = (text: string | null | undefined): { text: string; align: string | null } => {
+    if (!text) return { text: '', align: null };
+    const match = text.match(/^\{\{([CLR])\}\}/);
+    if (match) {
+      const alignMap: Record<string, string> = { C: 'center', L: 'left', R: 'right' };
+      return { text: text.replace(/^\{\{[CLR]\}\}/, '').trim(), align: alignMap[match[1]] || null };
+    }
+    return { text, align: null };
+  }
+
+  // Check if text is just a dash (for auto-centering)
+  const isDash = (text: string | null | undefined) => {
+    if (!text) return true;
+    const cleaned = text.replace(/^\{\{[CLR]\}\}/, '').trim();
+    return cleaned === '-' || cleaned === '';
+  }
+
+  // Get current alignment of a field value (reads marker prefix)
+  const getFieldAlign = (value: string | null | undefined): string => {
+    if (!value) return 'default';
+    const match = value.match(/^\{\{([CLR])\}\}/);
+    if (match) {
+      return match[1] === 'C' ? 'center' : match[1] === 'R' ? 'right' : 'left';
+    }
+    return 'default'; // no marker = use toolbar default
+  }
+
+  // Set alignment marker on a field value
+  const setFieldAlign = (value: string | null | undefined, align: string): string => {
+    const cleanValue = (value || '').replace(/^\{\{[CLR]\}\}/, '').trim();
+    if (align === 'default') return cleanValue; // remove marker
+    const markerMap: Record<string, string> = { left: '{{L}}', center: '{{C}}', right: '{{R}}' };
+    return (markerMap[align] || '') + cleanValue;
+  }
+
   const headerStyle = getWeekdayHeaderStyle(selectedDayIndex);
 
 
@@ -818,34 +858,50 @@ export default function SchedulesAdmin() {
                       )}
                       {colTimeVisible && (
                         <td style={{ padding: getPaddingStyle(), textAlign: 'center', fontWeight: 'bold' }}>
-                          {toThaiDigits(s.startTime)}
+                          {isDash(s.startTime) ? '-' : toThaiDigits(s.startTime)}
                         </td>
                       )}
                       <td style={{ padding: getPaddingStyle(), overflowWrap: 'break-word', wordBreak: 'break-word', verticalAlign: 'top' }}>
-                        <div style={{ whiteSpace: 'pre-wrap', textAlign: missionAlign === 'center' ? 'center' : 'left' }}>{renderText(s.mission)}</div>
+                        {(() => {
+                          const { text: mText, align: mItemAlign } = extractItemAlign(s.mission);
+                          const effectiveAlign = isDash(s.mission) ? 'center' : (mItemAlign || (missionAlign === 'center' ? 'center' : 'left'));
+                          return <div style={{ whiteSpace: 'pre-wrap', textAlign: effectiveAlign as any }}>{renderText(mText)}</div>;
+                        })()}
                       </td>
                       {colLocationVisible && locationSpans[index].show && (
                         <td 
                           rowSpan={locationSpans[index].span}
                           style={{ padding: getPaddingStyle(), overflowWrap: 'break-word', wordBreak: 'break-word', verticalAlign: 'top' }}
                         >
-                          <div style={{ whiteSpace: 'pre-wrap', textAlign: locationAlign === 'center' ? 'center' : 'left' }}>{renderText(s.location)}</div>
+                          {(() => {
+                            const { text: lText, align: lItemAlign } = extractItemAlign(s.location);
+                            const effectiveAlign = isDash(s.location) ? 'center' : (lItemAlign || (locationAlign === 'center' ? 'center' : 'left'));
+                            return <div style={{ whiteSpace: 'pre-wrap', textAlign: effectiveAlign as any }}>{renderText(lText)}</div>;
+                          })()}
                         </td>
                       )}
                       {colAgencyVisible && agencySpans[index].show && (
                         <td 
                           rowSpan={agencySpans[index].span}
-                          style={{ padding: getPaddingStyle(), textAlign: 'center', overflowWrap: 'break-word', wordBreak: 'break-word' }}
+                          style={{ padding: getPaddingStyle(), overflowWrap: 'break-word', wordBreak: 'break-word' }}
                         >
-                          {renderText(s.agency)}
+                          {(() => {
+                            const { text: aText, align: aItemAlign } = extractItemAlign(s.agency);
+                            const effectiveAlign = isDash(s.agency) ? 'center' : (aItemAlign || 'center');
+                            return <span style={{ display: 'block', textAlign: effectiveAlign as any }}>{renderText(aText)}</span>;
+                          })()}
                         </td>
                       )}
                       {colDressVisible && dressSpans[index].show && (
                         <td 
                           rowSpan={dressSpans[index].span}
-                          style={{ padding: getPaddingStyle(), textAlign: 'center', overflowWrap: 'break-word', wordBreak: 'break-word' }}
+                          style={{ padding: getPaddingStyle(), overflowWrap: 'break-word', wordBreak: 'break-word' }}
                         >
-                          {renderText(s.dressCode || '-')}
+                          {(() => {
+                            const { text: dText, align: dItemAlign } = extractItemAlign(s.dressCode || '-');
+                            const effectiveAlign = isDash(s.dressCode) ? 'center' : (dItemAlign || 'center');
+                            return <span style={{ display: 'block', textAlign: effectiveAlign as any }}>{renderText(dText)}</span>;
+                          })()}
                         </td>
                       )}
                     </tr>
@@ -965,7 +1021,16 @@ export default function SchedulesAdmin() {
                 </div>
               </div>
               <div className="form-group" style={{ position: 'relative' }}>
-                <label className="form-label">รายละเอียดกำหนดการ / ภารกิจ</label>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <label className="form-label" style={{ marginBottom: 0 }}>รายละเอียดกำหนดการ / ภารกิจ</label>
+                  <div className="align-toggle-group">
+                    {['default', 'left', 'center', 'right'].map(a => (
+                      <button key={a} type="button" className={`align-toggle-btn ${getFieldAlign(currentSchedule.mission) === a ? 'active' : ''}`}
+                        onClick={() => setCurrentSchedule({...currentSchedule, mission: setFieldAlign(currentSchedule.mission, a)})}
+                      >{a === 'default' ? 'ค่าเดิม' : a === 'left' ? '◧ ซ้าย' : a === 'center' ? '◫ กลาง' : '◨ ขวา'}</button>
+                    ))}
+                  </div>
+                </div>
                 <textarea 
                   className="form-input" 
                   style={{ height: '80px' }} 
@@ -991,7 +1056,16 @@ export default function SchedulesAdmin() {
                 <span className="input-hint">คำแนะนำ: เคาะวรรค 2 ครั้ง (Double Space) หรือกด Enter เพื่อขึ้นบรรทัดใหม่</span>
               </div>
               <div className="form-group" style={{ position: 'relative' }}>
-                <label className="form-label">สถานที่</label>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <label className="form-label" style={{ marginBottom: 0 }}>สถานที่</label>
+                  <div className="align-toggle-group">
+                    {['default', 'left', 'center', 'right'].map(a => (
+                      <button key={a} type="button" className={`align-toggle-btn ${getFieldAlign(currentSchedule.location) === a ? 'active' : ''}`}
+                        onClick={() => setCurrentSchedule({...currentSchedule, location: setFieldAlign(currentSchedule.location, a)})}
+                      >{a === 'default' ? 'ค่าเดิม' : a === 'left' ? '◧ ซ้าย' : a === 'center' ? '◫ กลาง' : '◨ ขวา'}</button>
+                    ))}
+                  </div>
+                </div>
                 <textarea 
                   className="form-input" 
                   style={{ height: '60px' }} 
@@ -1018,7 +1092,16 @@ export default function SchedulesAdmin() {
               </div>
               <div className="form-row">
                 <div className="form-group" style={{ position: 'relative' }}>
-                  <label className="form-label">หน่วยงานเจ้าภาพ</label>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <label className="form-label" style={{ marginBottom: 0 }}>หน่วยงานเจ้าภาพ</label>
+                    <div className="align-toggle-group">
+                      {['default', 'left', 'center', 'right'].map(a => (
+                        <button key={a} type="button" className={`align-toggle-btn ${getFieldAlign(currentSchedule.agency) === a ? 'active' : ''}`}
+                          onClick={() => setCurrentSchedule({...currentSchedule, agency: setFieldAlign(currentSchedule.agency, a)})}
+                        >{a === 'default' ? 'ค่าเดิม' : a === 'left' ? '◧ ซ้าย' : a === 'center' ? '◫ กลาง' : '◨ ขวา'}</button>
+                      ))}
+                    </div>
+                  </div>
                   <input 
                     className="form-input" 
                     type="text" 
@@ -1043,7 +1126,16 @@ export default function SchedulesAdmin() {
                   )}
                 </div>
                 <div className="form-group" style={{ position: 'relative' }}>
-                  <label className="form-label">การแต่งกาย</label>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <label className="form-label" style={{ marginBottom: 0 }}>การแต่งกาย</label>
+                    <div className="align-toggle-group">
+                      {['default', 'left', 'center', 'right'].map(a => (
+                        <button key={a} type="button" className={`align-toggle-btn ${getFieldAlign(currentSchedule.dressCode) === a ? 'active' : ''}`}
+                          onClick={() => setCurrentSchedule({...currentSchedule, dressCode: setFieldAlign(currentSchedule.dressCode, a)})}
+                        >{a === 'default' ? 'ค่าเดิม' : a === 'left' ? '◧ ซ้าย' : a === 'center' ? '◫ กลาง' : '◨ ขวา'}</button>
+                      ))}
+                    </div>
+                  </div>
                   <textarea 
                     className="form-input" 
                     style={{ height: '60px' }} 
@@ -1360,6 +1452,29 @@ export default function SchedulesAdmin() {
         
         .modal-title { font-size: 1.5rem; font-weight: 700; color: #0f172a; margin-bottom: 24px; }
         .input-hint { font-size: 0.72rem; color: #64748b; margin-top: 4px; display: block; font-weight: 500; }
+
+        .align-toggle-group {
+          display: flex;
+          gap: 0;
+          border: 1px solid #cbd5e1;
+          border-radius: 6px;
+          overflow: hidden;
+        }
+        .align-toggle-btn {
+          padding: 3px 8px;
+          background: white;
+          border: none;
+          border-right: 1px solid #e2e8f0;
+          font-size: 0.68rem;
+          font-weight: 600;
+          cursor: pointer;
+          color: #64748b;
+          transition: all 0.15s;
+          white-space: nowrap;
+        }
+        .align-toggle-btn:last-child { border-right: none; }
+        .align-toggle-btn:hover { background: #f1f5f9; }
+        .align-toggle-btn.active { background: #3b82f6; color: white; }
         .form-row { display: flex; gap: 16px; }
         .form-row > .form-group { flex: 1; }
         .actions { display: flex; gap: 12px; margin-top: 32px; }

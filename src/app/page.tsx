@@ -136,6 +136,9 @@ export default function PublicSchedulePage() {
     
     let formatted = text;
 
+    // Strip alignment markers before rendering
+    formatted = formatted.replace(/^\{\{[CLR]\}\}/, '');
+
     // 2. Convert space before prepositions (like " ณ") to a newline
     formatted = formatted.replace(/\s+ณ\s*/g, '\nณ ');
 
@@ -167,9 +170,27 @@ export default function PublicSchedulePage() {
 
   // Format time to Thai format (e.g., "08:30" -> "๐๘.๓๐ น.")
   const formatThaiTime = (timeStr: string) => {
-    if (!timeStr) return "";
+    if (!timeStr || timeStr.trim() === '-' || timeStr.trim() === '') return timeStr?.trim() === '-' ? '-' : '';
     const clean = timeStr.replace(":", ".").replace(/\s*น\s*\.?$/, "");
-    return toThaiDigits(clean) + " น.";
+    return toThaiDigits(clean);
+  }
+
+  // Extract per-item alignment marker from text: {{C}} = center, {{R}} = right, {{L}} = left
+  const extractItemAlign = (text: string | null | undefined): { text: string; align: string | null } => {
+    if (!text) return { text: '', align: null };
+    const match = text.match(/^\{\{([CLR])\}\}/);
+    if (match) {
+      const alignMap: Record<string, string> = { C: 'center', L: 'left', R: 'right' };
+      return { text: text.replace(/^\{\{[CLR]\}\}/, '').trim(), align: alignMap[match[1]] || null };
+    }
+    return { text, align: null };
+  }
+
+  // Check if text is just a dash (for auto-centering)
+  const isDash = (text: string | null | undefined) => {
+    if (!text) return true;
+    const cleaned = text.replace(/^\{\{[CLR]\}\}/, '').trim();
+    return cleaned === '-' || cleaned === '';
   }
 
   // QoL real-time settings synchronizer from Admin tab
@@ -671,7 +692,7 @@ export default function PublicSchedulePage() {
                                 {colTimeVisible && (
                                   <td className="td-time text-center font-bold" style={{ padding: getPaddingStyle() }}>
                                     {formatThaiTime(s.startTime)}
-                                    {s.endTime && (
+                                    {s.endTime && s.endTime.trim() !== '-' && s.endTime.trim() !== '' && (
                                       <div className="time-end-text">
                                         ถึง {formatThaiTime(s.endTime)}
                                       </div>
@@ -679,7 +700,11 @@ export default function PublicSchedulePage() {
                                   </td>
                                 )}
                                 <td className="td-mission" style={{ padding: getPaddingStyle() }}>
-                                  <div style={{ whiteSpace: 'pre-wrap', textAlign: printMissionAlign === 'center' ? 'center' : 'left' }}>{renderText(s.mission)}</div>
+                                  {(() => {
+                                    const { text: mText, align: mItemAlign } = extractItemAlign(s.mission);
+                                    const effectiveAlign = isDash(s.mission) ? 'center' : (mItemAlign || (printMissionAlign === 'center' ? 'center' : 'left'));
+                                    return <div style={{ whiteSpace: 'pre-wrap', textAlign: effectiveAlign as any }}>{renderText(mText)}</div>;
+                                  })()}
                                 </td>
                                 {colLocationVisible && locationSpans[index].show && (
                                   <td 
@@ -687,25 +712,37 @@ export default function PublicSchedulePage() {
                                     rowSpan={locationSpans[index].span}
                                     style={{ padding: getPaddingStyle() }}
                                   >
-                                    <div style={{ whiteSpace: 'pre-wrap', textAlign: printLocationAlign === 'center' ? 'center' : 'left' }}>{renderText(s.location)}</div>
+                                    {(() => {
+                                      const { text: lText, align: lItemAlign } = extractItemAlign(s.location);
+                                      const effectiveAlign = isDash(s.location) ? 'center' : (lItemAlign || (printLocationAlign === 'center' ? 'center' : 'left'));
+                                      return <div style={{ whiteSpace: 'pre-wrap', textAlign: effectiveAlign as any }}>{renderText(lText)}</div>;
+                                    })()}
                                   </td>
                                 )}
                                 {colAgencyVisible && agencySpans[index].show && (
                                   <td 
-                                    className="td-agency text-center" 
+                                    className="td-agency" 
                                     rowSpan={agencySpans[index].span}
                                     style={{ padding: getPaddingStyle() }}
                                   >
-                                    <span className="agency-text">{renderText(s.agency)}</span>
+                                    {(() => {
+                                      const { text: aText, align: aItemAlign } = extractItemAlign(s.agency);
+                                      const effectiveAlign = isDash(s.agency) ? 'center' : (aItemAlign || 'center');
+                                      return <span className="agency-text" style={{ display: 'block', textAlign: effectiveAlign as any }}>{renderText(aText)}</span>;
+                                    })()}
                                   </td>
                                 )}
                                 {colDressVisible && dressSpans[index].show && (
                                   <td 
-                                    className="td-dress text-center" 
+                                    className="td-dress" 
                                     rowSpan={dressSpans[index].span}
                                     style={{ padding: getPaddingStyle() }}
                                   >
-                                    {renderText(s.dressCode || '-')}
+                                    {(() => {
+                                      const { text: dText, align: dItemAlign } = extractItemAlign(s.dressCode || '-');
+                                      const effectiveAlign = isDash(s.dressCode) ? 'center' : (dItemAlign || 'center');
+                                      return <span className="dress-text" style={{ display: 'block', textAlign: effectiveAlign as any }}>{renderText(dText)}</span>;
+                                    })()}
                                   </td>
                                 )}
                               </tr>
