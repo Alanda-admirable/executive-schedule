@@ -457,3 +457,11 @@
   color: #ef4444;
 }
 
+@media print {
+  .admin-nav {
+    display: none !important;
+  }
+  .admin-main {
+    padding: 0 !important;
+  }
+}

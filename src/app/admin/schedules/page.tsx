@@ -519,8 +519,8 @@ export default function SchedulesAdmin() {
 
   const smartColWidths = useMemo(() => {
     const bases = {
-      exec: 15, time: colTimeVisible ? 8 : 0, mission: 32,
-      location: colLocationVisible ? 22 : 0, agency: colAgencyVisible ? 12 : 0, dress: colDressVisible ? 11 : 0,
+      exec: 15, time: colTimeVisible ? 8 : 0, mission: 38,
+      location: colLocationVisible ? 16 : 0, agency: colAgencyVisible ? 12 : 0, dress: colDressVisible ? 11 : 0,
     }
     const usedTotal = Object.values(bases).reduce((a, b) => a + b, 0)
     const remainder = 100 - usedTotal
@@ -621,13 +621,6 @@ export default function SchedulesAdmin() {
           <div className="toolbar-section">
             <span className="section-label">ขนาดอักษร (pt / px)</span>
             <div style={{ display: 'flex', gap: '6px' }}>
-              <input 
-                type="text" 
-                className="toolbar-input size-input" 
-                value={fontSize}
-                onChange={e => { setFontSize(e.target.value); savePrintSettings({ fontSize: e.target.value }); }}
-                placeholder="e.g. 16px หรือ 12pt"
-              />
               <select 
                 className="toolbar-select size-select"
                 value={["12px", "14px", "16px", "18px", "20px", "24px"].includes(fontSize) ? fontSize : "custom"}
@@ -887,8 +880,8 @@ export default function SchedulesAdmin() {
                         >
                           {(() => {
                             const { text: aText, align: aItemAlign } = extractItemAlign(s.agency);
-                            const effectiveAlign = isDash(s.agency) ? 'center' : (aItemAlign || 'center');
-                            return <span style={{ display: 'block', textAlign: effectiveAlign as any }}>{renderText(aText)}</span>;
+                            const effectiveAlign = isDash(s.agency) ? 'center' : (aItemAlign || 'left');
+                            return <div style={{ whiteSpace: 'pre-wrap', textAlign: effectiveAlign as any }}>{renderText(aText)}</div>;
                           })()}
                         </td>
                       )}
@@ -899,8 +892,8 @@ export default function SchedulesAdmin() {
                         >
                           {(() => {
                             const { text: dText, align: dItemAlign } = extractItemAlign(s.dressCode || '-');
-                            const effectiveAlign = isDash(s.dressCode) ? 'center' : (dItemAlign || 'center');
-                            return <span style={{ display: 'block', textAlign: effectiveAlign as any }}>{renderText(dText)}</span>;
+                            const effectiveAlign = isDash(s.dressCode) ? 'center' : (dItemAlign || 'left');
+                            return <div style={{ whiteSpace: 'pre-wrap', textAlign: effectiveAlign as any }}>{renderText(dText)}</div>;
                           })()}
                         </td>
                       )}
@@ -1625,7 +1618,6 @@ export default function SchedulesAdmin() {
           .preview-fit-to-page .preview-table td,
           .preview-fit-to-page .preview-table th {
             padding: 3px 5px !important;
-            font-size: 11px !important;
             line-height: 1.1 !important;
           }
           .preview-fit-to-page .preview-banner {

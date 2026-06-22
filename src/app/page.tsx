@@ -497,10 +497,10 @@ export default function PublicSchedulePage() {
     const bases = {
       exec: 15,
       time: colTimeVisible ? 8 : 0,
-      mission: 32,
-      location: colLocationVisible ? 22 : 0,
+      mission: 38,
+      location: colLocationVisible ? 16 : 0,
       agency: colAgencyVisible ? 12 : 0,
-      dress: colDressVisible ? 11 : 0,
+      dress: colDressVisible ? 11 : 0
     }
     const usedTotal = Object.values(bases).reduce((a, b) => a + b, 0)
     // Redistribute remainder proportionally to exec + mission (the main columns)
@@ -735,8 +735,8 @@ export default function PublicSchedulePage() {
                                   >
                                     {(() => {
                                       const { text: aText, align: aItemAlign } = extractItemAlign(s.agency);
-                                      const effectiveAlign = isDash(s.agency) ? 'center' : (aItemAlign || 'center');
-                                      return <span className="agency-text" style={{ display: 'block', textAlign: effectiveAlign as any }}>{renderText(aText)}</span>;
+                                      const effectiveAlign = isDash(s.agency) ? 'center' : (aItemAlign || 'left');
+                                      return <div className="agency-text" style={{ whiteSpace: 'pre-wrap', textAlign: effectiveAlign as any }}>{renderText(aText)}</div>;
                                     })()}
                                   </td>
                                 )}
@@ -748,8 +748,8 @@ export default function PublicSchedulePage() {
                                   >
                                     {(() => {
                                       const { text: dText, align: dItemAlign } = extractItemAlign(s.dressCode || '-');
-                                      const effectiveAlign = isDash(s.dressCode) ? 'center' : (dItemAlign || 'center');
-                                      return <span className="dress-text" style={{ display: 'block', textAlign: effectiveAlign as any }}>{renderText(dText)}</span>;
+                                      const effectiveAlign = isDash(s.dressCode) ? 'center' : (dItemAlign || 'left');
+                                      return <div className="dress-text" style={{ whiteSpace: 'pre-wrap', textAlign: effectiveAlign as any }}>{renderText(dText)}</div>;
                                     })()}
                                   </td>
                                 )}
@@ -1645,7 +1645,6 @@ export default function PublicSchedulePage() {
           .print-fit-to-page .schedule-table td,
           .print-fit-to-page .schedule-table th {
             padding: 3px 5px !important;
-            font-size: 11px !important;
             line-height: 1.1 !important;
           }
           .print-fit-to-page .official-banner {
