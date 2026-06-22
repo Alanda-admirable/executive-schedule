@@ -1602,11 +1602,20 @@ export default function SchedulesAdmin() {
           .preview-table {
             width: 100% !important;
             max-width: 100% !important;
-            border-collapse: collapse !important;
-            border: 1px solid #000000 !important;
+            border-collapse: separate !important;
+            border-spacing: 0 !important;
+            border-top: 1px solid #000000 !important;
+            border-left: 1px solid #000000 !important;
+            border-bottom: none !important;
+            border-right: none !important;
           }
           .preview-table th, .preview-table td {
-            border: 1px solid #000000 !important;
+            border-top: none !important;
+            border-left: none !important;
+            border-bottom: 1px solid #000000 !important;
+            border-right: 1px solid #000000 !important;
+            position: static !important;
+            background-clip: border-box !important;
           }
           @page {
             size: A4 landscape;
