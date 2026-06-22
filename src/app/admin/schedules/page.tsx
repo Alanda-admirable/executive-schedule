@@ -456,15 +456,15 @@ export default function SchedulesAdmin() {
     const method = currentSchedule.id ? 'PATCH' : 'POST'
     const url = currentSchedule.id ? `/api/schedules/${currentSchedule.id}` : '/api/schedules'
 
-    // Default empty fields to "-"
+    // Empty fields are now allowed (no default "-")
     const payload = {
       ...currentSchedule,
       date: selectedDate,
-      startTime: (currentSchedule.startTime || '').trim() || '-',
+      startTime: (currentSchedule.startTime || '').trim(),
       endTime: (currentSchedule.endTime || '').trim() || null,
-      mission: (currentSchedule.mission || '').trim() || '-',
-      location: (currentSchedule.location || '').trim() || '-',
-      agency: (currentSchedule.agency || '').trim() || '-',
+      mission: (currentSchedule.mission || '').trim(),
+      location: (currentSchedule.location || '').trim(),
+      agency: (currentSchedule.agency || '').trim(),
       dressCode: (currentSchedule.dressCode || '').trim() || null,
     }
 
@@ -988,7 +988,7 @@ export default function SchedulesAdmin() {
 
       {isEditing && (
         <div className="modal-backdrop">
-          <div className="modal-card" style={{ maxWidth: '600px' }}>
+          <div className="modal-card" style={{ maxWidth: '800px' }}>
             <h2 className="modal-title">{currentSchedule.id ? 'แก้ไขข้อมูล' : 'เพิ่มข้อมูล'}วาระงาน</h2>
             <form onSubmit={handleSubmit}>
               <div className="form-group">
@@ -1095,15 +1095,16 @@ export default function SchedulesAdmin() {
                       ))}
                     </div>
                   </div>
-                  <input 
+                  <textarea 
                     className="form-input" 
-                    type="text" 
+                    style={{ height: '60px' }}
                     value={currentSchedule.agency || ''} 
                     onChange={e => setCurrentSchedule({...currentSchedule, agency: e.target.value})} 
                     onFocus={() => setActiveSuggestionField('agency')}
                     onBlur={() => setActiveSuggestionField(null)}
                     placeholder="e.g. สำนักงานจังหวัดปทุมธานี (ไม่บังคับ)" 
                   />
+                  <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '4px' }}>คำแนะนำ: เคาะวรรค 2 ครั้ง (Double Space) หรือกด Enter เพื่อขึ้นบรรทัดใหม่</div>
                   {activeSuggestionField === 'agency' && getFilteredSuggestions('agency', currentSchedule.agency).length > 0 && (
                     <div className="suggestions-dropdown">
                       {getFilteredSuggestions('agency', currentSchedule.agency).map((item, idx) => (
