@@ -218,7 +218,12 @@ export default function SchedulesAdmin() {
     formatted = formatted.replace(/\n{2,}/g, '\n');
 
     // Always convert Arabic digits to Thai digits for formal Thai document presentation
-    return toThaiDigits(formatted);
+    formatted = toThaiDigits(formatted);
+    
+    return formatted.split('\n').map((line, i, arr) => {
+      if (i === arr.length - 1) return <span key={i}>{line}</span>;
+      return <span key={i}>{line}<br /></span>;
+    });
   }
 
   // Extract per-item alignment marker from text: {{C}} = center, {{R}} = right, {{L}} = left
@@ -234,9 +239,9 @@ export default function SchedulesAdmin() {
 
   // Check if text is just a dash (for auto-centering)
   const isDash = (text: string | null | undefined) => {
-    if (!text) return true;
+    if (!text) return false;
     const cleaned = text.replace(/^\{\{[CLR]\}\}/, '').trim();
-    return cleaned === '-' || cleaned === '';
+    return cleaned === '-';
   }
 
   // Get current alignment of a field value (reads marker prefix)
