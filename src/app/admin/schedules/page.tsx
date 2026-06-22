@@ -644,6 +644,13 @@ export default function SchedulesAdmin() {
           <div className="toolbar-section">
             <span className="section-label">ขนาดอักษร (pt / px)</span>
             <div style={{ display: 'flex', gap: '6px' }}>
+              <input 
+                type="text" 
+                className="toolbar-input size-input" 
+                value={fontSize}
+                onChange={e => { setFontSize(e.target.value); savePrintSettings({ fontSize: e.target.value }); }}
+                placeholder="e.g. 16px หรือ 12pt"
+              />
               <select 
                 className="toolbar-select size-select"
                 value={["12px", "14px", "16px", "18px", "20px", "24px"].includes(fontSize) ? fontSize : "custom"}

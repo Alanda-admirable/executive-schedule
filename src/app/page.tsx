@@ -47,17 +47,17 @@ const thaiSmartBreak = (text: string): string => {
   if (!text) return '';
   return text
     // 1. Prevent break inside "พ.ศ. 2569"
-    .replace(/พ\.ศ\.\s*(\d+|[๐-๙]+)/g, 'พ.ศ.\u00A0$1')
+    .replace(/พ\.ศ\.\s+(\d+|[๐-๙]+)/g, 'พ.ศ.\u00A0$1')
     // 2. Prevent break inside "รุ่นที่ 85"
-    .replace(/รุ่นที่\s*(\d+|[๐-๙]+)/g, 'รุ่นที่\u00A0$1')
+    .replace(/รุ่นที่\s+(\d+|[๐-๙]+)/g, 'รุ่นที่\u00A0$1')
     // 3. Prevent break inside "ครั้งที่ 5"
-    .replace(/ครั้งที่\s*(\d+|[๐-๙]+)/g, 'ครั้งที่\u00A0$1')
+    .replace(/ครั้งที่\s+(\d+|[๐-๙]+)/g, 'ครั้งที่\u00A0$1')
     // 4. Prevent break inside "ชั้น 4"
-    .replace(/ชั้น\s*(\d+|[๐-๙]+|M|G|B)/g, 'ชั้น\u00A0$1')
+    .replace(/ชั้น\s+(\d+|[๐-๙]+|M|G|B)/g, 'ชั้น\u00A0$1')
     // 5. Prevent break inside "หมู่ที่ 1"
-    .replace(/หมู่ที่\s*(\d+|[๐-๙]+)/g, 'หมู่ที่\u00A0$1')
+    .replace(/หมู่ที่\s+(\d+|[๐-๙]+)/g, 'หมู่ที่\u00A0$1')
     // 6. Prevent break inside "อ.เมือง", "จ.ปทุมธานี", "ต.ประชาธิปัตย์"
-    .replace(/(อ\.|ต\.|จ\.)\s*([ก-๙a-zA-Z]+)/g, '$1\u00A0$2')
+    .replace(/(อ\.|ต\.|จ\.)\s+([ก-๙a-zA-Z]+)/g, '$1\u00A0$2')
     // 7. Prevent break before opening parenthesis and inside parenthesis
     .replace(/\s+\(([^)]+)\)/g, '\u00A0($1)')
     // 8. Prevent break inside "ประจำปีงบประมาณ พ.ศ."
@@ -65,9 +65,9 @@ const thaiSmartBreak = (text: string): string => {
     // 9. Prevent break in numbers with units (e.g., "10 คน", "๐๘.๐๐ น.")
     .replace(/(\d+|[๐-๙]+)\s*(น\.|คน|ท่าน|ราย|ห้อง|แห่ง|เครื่อง|ชุด)/g, '$1\u00A0$2')
     // 10. Prevent break in time ranges like "เวลา 09.00 น."
-    .replace(/เวลา\s*(\d+|[๐-๙]+)/g, 'เวลา\u00A0$1')
+    .replace(/เวลา\s+(\d+|[๐-๙]+)/g, 'เวลา\u00A0$1')
     // 11. Prevent break for building terms
-    .replace(/(ห้องประชุม|อาคาร|ตึก|ศาลากลางจังหวัด)\s*([ก-๙a-zA-Z\d]+)/g, '$1\u00A0$2');
+    .replace(/(ห้องประชุม|อาคาร|ตึก|ศาลากลางจังหวัด)\s+([ก-๙a-zA-Z\d]+)/g, '$1\u00A0$2');
 }
 
 // Helper to calculate spans for adjacent rows of the same executive
@@ -114,6 +114,8 @@ export default function PublicSchedulePage() {
   const [printFontFamily, setPrintFontFamily] = useState("'TH Sarabun New', 'TH Sarabun PSK', 'Sarabun', sans-serif")
   const [printFontSize, setPrintFontSize] = useState("16px")
   const [printFontWeight, setPrintFontWeight] = useState("normal")
+  const [printFontStyle, setPrintFontStyle] = useState("normal")
+  const [printTextDecoration, setPrintTextDecoration] = useState("none")
   const [printMissionAlign, setPrintMissionAlign] = useState("left")
   const [printLocationAlign, setPrintLocationAlign] = useState("left")
   const [printLineHeight, setPrintLineHeight] = useState("1.5")
@@ -146,7 +148,8 @@ export default function PublicSchedulePage() {
     formatted = formatted
       .replace(/\s*\|\s*/g, '\n')
       .replace(/\s+;\s+/g, '\n')
-      .replace(/\s+\/\s+/g, '\n');
+      .replace(/\s+\/\s+/g, '\n')
+      .replace(/ {2,}/g, '\n');
     
     // 4. Prevent word-wrap break after common Thai prefixes/titles
     formatted = formatted.replace(/(นาย|นาง|นางสาว|ว่าที่ร้อยตรี|ดร\.|พล\.ต\.|พ\.ต\.|ร\.ต\.|ปลัดจังหวัด|ผู้ว่าราชการจังหวัด|รองผู้ว่าราชการจังหวัด)\s+/g, '$1\u00A0');
@@ -207,6 +210,8 @@ export default function PublicSchedulePage() {
           if (config.fontFamily) setPrintFontFamily(config.fontFamily)
           if (config.fontSize) setPrintFontSize(config.fontSize)
           if (config.fontWeight) setPrintFontWeight(config.fontWeight)
+          if (config.fontStyle) setPrintFontStyle(config.fontStyle)
+          if (config.textDecoration) setPrintTextDecoration(config.textDecoration)
           if (config.missionAlign) setPrintMissionAlign(config.missionAlign)
           if (config.locationAlign) setPrintLocationAlign(config.locationAlign)
           if (config.lineHeight) setPrintLineHeight(config.lineHeight)
@@ -241,6 +246,8 @@ export default function PublicSchedulePage() {
         if (config.fontFamily) setPrintFontFamily(config.fontFamily)
         if (config.fontSize) setPrintFontSize(config.fontSize)
         if (config.fontWeight) setPrintFontWeight(config.fontWeight)
+        if (config.fontStyle) setPrintFontStyle(config.fontStyle)
+        if (config.textDecoration) setPrintTextDecoration(config.textDecoration)
         if (config.missionAlign) setPrintMissionAlign(config.missionAlign)
         if (config.locationAlign) setPrintLocationAlign(config.locationAlign)
         if (config.lineHeight) setPrintLineHeight(config.lineHeight)
@@ -621,6 +628,8 @@ export default function PublicSchedulePage() {
                         fontFamily: printFontFamily,
                         fontSize: printFontSize,
                         fontWeight: printFontWeight,
+                        fontStyle: printFontStyle,
+                        textDecoration: printTextDecoration,
                         lineHeight: printLineHeight,
                         tableLayout: 'fixed',
                       }}
@@ -1330,9 +1339,8 @@ export default function PublicSchedulePage() {
           border-bottom: 1px solid #000000 !important;
           border-right: 1px solid #000000 !important;
           line-height: inherit;
+          word-break: normal;
           overflow-wrap: break-word;
-          word-break: break-word;
-          max-width: 0;
           position: relative;
           background-clip: padding-box;
         }
