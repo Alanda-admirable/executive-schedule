@@ -790,6 +790,11 @@ export default function SchedulesAdmin() {
                 /> การแต่งกาย
               </label>
               <label className="checkbox-label" style={{ color: '#059669', fontWeight: 'bold', marginLeft: '16px', borderLeft: '1px solid #cbd5e1', paddingLeft: '16px' }}>
+                <input 
+                  type="checkbox" 
+                  checked={fitToPage}
+                  onChange={e => { setFitToPage(e.target.checked); savePrintSettings({ fitToPage: e.target.checked }); }}
+                />
                 <span>✅ บีบให้พอดีหน้าเดียวอัตโนมัติ (Auto Fit to Page)</span>
               </label>
             </div>
