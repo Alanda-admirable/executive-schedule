@@ -1659,46 +1659,47 @@ export default function PublicSchedulePage() {
             display: table-cell !important;
           }
 
-          /* Single Page Fit Styles */
-          .print-fit-to-page .schedule-table td,
-          .print-fit-to-page .schedule-table th {
-            padding: 3px 5px !important;
-            line-height: 1.1 !important;
-          }
-          .print-fit-to-page .official-banner {
-            padding: 6px 10px !important;
-            margin-bottom: 6px !important;
-            border-radius: 4px !important;
-          }
-          .print-fit-to-page .banner-seal {
-            width: 28px !important;
-            height: 28px !important;
-            border-width: 1px !important;
-          }
-          .print-fit-to-page .banner-title {
-            font-size: 13px !important;
-          }
-          .print-fit-to-page .banner-date {
-            font-size: 11px !important;
-            margin-top: 2px !important;
-            margin-bottom: 4px !important;
-          }
-          .print-fit-to-page .banner-footer {
-            font-size: 8px !important;
-          }
-          .print-fit-to-page .exec-name {
-            font-size: 11px !important;
-          }
-          .print-fit-to-page .exec-title {
-            font-size: 9px !important;
-          }
-          .print-fit-to-page .time-end-text {
-            font-size: 8px !important;
-          }
-          .print-fit-to-page .schedule-row {
-            break-inside: auto !important;
-            page-break-inside: avoid !important;
-          }
+        }
+
+        /* Single Page Fit Styles (Applies to both screen/html2canvas and print) */
+        .print-fit-to-page .schedule-table td,
+        .print-fit-to-page .schedule-table th {
+          padding: 3px 5px !important;
+          line-height: 1.1 !important;
+        }
+        .print-fit-to-page .official-banner {
+          padding: 6px 10px !important;
+          margin-bottom: 6px !important;
+          border-radius: 4px !important;
+        }
+        .print-fit-to-page .banner-seal {
+          width: 28px !important;
+          height: 28px !important;
+          border-width: 1px !important;
+        }
+        .print-fit-to-page .banner-title {
+          font-size: 13px !important;
+        }
+        .print-fit-to-page .banner-date {
+          font-size: 11px !important;
+          margin-top: 2px !important;
+          margin-bottom: 4px !important;
+        }
+        .print-fit-to-page .banner-footer {
+          font-size: 8px !important;
+        }
+        .print-fit-to-page .exec-name {
+          font-size: 11px !important;
+        }
+        .print-fit-to-page .exec-title {
+          font-size: 9px !important;
+        }
+        .print-fit-to-page .time-end-text {
+          font-size: 8px !important;
+        }
+        .print-fit-to-page .schedule-row {
+          break-inside: auto !important;
+          page-break-inside: avoid !important;
         }
       `}</style>
     </div>
