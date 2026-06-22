@@ -824,16 +824,16 @@ export default function SchedulesAdmin() {
                   
                   if (execSchedules.length === 0) {
                     return (
-                      <tr key={exec.id} style={{ color: exec.color === '#000000' ? '#1e293b' : exec.color }}>
+                      <tr key={exec.id} style={{ color: '#1e293b' }}>
                         <td style={{ padding: getPaddingStyle(), textAlign: 'center', fontWeight: 'bold', verticalAlign: 'middle', overflowWrap: 'break-word', wordBreak: 'break-word' }}>
-                          <div style={{ color: exec.color === '#000000' ? '#1e293b' : exec.color }}>{exec.name}</div>
+                          <div style={{ color: '#1e293b' }}>{exec.name}</div>
                           <div style={{ fontSize: '0.72rem', fontWeight: 'bold', color: exec.color === '#000000' ? '#1e293b' : exec.color }}>{exec.title}</div>
                         </td>
-                        {colTimeVisible && <td style={{ padding: getPaddingStyle(), textAlign: 'center' }}>-</td>}
-                        <td style={{ padding: getPaddingStyle(), textAlign: missionAlign === 'center' ? 'center' : 'left', fontWeight: 'inherit' }}>ปฏิบัติราชการปกติ</td>
-                        {colLocationVisible && <td style={{ padding: getPaddingStyle(), textAlign: locationAlign === 'center' ? 'center' : 'left' }}>ศาลากลางจังหวัดปทุมธานี</td>}
-                        {colAgencyVisible && <td style={{ padding: getPaddingStyle(), textAlign: 'center' }}>-</td>}
-                        {colDressVisible && <td style={{ padding: getPaddingStyle(), textAlign: 'center' }}>-</td>}
+                        {colTimeVisible && <td style={{ padding: getPaddingStyle(), textAlign: 'center', fontWeight: 'bold' }}>-</td>}
+                        <td style={{ padding: getPaddingStyle(), textAlign: missionAlign === 'center' ? 'center' : 'left', fontWeight: 'bold' }}>ปฏิบัติราชการปกติ</td>
+                        {colLocationVisible && <td style={{ padding: getPaddingStyle(), textAlign: locationAlign === 'center' ? 'center' : 'left', fontWeight: 'bold' }}>ศาลากลางจังหวัดปทุมธานี</td>}
+                        {colAgencyVisible && <td style={{ padding: getPaddingStyle(), textAlign: 'center', fontWeight: 'bold' }}>-</td>}
+                        {colDressVisible && <td style={{ padding: getPaddingStyle(), textAlign: 'center', fontWeight: 'bold' }}>-</td>}
                       </tr>
                     );
                   }
@@ -844,13 +844,13 @@ export default function SchedulesAdmin() {
                   const locationSpans = getSpans(execSchedules, 'location');
 
                   return execSchedules.map((s, index) => (
-                    <tr key={s.id} style={{ color: exec.color === '#000000' ? '#1e293b' : exec.color }}>
+                    <tr key={s.id} style={{ color: '#1e293b' }}>
                       {index === 0 && (
                         <td 
                           rowSpan={execSchedules.length}
                           style={{ padding: getPaddingStyle(), textAlign: 'center', fontWeight: 'bold', verticalAlign: 'middle', overflowWrap: 'break-word', wordBreak: 'break-word' }}
                         >
-                          <div style={{ color: exec.color === '#000000' ? '#1e293b' : exec.color }}>{exec.name}</div>
+                          <div style={{ color: '#1e293b' }}>{exec.name}</div>
                           <div style={{ fontSize: '0.72rem', fontWeight: 'bold', color: exec.color === '#000000' ? '#1e293b' : exec.color }}>{exec.title}</div>
                         </td>
                       )}
@@ -859,7 +859,7 @@ export default function SchedulesAdmin() {
                           {isDash(s.startTime) ? '-' : toThaiDigits(s.startTime)}
                         </td>
                       )}
-                      <td style={{ padding: getPaddingStyle(), overflowWrap: 'break-word', wordBreak: 'break-word', verticalAlign: isDash(s.mission) ? 'middle' : 'top' }}>
+                      <td style={{ padding: getPaddingStyle(), overflowWrap: 'break-word', wordBreak: 'break-word', verticalAlign: isDash(s.mission) ? 'middle' : 'top', fontWeight: 'bold' }}>
                         {(() => {
                           const { text: mText, align: mItemAlign } = extractItemAlign(s.mission);
                           const effectiveAlign = isDash(s.mission) ? 'center' : (mItemAlign || (missionAlign === 'center' ? 'center' : 'left'));
@@ -869,7 +869,7 @@ export default function SchedulesAdmin() {
                       {colLocationVisible && locationSpans[index].show && (
                         <td 
                           rowSpan={locationSpans[index].span}
-                          style={{ padding: getPaddingStyle(), overflowWrap: 'break-word', wordBreak: 'break-word', verticalAlign: isDash(s.location) ? 'middle' : 'top' }}
+                          style={{ padding: getPaddingStyle(), overflowWrap: 'break-word', wordBreak: 'break-word', verticalAlign: isDash(s.location) ? 'middle' : 'top', fontWeight: 'bold' }}
                         >
                           {(() => {
                             const { text: lText, align: lItemAlign } = extractItemAlign(s.location);
@@ -881,7 +881,7 @@ export default function SchedulesAdmin() {
                       {colAgencyVisible && agencySpans[index].show && (
                         <td 
                           rowSpan={agencySpans[index].span}
-                          style={{ padding: getPaddingStyle(), overflowWrap: 'break-word', wordBreak: 'break-word' }}
+                          style={{ padding: getPaddingStyle(), overflowWrap: 'break-word', wordBreak: 'break-word', fontWeight: 'bold' }}
                         >
                           {(() => {
                             const { text: aText, align: aItemAlign } = extractItemAlign(s.agency);
@@ -893,7 +893,7 @@ export default function SchedulesAdmin() {
                       {colDressVisible && dressSpans[index].show && (
                         <td 
                           rowSpan={dressSpans[index].span}
-                          style={{ padding: getPaddingStyle(), overflowWrap: 'break-word', wordBreak: 'break-word' }}
+                          style={{ padding: getPaddingStyle(), overflowWrap: 'break-word', wordBreak: 'break-word', fontWeight: 'bold' }}
                         >
                           {(() => {
                             const { text: dText, align: dItemAlign } = extractItemAlign(s.dressCode || '-');

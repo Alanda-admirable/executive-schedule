@@ -651,15 +651,13 @@ export default function PublicSchedulePage() {
                             if (execSchedules.length === 0) {
                               return (
                                 <tr 
-                                  key={exec.id} 
+                                  key={`empty-${exec.id}`} 
                                   className="schedule-row" 
-                                  style={{ 
-                                    color: exec.color === '#000000' ? '#1e293b' : exec.color
-                                  }}
+                                  style={{ color: '#1e293b' }}
                                 >
                                   <td className="td-exec" style={{ padding: getPaddingStyle() }}>
                                     <div className="exec-name-cell">
-                                      <div className="exec-name" style={{ color: exec.color === '#000000' ? '#1e293b' : exec.color }}>
+                                      <div className="exec-name" style={{ color: '#1e293b' }}>
                                         {exec.name}
                                       </div>
                                       <div className="exec-title" style={{ color: exec.color === '#000000' ? '#1e293b' : exec.color }}>{exec.title}</div>
@@ -685,7 +683,7 @@ export default function PublicSchedulePage() {
                                 key={s.id} 
                                 className="schedule-row" 
                                 style={{ 
-                                  color: exec.color === '#000000' ? '#1e293b' : exec.color
+                                  color: '#1e293b'
                                 }}
                               >
                                 {index === 0 && (
@@ -695,7 +693,7 @@ export default function PublicSchedulePage() {
                                     style={{ padding: getPaddingStyle() }}
                                   >
                                     <div className="exec-name-cell">
-                                      <div className="exec-name" style={{ color: exec.color === '#000000' ? '#1e293b' : exec.color }}>
+                                      <div className="exec-name" style={{ color: '#1e293b' }}>
                                         {exec.name}
                                       </div>
                                        <div className="exec-title" style={{ color: exec.color === '#000000' ? '#1e293b' : exec.color }}>{exec.title}</div>
@@ -1394,26 +1392,26 @@ export default function PublicSchedulePage() {
 
         .td-mission {
           vertical-align: top;
-          font-weight: inherit;
+          font-weight: bold;
           text-align: left;
         }
 
         .td-location {
           vertical-align: top;
-          font-weight: inherit;
+          font-weight: bold;
           text-align: left;
         }
 
         .td-agency {
           vertical-align: middle;
-          font-weight: inherit;
+          font-weight: bold;
           overflow-wrap: break-word;
           word-break: break-word;
         }
 
         .td-dress {
           vertical-align: middle;
-          font-weight: inherit;
+          font-weight: bold;
           overflow-wrap: break-word;
           word-break: break-word;
         }
