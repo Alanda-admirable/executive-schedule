@@ -325,6 +325,14 @@ export default function PublicSchedulePage() {
         backgroundColor: '#ffffff',
         windowWidth: 1200,
         onclone: (clonedDoc) => {
+          // Remove padding and border from container to fit table exactly
+          const container = clonedDoc.getElementById('schedule-table-container');
+          if (container) {
+            container.style.padding = '0';
+            container.style.border = 'none';
+            container.style.borderRadius = '0';
+          }
+          
           // Force relative positioning and background-clip on all table cells to resolve html2canvas rowspan border bugs
           const cells = clonedDoc.querySelectorAll('.schedule-table th, .schedule-table td');
           cells.forEach(cell => {

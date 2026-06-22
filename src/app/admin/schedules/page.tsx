@@ -861,7 +861,7 @@ export default function SchedulesAdmin() {
                           {isDash(s.startTime) ? '-' : toThaiDigits(s.startTime)}
                         </td>
                       )}
-                      <td style={{ padding: getPaddingStyle(), overflowWrap: 'break-word', wordBreak: 'break-word', verticalAlign: 'top' }}>
+                      <td style={{ padding: getPaddingStyle(), overflowWrap: 'break-word', wordBreak: 'break-word', verticalAlign: isDash(s.mission) ? 'middle' : 'top' }}>
                         {(() => {
                           const { text: mText, align: mItemAlign } = extractItemAlign(s.mission);
                           const effectiveAlign = isDash(s.mission) ? 'center' : (mItemAlign || (missionAlign === 'center' ? 'center' : 'left'));
@@ -871,7 +871,7 @@ export default function SchedulesAdmin() {
                       {colLocationVisible && locationSpans[index].show && (
                         <td 
                           rowSpan={locationSpans[index].span}
-                          style={{ padding: getPaddingStyle(), overflowWrap: 'break-word', wordBreak: 'break-word', verticalAlign: 'top' }}
+                          style={{ padding: getPaddingStyle(), overflowWrap: 'break-word', wordBreak: 'break-word', verticalAlign: isDash(s.location) ? 'middle' : 'top' }}
                         >
                           {(() => {
                             const { text: lText, align: lItemAlign } = extractItemAlign(s.location);
