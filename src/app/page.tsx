@@ -653,11 +653,11 @@ export default function PublicSchedulePage() {
                                 <tr 
                                   key={`empty-${exec.id}`} 
                                   className="schedule-row" 
-                                  style={{ color: '#1e293b' }}
+                                  style={{ color: exec.color === '#000000' ? '#1e293b' : exec.color }}
                                 >
                                   <td className="td-exec" style={{ padding: getPaddingStyle() }}>
                                     <div className="exec-name-cell">
-                                      <div className="exec-name" style={{ color: '#1e293b' }}>
+                                      <div className="exec-name" style={{ color: exec.color === '#000000' ? '#1e293b' : exec.color }}>
                                         {exec.name}
                                       </div>
                                       <div className="exec-title" style={{ color: exec.color === '#000000' ? '#1e293b' : exec.color }}>{exec.title}</div>
@@ -683,7 +683,7 @@ export default function PublicSchedulePage() {
                                 key={s.id} 
                                 className="schedule-row" 
                                 style={{ 
-                                  color: '#1e293b'
+                                  color: exec.color === '#000000' ? '#1e293b' : exec.color
                                 }}
                               >
                                 {index === 0 && (
@@ -693,7 +693,7 @@ export default function PublicSchedulePage() {
                                     style={{ padding: getPaddingStyle() }}
                                   >
                                     <div className="exec-name-cell">
-                                      <div className="exec-name" style={{ color: '#1e293b' }}>
+                                      <div className="exec-name" style={{ color: exec.color === '#000000' ? '#1e293b' : exec.color }}>
                                         {exec.name}
                                       </div>
                                        <div className="exec-title" style={{ color: exec.color === '#000000' ? '#1e293b' : exec.color }}>{exec.title}</div>

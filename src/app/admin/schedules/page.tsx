@@ -824,9 +824,9 @@ export default function SchedulesAdmin() {
                   
                   if (execSchedules.length === 0) {
                     return (
-                      <tr key={exec.id} style={{ color: '#1e293b' }}>
+                      <tr key={exec.id} style={{ color: exec.color === '#000000' ? '#1e293b' : exec.color }}>
                         <td style={{ padding: getPaddingStyle(), textAlign: 'center', fontWeight: 'bold', verticalAlign: 'middle', overflowWrap: 'break-word', wordBreak: 'break-word' }}>
-                          <div style={{ color: '#1e293b' }}>{exec.name}</div>
+                          <div style={{ color: exec.color === '#000000' ? '#1e293b' : exec.color }}>{exec.name}</div>
                           <div style={{ fontSize: '0.72rem', fontWeight: 'bold', color: exec.color === '#000000' ? '#1e293b' : exec.color }}>{exec.title}</div>
                         </td>
                         {colTimeVisible && <td style={{ padding: getPaddingStyle(), textAlign: 'center', fontWeight: 'bold' }}>-</td>}
@@ -844,13 +844,13 @@ export default function SchedulesAdmin() {
                   const locationSpans = getSpans(execSchedules, 'location');
 
                   return execSchedules.map((s, index) => (
-                    <tr key={s.id} style={{ color: '#1e293b' }}>
+                    <tr key={s.id} style={{ color: exec.color === '#000000' ? '#1e293b' : exec.color }}>
                       {index === 0 && (
                         <td 
                           rowSpan={execSchedules.length}
                           style={{ padding: getPaddingStyle(), textAlign: 'center', fontWeight: 'bold', verticalAlign: 'middle', overflowWrap: 'break-word', wordBreak: 'break-word' }}
                         >
-                          <div style={{ color: '#1e293b' }}>{exec.name}</div>
+                          <div style={{ color: exec.color === '#000000' ? '#1e293b' : exec.color }}>{exec.name}</div>
                           <div style={{ fontSize: '0.72rem', fontWeight: 'bold', color: exec.color === '#000000' ? '#1e293b' : exec.color }}>{exec.title}</div>
                         </td>
                       )}
