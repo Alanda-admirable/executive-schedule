@@ -750,7 +750,7 @@ export default function PublicSchedulePage() {
                                     style={{ padding: getPaddingStyle() }}
                                   >
                                     {(() => {
-                                      const { text: dText, align: dItemAlign } = extractItemAlign(s.dressCode || '-');
+                                      const { text: dText, align: dItemAlign } = extractItemAlign(s.dressCode);
                                       const effectiveAlign = isDash(s.dressCode) ? 'center' : (dItemAlign || 'left');
                                       return <div className="dress-text" style={{ whiteSpace: 'pre-wrap', textAlign: effectiveAlign as any }}>{renderText(dText)}</div>;
                                     })()}

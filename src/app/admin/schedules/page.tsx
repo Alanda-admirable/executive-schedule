@@ -896,7 +896,7 @@ export default function SchedulesAdmin() {
                           style={{ padding: getPaddingStyle(), overflowWrap: 'break-word', wordBreak: 'break-word', fontWeight: 'bold' }}
                         >
                           {(() => {
-                            const { text: dText, align: dItemAlign } = extractItemAlign(s.dressCode || '-');
+                            const { text: dText, align: dItemAlign } = extractItemAlign(s.dressCode);
                             const effectiveAlign = isDash(s.dressCode) ? 'center' : (dItemAlign || 'left');
                             return <div style={{ whiteSpace: 'pre-wrap', textAlign: effectiveAlign as any }}>{renderText(dText)}</div>;
                           })()}
