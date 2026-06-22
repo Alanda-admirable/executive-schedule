@@ -428,8 +428,13 @@ export default function SchedulesAdmin() {
       
       const originalStyle = element.getAttribute('style') || '';
 
-      element.style.width = element.scrollWidth + 'px';
-      element.style.minWidth = '1120px';
+      // Temporarily set inline-block to shrink-wrap contents and get exact width
+      const originalDisplay = element.style.display;
+      element.style.display = 'inline-block';
+      const exactWidth = element.scrollWidth;
+      element.style.display = originalDisplay;
+
+      element.style.width = exactWidth + 'px';
       element.style.maxWidth = 'none';
       element.style.overflow = 'visible';
       
@@ -438,7 +443,7 @@ export default function SchedulesAdmin() {
         useCORS: true,
         allowTaint: true,
         backgroundColor: '#ffffff',
-        windowWidth: Math.max(1200, element.scrollWidth + 40),
+        windowWidth: Math.max(1200, exactWidth + 40),
         onclone: (clonedDoc) => {
           // Force relative positioning and background-clip on all table cells to resolve html2canvas rowspan border bugs
           const cells = clonedDoc.querySelectorAll('.preview-table th, .preview-table td');

@@ -327,13 +327,18 @@ export default function PublicSchedulePage() {
         element.classList.add('print-fit-to-page');
       }
       
-      element.style.width = element.scrollWidth + 'px';
-      element.style.minWidth = '1120px';
+      // Temporarily set inline-block to shrink-wrap contents and get exact width
+      const originalDisplay = element.style.display;
+      element.style.display = 'inline-block';
+      const exactWidth = element.scrollWidth;
+      element.style.display = originalDisplay;
+      
+      element.style.width = exactWidth + 'px';
       element.style.maxWidth = 'none';
       element.style.overflow = 'visible';
       if (responsiveWrapper) {
         responsiveWrapper.style.overflowX = 'visible';
-        responsiveWrapper.style.width = responsiveWrapper.scrollWidth + 'px';
+        responsiveWrapper.style.width = exactWidth + 'px';
       }
       
       const canvas = await html2canvas(element, {
@@ -341,12 +346,12 @@ export default function PublicSchedulePage() {
         useCORS: true,
         allowTaint: true,
         backgroundColor: '#ffffff',
-        windowWidth: Math.max(1200, element.scrollWidth + 40),
+        windowWidth: Math.max(1200, exactWidth + 40),
         onclone: (clonedDoc) => {
           // Remove padding and border from container to fit table exactly
           const container = clonedDoc.getElementById('schedule-table-container');
           if (container) {
-            container.style.padding = '0';
+            // Keep original padding so canvas dimensions perfectly match the cloned element
             container.style.border = 'none';
             container.style.borderRadius = '0';
           }
