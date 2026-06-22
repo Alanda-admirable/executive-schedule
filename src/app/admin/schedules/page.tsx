@@ -427,15 +427,23 @@ export default function SchedulesAdmin() {
       setDownloadingImage(true)
       
       const originalStyle = element.getAttribute('style') || '';
-      element.style.width = '1080px';
-      element.style.minWidth = '1080px';
+      const originalClass = element.className;
+      
+      if (!element.classList.contains('preview-fit-to-page')) {
+        element.classList.add('preview-fit-to-page');
+      }
+
+      element.style.width = 'max-content';
+      element.style.minWidth = '1120px';
+      element.style.maxWidth = 'none';
+      element.style.overflow = 'visible';
       
       const canvas = await html2canvas(element, {
         scale: 2.5,
         useCORS: true,
         allowTaint: true,
         backgroundColor: '#ffffff',
-        windowWidth: 1200,
+        windowWidth: Math.max(1200, element.scrollWidth + 40),
         onclone: (clonedDoc) => {
           // Force relative positioning and background-clip on all table cells to resolve html2canvas rowspan border bugs
           const cells = clonedDoc.querySelectorAll('.preview-table th, .preview-table td');
@@ -454,6 +462,7 @@ export default function SchedulesAdmin() {
       });
       
       element.setAttribute('style', originalStyle);
+      element.className = originalClass;
       
       const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
       const link = document.createElement('a');

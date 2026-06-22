@@ -321,13 +321,19 @@ export default function PublicSchedulePage() {
       const responsiveWrapper = element.querySelector('.table-responsive') as HTMLElement;
       const originalResponsiveStyle = responsiveWrapper ? responsiveWrapper.getAttribute('style') || '' : '';
       const originalContainerStyle = element.getAttribute('style') || '';
+      const originalClass = element.className;
       
-      // Temporarily expand width and make overflow visible to prevent html2canvas clipping/border bugs
-      element.style.width = '1120px';
+      if (!element.classList.contains('print-fit-to-page')) {
+        element.classList.add('print-fit-to-page');
+      }
+
+      element.style.width = 'max-content';
       element.style.minWidth = '1120px';
+      element.style.maxWidth = 'none';
+      element.style.overflow = 'visible';
       if (responsiveWrapper) {
         responsiveWrapper.style.overflowX = 'visible';
-        responsiveWrapper.style.width = '100%';
+        responsiveWrapper.style.width = 'max-content';
       }
       
       const canvas = await html2canvas(element, {
@@ -335,7 +341,7 @@ export default function PublicSchedulePage() {
         useCORS: true,
         allowTaint: true,
         backgroundColor: '#ffffff',
-        windowWidth: 1200,
+        windowWidth: Math.max(1200, element.scrollWidth + 40),
         onclone: (clonedDoc) => {
           // Remove padding and border from container to fit table exactly
           const container = clonedDoc.getElementById('schedule-table-container');
@@ -361,8 +367,10 @@ export default function PublicSchedulePage() {
         }
       });
       
-      // Restore original styling
+      // Restore original
+      
       element.setAttribute('style', originalContainerStyle);
+      element.className = originalClass;
       if (responsiveWrapper) {
         responsiveWrapper.setAttribute('style', originalResponsiveStyle);
       }
