@@ -374,15 +374,15 @@ export default function PublicSchedulePage() {
   // Dynamic solid background color for table headers matching the traditional Thai colors of the day
   const getWeekdayHeaderStyle = (dayIndex: number) => {
     const styles = [
-      { bg: "#ef4444", text: "white", border: "#dc2626" }, // Sunday (Red)
-      { bg: "#facc15", text: "#713f12", border: "#eab308" }, // Monday (Yellow)
-      { bg: "#f472b6", text: "white", border: "#db2777" }, // Tuesday (Pink)
-      { bg: "#22c55e", text: "white", border: "#16a34a" }, // Wednesday (Green)
-      { bg: "#f97316", text: "white", border: "#ea580c" }, // Thursday (Orange)
-      { bg: "#3b82f6", text: "white", border: "#2563eb" }, // Friday (Blue)
-      { bg: "#a855f7", text: "white", border: "#9333ea" }  // Saturday (Purple)
+      { bg: "#ef4444", text: "#000000", border: "#dc2626" }, // Sunday (Red)
+      { bg: "#facc15", text: "#000000", border: "#eab308" }, // Monday (Yellow)
+      { bg: "#f472b6", text: "#000000", border: "#db2777" }, // Tuesday (Pink)
+      { bg: "#22c55e", text: "#000000", border: "#16a34a" }, // Wednesday (Green)
+      { bg: "#f97316", text: "#000000", border: "#ea580c" }, // Thursday (Orange)
+      { bg: "#3b82f6", text: "#000000", border: "#2563eb" }, // Friday (Blue)
+      { bg: "#a855f7", text: "#000000", border: "#9333ea" }  // Saturday (Purple)
     ];
-    return styles[dayIndex] || { bg: "#22c55e", text: "white", border: "#16a34a" };
+    return styles[dayIndex] || { bg: "#22c55e", text: "#000000", border: "#16a34a" };
   }
 
   // Dynamic solid background color for the main banner matching the traditional Thai colors of the day
@@ -1270,7 +1270,7 @@ export default function PublicSchedulePage() {
 
         .banner-footer {
           font-size: 0.82rem;
-          font-weight: 600;
+          font-weight: 800;
           color: #000000 !important;
           margin: 0;
         }
@@ -1372,8 +1372,7 @@ export default function PublicSchedulePage() {
         .exec-title {
           font-size: 0.72rem;
           color: #64748b;
-          font-weight: 600;
-          opacity: 0.95;
+          font-weight: 800;
         }
 
         .td-time {

@@ -106,15 +106,15 @@ const getSpans = (schedules: any[], field: string | ((s: any) => string | null))
 
 const getWeekdayHeaderStyle = (dayIndex: number) => {
   const styles = [
-    { bg: "#ef4444", text: "white", border: "#dc2626" }, // Sunday (Red)
-    { bg: "#facc15", text: "#713f12", border: "#eab308" }, // Monday (Yellow)
-    { bg: "#f472b6", text: "white", border: "#db2777" }, // Tuesday (Pink)
-    { bg: "#22c55e", text: "white", border: "#16a34a" }, // Wednesday (Green)
-    { bg: "#f97316", text: "white", border: "#ea580c" }, // Thursday (Orange)
-    { bg: "#3b82f6", text: "white", border: "#2563eb" }, // Friday (Blue)
-    { bg: "#a855f7", text: "white", border: "#9333ea" }  // Saturday (Purple)
+    { bg: "#ef4444", text: "#000000", border: "#dc2626" }, // Sunday (Red)
+    { bg: "#facc15", text: "#000000", border: "#eab308" }, // Monday (Yellow)
+    { bg: "#f472b6", text: "#000000", border: "#db2777" }, // Tuesday (Pink)
+    { bg: "#22c55e", text: "#000000", border: "#16a34a" }, // Wednesday (Green)
+    { bg: "#f97316", text: "#000000", border: "#ea580c" }, // Thursday (Orange)
+    { bg: "#3b82f6", text: "#000000", border: "#2563eb" }, // Friday (Blue)
+    { bg: "#a855f7", text: "#000000", border: "#9333ea" }  // Saturday (Purple)
   ];
-  return styles[dayIndex] || { bg: "#22c55e", text: "white", border: "#16a34a" };
+  return styles[dayIndex] || { bg: "#22c55e", text: "#000000", border: "#16a34a" };
 }
 
 const getWeekdayBannerColor = (dayIndex: number) => {
@@ -822,7 +822,7 @@ export default function SchedulesAdmin() {
                       <tr key={exec.id} style={{ color: exec.color === '#000000' ? '#1e293b' : exec.color }}>
                         <td style={{ padding: getPaddingStyle(), textAlign: 'center', fontWeight: 'bold', verticalAlign: 'middle', overflowWrap: 'break-word', wordBreak: 'break-word' }}>
                           <div style={{ color: exec.color === '#000000' ? '#1e293b' : exec.color }}>{exec.name}</div>
-                          <div style={{ fontSize: '0.72rem', opacity: 0.8, color: exec.color === '#000000' ? '#1e293b' : exec.color }}>{exec.title}</div>
+                          <div style={{ fontSize: '0.72rem', fontWeight: 'bold', color: exec.color === '#000000' ? '#1e293b' : exec.color }}>{exec.title}</div>
                         </td>
                         {colTimeVisible && <td style={{ padding: getPaddingStyle(), textAlign: 'center' }}>-</td>}
                         <td style={{ padding: getPaddingStyle(), textAlign: missionAlign === 'center' ? 'center' : 'left', fontWeight: 'inherit' }}>ปฏิบัติราชการปกติ</td>
@@ -846,7 +846,7 @@ export default function SchedulesAdmin() {
                           style={{ padding: getPaddingStyle(), textAlign: 'center', fontWeight: 'bold', verticalAlign: 'middle', overflowWrap: 'break-word', wordBreak: 'break-word' }}
                         >
                           <div style={{ color: exec.color === '#000000' ? '#1e293b' : exec.color }}>{exec.name}</div>
-                          <div style={{ fontSize: '0.72rem', opacity: 0.8, color: exec.color === '#000000' ? '#1e293b' : exec.color }}>{exec.title}</div>
+                          <div style={{ fontSize: '0.72rem', fontWeight: 'bold', color: exec.color === '#000000' ? '#1e293b' : exec.color }}>{exec.title}</div>
                         </td>
                       )}
                       {colTimeVisible && (
@@ -1405,7 +1405,7 @@ export default function SchedulesAdmin() {
 
         .preview-banner-sub {
           font-size: 0.72rem;
-          font-weight: normal;
+          font-weight: 800;
           margin: 0;
           color: black;
         }
