@@ -427,13 +427,8 @@ export default function SchedulesAdmin() {
       setDownloadingImage(true)
       
       const originalStyle = element.getAttribute('style') || '';
-      const originalClass = element.className;
-      
-      if (!element.classList.contains('preview-fit-to-page')) {
-        element.classList.add('preview-fit-to-page');
-      }
 
-      element.style.width = 'max-content';
+      element.style.width = element.scrollWidth + 'px';
       element.style.minWidth = '1120px';
       element.style.maxWidth = 'none';
       element.style.overflow = 'visible';
@@ -462,7 +457,6 @@ export default function SchedulesAdmin() {
       });
       
       element.setAttribute('style', originalStyle);
-      element.className = originalClass;
       
       const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
       const link = document.createElement('a');

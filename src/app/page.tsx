@@ -321,19 +321,14 @@ export default function PublicSchedulePage() {
       const responsiveWrapper = element.querySelector('.table-responsive') as HTMLElement;
       const originalResponsiveStyle = responsiveWrapper ? responsiveWrapper.getAttribute('style') || '' : '';
       const originalContainerStyle = element.getAttribute('style') || '';
-      const originalClass = element.className;
       
-      if (!element.classList.contains('print-fit-to-page')) {
-        element.classList.add('print-fit-to-page');
-      }
-
-      element.style.width = 'max-content';
+      element.style.width = element.scrollWidth + 'px';
       element.style.minWidth = '1120px';
       element.style.maxWidth = 'none';
       element.style.overflow = 'visible';
       if (responsiveWrapper) {
         responsiveWrapper.style.overflowX = 'visible';
-        responsiveWrapper.style.width = 'max-content';
+        responsiveWrapper.style.width = responsiveWrapper.scrollWidth + 'px';
       }
       
       const canvas = await html2canvas(element, {
@@ -370,7 +365,6 @@ export default function PublicSchedulePage() {
       // Restore original
       
       element.setAttribute('style', originalContainerStyle);
-      element.className = originalClass;
       if (responsiveWrapper) {
         responsiveWrapper.setAttribute('style', originalResponsiveStyle);
       }
