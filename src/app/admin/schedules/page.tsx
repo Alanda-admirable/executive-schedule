@@ -47,27 +47,27 @@ const thaiSmartBreak = (text: string): string => {
   if (!text) return '';
   return text
     // 1. Prevent break inside "พ.ศ. 2569"
-    .replace(/พ\.ศ\.\s*(\d+|[๐-๙]+)/g, 'พ.ศ.\u00A0$1')
+    .replace(/พ\.ศ\.\s+(\d+|[๐-๙]+)/g, 'พ.ศ.\u00A0$1')
     // 2. Prevent break inside "รุ่นที่ 85"
-    .replace(/รุ่นที่\s*(\d+|[๐-๙]+)/g, 'รุ่นที่\u00A0$1')
+    .replace(/รุ่นที่\s+(\d+|[๐-๙]+)/g, 'รุ่นที่\u00A0$1')
     // 3. Prevent break inside "ครั้งที่ 5"
-    .replace(/ครั้งที่\s*(\d+|[๐-๙]+)/g, 'ครั้งที่\u00A0$1')
+    .replace(/ครั้งที่\s+(\d+|[๐-๙]+)/g, 'ครั้งที่\u00A0$1')
     // 4. Prevent break inside "ชั้น 4"
-    .replace(/ชั้น\s*(\d+|[๐-๙]+|M|G|B)/g, 'ชั้น\u00A0$1')
+    .replace(/ชั้น\s+(\d+|[๐-๙]+|M|G|B)/g, 'ชั้น\u00A0$1')
     // 5. Prevent break inside "หมู่ที่ 1"
-    .replace(/หมู่ที่\s*(\d+|[๐-๙]+)/g, 'หมู่ที่\u00A0$1')
+    .replace(/หมู่ที่\s+(\d+|[๐-๙]+)/g, 'หมู่ที่\u00A0$1')
     // 6. Prevent break inside "อ.เมือง", "จ.ปทุมธานี", "ต.ประชาธิปัตย์"
-    .replace(/(อ\.|ต\.|จ\.)\s*([ก-๙a-zA-Z]+)/g, '$1\u00A0$2')
+    .replace(/(อ\.|ต\.|จ\.)\s+([ก-๙a-zA-Z]+)/g, '$1\u00A0$2')
     // 7. Prevent break before opening parenthesis and inside parenthesis
     .replace(/\s+\(([^)]+)\)/g, '\u00A0($1)')
     // 8. Prevent break inside "ประจำปีงบประมาณ พ.ศ."
     .replace(/(ประจำปีงบประมาณ|ปีงบประมาณ)\s+(พ\.ศ\.)/g, '$1\u00A0$2')
     // 9. Prevent break in numbers with units (e.g., "10 คน", "๐๘.๐๐ น.")
-    .replace(/(\d+|[๐-๙]+)\s*(น\.|คน|ท่าน|ราย|ห้อง|แห่ง|เครื่อง|ชุด)/g, '$1\u00A0$2')
+    .replace(/(\d+|[๐-๙]+)\s+(น\.|คน|ท่าน|ราย|ห้อง|แห่ง|เครื่อง|ชุด)/g, '$1\u00A0$2')
     // 10. Prevent break in time ranges like "เวลา 09.00 น."
-    .replace(/เวลา\s*(\d+|[๐-๙]+)/g, 'เวลา\u00A0$1')
+    .replace(/เวลา\s+(\d+|[๐-๙]+)/g, 'เวลา\u00A0$1')
     // 11. Prevent break for building terms
-    .replace(/(ห้องประชุม|อาคาร|ตึก|ศาลากลางจังหวัด)\s*([ก-๙a-zA-Z\d]+)/g, '$1\u00A0$2');
+    .replace(/(ห้องประชุม|อาคาร|ตึก|ศาลากลางจังหวัด)\s+([ก-๙a-zA-Z\d]+)/g, '$1\u00A0$2');
 }
 
 const formatThaiDateFull = (date: Date) => {
@@ -153,6 +153,8 @@ export default function SchedulesAdmin() {
   const [fontFamily, setFontFamily] = useState("'TH Sarabun New', 'TH Sarabun PSK', 'Sarabun', sans-serif")
   const [fontSize, setFontSize] = useState("16px")
   const [fontWeight, setFontWeight] = useState("normal")
+  const [fontStyle, setFontStyle] = useState("normal")
+  const [textDecoration, setTextDecoration] = useState("none")
   const [missionAlign, setMissionAlign] = useState("left")
   const [locationAlign, setLocationAlign] = useState("left")
   const [lineHeight, setLineHeight] = useState("1.5")
@@ -203,10 +205,12 @@ export default function SchedulesAdmin() {
     formatted = formatted.replace(/\s+ณ\s*/g, '\nณ ');
 
     // 3. Keep single spaces as newlines if they are separators, but handle | or / or ;
+    // Also convert 2 or more spaces to a newline as instructed in the hint
     formatted = formatted
       .replace(/\s*\|\s*/g, '\n')
       .replace(/\s+;\s+/g, '\n')
-      .replace(/\s+\/\s+/g, '\n');
+      .replace(/\s+\/\s+/g, '\n')
+      .replace(/ {2,}/g, '\n');
     
     // 4. Prevent word-wrap break after common Thai prefixes/titles
     formatted = formatted.replace(/(นาย|นาง|นางสาว|ว่าที่ร้อยตรี|ดร\.|พล\.ต\.|พ\.ต\.|ร\.ต\.|ปลัดจังหวัด|ผู้ว่าราชการจังหวัด|รองผู้ว่าราชการจังหวัด)\s+/g, '$1\u00A0');
@@ -323,6 +327,8 @@ export default function SchedulesAdmin() {
         if (config.fontFamily) setFontFamily(config.fontFamily)
         if (config.fontSize) setFontSize(config.fontSize)
         if (config.fontWeight) setFontWeight(config.fontWeight)
+        if (config.fontStyle) setFontStyle(config.fontStyle)
+        if (config.textDecoration) setTextDecoration(config.textDecoration)
         if (config.missionAlign) setMissionAlign(config.missionAlign)
         if (config.locationAlign) setLocationAlign(config.locationAlign)
         if (config.lineHeight) setLineHeight(config.lineHeight)
@@ -347,6 +353,8 @@ export default function SchedulesAdmin() {
       fontFamily,
       fontSize,
       fontWeight,
+      fontStyle,
+      textDecoration,
       missionAlign,
       locationAlign,
       lineHeight,
@@ -374,6 +382,8 @@ export default function SchedulesAdmin() {
       fontFamily: "'TH Sarabun New', 'TH Sarabun PSK', 'Sarabun', sans-serif",
       fontSize: "16px",
       fontWeight: "normal",
+      fontStyle: "normal",
+      textDecoration: "none",
       missionAlign: "left",
       locationAlign: "left",
       lineHeight: "1.5",
@@ -391,6 +401,8 @@ export default function SchedulesAdmin() {
     setFontFamily(defaultConfig.fontFamily)
     setFontSize(defaultConfig.fontSize)
     setFontWeight(defaultConfig.fontWeight)
+    setFontStyle(defaultConfig.fontStyle)
+    setTextDecoration(defaultConfig.textDecoration)
     setMissionAlign(defaultConfig.missionAlign)
     setLocationAlign(defaultConfig.locationAlign)
     setLineHeight(defaultConfig.lineHeight)
@@ -580,6 +592,12 @@ export default function SchedulesAdmin() {
               <option value="'TH Sarabun 9', 'TH Sarabun New', 'TH Sarabun PSK', 'Sarabun', sans-serif">TH Sarabun ๙ (ตัวเลขไทย)</option>
               <option value="'TH Sarabun New', 'TH Sarabun PSK', 'Sarabun', sans-serif">TH Sarabun New (ฟอนต์ราชการ)</option>
               <option value="'Sarabun', sans-serif">Sarabun (Google Fonts)</option>
+              <option value="'Prompt', sans-serif">Prompt</option>
+              <option value="'Kanit', sans-serif">Kanit</option>
+              <option value="'Noto Sans Thai', sans-serif">Noto Sans Thai</option>
+              <option value="'TH Niramit AS', sans-serif">TH Niramit AS</option>
+              <option value="'TH Krub', sans-serif">TH Krub</option>
+              <option value="'Mali', cursive">Mali</option>
               <option value="'Angsana New', 'AngsanaUPC', sans-serif">Angsana New</option>
               <option value="'Cordia New', 'CordiaUPC', sans-serif">Cordia New</option>
               <option value="inherit">ฟอนต์ระบบเริ่มต้น</option>
@@ -658,7 +676,21 @@ export default function SchedulesAdmin() {
                 onClick={() => { const val = fontWeight === 'bold' ? 'normal' : 'bold'; setFontWeight(val); savePrintSettings({ fontWeight: val }); }}
                 title="ตัวหนา"
               >
-                <b>B</b>
+                <b style={{ fontFamily: 'serif' }}>B</b>
+              </button>
+              <button 
+                className={`toolbar-btn ${fontStyle === 'italic' ? 'active' : ''}`}
+                onClick={() => { const val = fontStyle === 'italic' ? 'normal' : 'italic'; setFontStyle(val); savePrintSettings({ fontStyle: val }); }}
+                title="ตัวเอียง"
+              >
+                <i style={{ fontFamily: 'serif' }}>I</i>
+              </button>
+              <button 
+                className={`toolbar-btn ${textDecoration === 'underline' ? 'active' : ''}`}
+                onClick={() => { const val = textDecoration === 'underline' ? 'none' : 'underline'; setTextDecoration(val); savePrintSettings({ textDecoration: val }); }}
+                title="ขีดเส้นใต้"
+              >
+                <u style={{ fontFamily: 'serif' }}>U</u>
               </button>
             </div>
           </div>
@@ -803,6 +835,8 @@ export default function SchedulesAdmin() {
                 fontFamily: fontFamily, 
                 fontSize: fontSize,
                 fontWeight: fontWeight,
+                fontStyle: fontStyle,
+                textDecoration: textDecoration,
                 lineHeight: lineHeight,
                 tableLayout: 'fixed',
               }}
@@ -825,15 +859,15 @@ export default function SchedulesAdmin() {
                   if (execSchedules.length === 0) {
                     return (
                       <tr key={exec.id} style={{ color: exec.color === '#000000' ? '#1e293b' : exec.color }}>
-                        <td style={{ padding: getPaddingStyle(), textAlign: 'center', fontWeight: 'bold', verticalAlign: 'middle', overflowWrap: 'break-word', wordBreak: 'break-word' }}>
+                        <td style={{ padding: getPaddingStyle(), textAlign: 'center', fontWeight: 'inherit', verticalAlign: 'middle', overflowWrap: 'break-word', wordBreak: 'break-word' }}>
                           <div style={{ color: exec.color === '#000000' ? '#1e293b' : exec.color }}>{exec.name}</div>
-                          <div style={{ fontSize: '0.72rem', fontWeight: 'bold', color: exec.color === '#000000' ? '#1e293b' : exec.color }}>{exec.title}</div>
+                          <div style={{ fontSize: '0.72rem', fontWeight: 'inherit', color: exec.color === '#000000' ? '#1e293b' : exec.color }}>{exec.title}</div>
                         </td>
-                        {colTimeVisible && <td style={{ padding: getPaddingStyle(), textAlign: 'center', fontWeight: 'bold' }}>-</td>}
-                        <td style={{ padding: getPaddingStyle(), textAlign: missionAlign === 'center' ? 'center' : 'left', fontWeight: 'bold' }}>ปฏิบัติราชการปกติ</td>
-                        {colLocationVisible && <td style={{ padding: getPaddingStyle(), textAlign: locationAlign === 'center' ? 'center' : 'left', fontWeight: 'bold' }}>ศาลากลางจังหวัดปทุมธานี</td>}
-                        {colAgencyVisible && <td style={{ padding: getPaddingStyle(), textAlign: 'center', fontWeight: 'bold' }}>-</td>}
-                        {colDressVisible && <td style={{ padding: getPaddingStyle(), textAlign: 'center', fontWeight: 'bold' }}>-</td>}
+                        {colTimeVisible && <td style={{ padding: getPaddingStyle(), textAlign: 'center', fontWeight: 'inherit' }}>-</td>}
+                        <td style={{ padding: getPaddingStyle(), textAlign: missionAlign === 'center' ? 'center' : 'left', fontWeight: 'inherit' }}>ปฏิบัติราชการปกติ</td>
+                        {colLocationVisible && <td style={{ padding: getPaddingStyle(), textAlign: locationAlign === 'center' ? 'center' : 'left', fontWeight: 'inherit' }}>ศาลากลางจังหวัดปทุมธานี</td>}
+                        {colAgencyVisible && <td style={{ padding: getPaddingStyle(), textAlign: 'center', fontWeight: 'inherit' }}>-</td>}
+                        {colDressVisible && <td style={{ padding: getPaddingStyle(), textAlign: 'center', fontWeight: 'inherit' }}>-</td>}
                       </tr>
                     );
                   }
@@ -848,18 +882,18 @@ export default function SchedulesAdmin() {
                       {index === 0 && (
                         <td 
                           rowSpan={execSchedules.length}
-                          style={{ padding: getPaddingStyle(), textAlign: 'center', fontWeight: 'bold', verticalAlign: 'middle', overflowWrap: 'break-word', wordBreak: 'break-word' }}
+                          style={{ padding: getPaddingStyle(), textAlign: 'center', fontWeight: 'inherit', verticalAlign: 'middle', overflowWrap: 'break-word', wordBreak: 'break-word' }}
                         >
                           <div style={{ color: exec.color === '#000000' ? '#1e293b' : exec.color }}>{exec.name}</div>
-                          <div style={{ fontSize: '0.72rem', fontWeight: 'bold', color: exec.color === '#000000' ? '#1e293b' : exec.color }}>{exec.title}</div>
+                          <div style={{ fontSize: '0.72rem', fontWeight: 'inherit', color: exec.color === '#000000' ? '#1e293b' : exec.color }}>{exec.title}</div>
                         </td>
                       )}
                       {colTimeVisible && (
-                        <td style={{ padding: getPaddingStyle(), textAlign: 'center', fontWeight: 'bold' }}>
+                        <td style={{ padding: getPaddingStyle(), textAlign: 'center', fontWeight: 'inherit' }}>
                           {isDash(s.startTime) ? '-' : toThaiDigits(s.startTime)}
                         </td>
                       )}
-                      <td style={{ padding: getPaddingStyle(), overflowWrap: 'break-word', wordBreak: 'break-word', verticalAlign: isDash(s.mission) ? 'middle' : 'top', fontWeight: 'bold' }}>
+                      <td style={{ padding: getPaddingStyle(), overflowWrap: 'break-word', wordBreak: 'break-word', verticalAlign: isDash(s.mission) ? 'middle' : 'top', fontWeight: 'inherit' }}>
                         {(() => {
                           const { text: mText, align: mItemAlign } = extractItemAlign(s.mission);
                           const effectiveAlign = isDash(s.mission) ? 'center' : (mItemAlign || (missionAlign === 'center' ? 'center' : 'left'));
@@ -869,7 +903,7 @@ export default function SchedulesAdmin() {
                       {colLocationVisible && locationSpans[index].show && (
                         <td 
                           rowSpan={locationSpans[index].span}
-                          style={{ padding: getPaddingStyle(), overflowWrap: 'break-word', wordBreak: 'break-word', verticalAlign: isDash(s.location) ? 'middle' : 'top', fontWeight: 'bold' }}
+                          style={{ padding: getPaddingStyle(), overflowWrap: 'break-word', wordBreak: 'break-word', verticalAlign: isDash(s.location) ? 'middle' : 'top', fontWeight: 'inherit' }}
                         >
                           {(() => {
                             const { text: lText, align: lItemAlign } = extractItemAlign(s.location);
@@ -881,7 +915,7 @@ export default function SchedulesAdmin() {
                       {colAgencyVisible && agencySpans[index].show && (
                         <td 
                           rowSpan={agencySpans[index].span}
-                          style={{ padding: getPaddingStyle(), overflowWrap: 'break-word', wordBreak: 'break-word', fontWeight: 'bold' }}
+                          style={{ padding: getPaddingStyle(), overflowWrap: 'break-word', wordBreak: 'break-word', fontWeight: 'inherit' }}
                         >
                           {(() => {
                             const { text: aText, align: aItemAlign } = extractItemAlign(s.agency);
@@ -893,7 +927,7 @@ export default function SchedulesAdmin() {
                       {colDressVisible && dressSpans[index].show && (
                         <td 
                           rowSpan={dressSpans[index].span}
-                          style={{ padding: getPaddingStyle(), overflowWrap: 'break-word', wordBreak: 'break-word', fontWeight: 'bold' }}
+                          style={{ padding: getPaddingStyle(), overflowWrap: 'break-word', wordBreak: 'break-word', fontWeight: 'inherit' }}
                         >
                           {(() => {
                             const { text: dText, align: dItemAlign } = extractItemAlign(s.dressCode);
@@ -1025,13 +1059,13 @@ export default function SchedulesAdmin() {
                     {['default', 'left', 'center', 'right'].map(a => (
                       <button key={a} type="button" className={`align-toggle-btn ${getFieldAlign(currentSchedule.mission) === a ? 'active' : ''}`}
                         onClick={() => setCurrentSchedule({...currentSchedule, mission: setFieldAlign(currentSchedule.mission, a)})}
-                      >{a === 'default' ? 'ค่าเดิม' : a === 'left' ? '◧ ซ้าย' : a === 'center' ? '◫ กลาง' : '◨ ขวา'}</button>
+                      >{a === 'default' ? 'ค่าเดิม' : a === 'left' ? '≡ ซ้าย' : a === 'center' ? '≡ กลาง' : '≡ ขวา'}</button>
                     ))}
                   </div>
                 </div>
                 <textarea 
                   className="form-input" 
-                  style={{ height: '80px' }} 
+                  style={{ height: '100px', resize: 'vertical' }} 
                   value={currentSchedule.mission || ''} 
                   onChange={e => setCurrentSchedule({...currentSchedule, mission: e.target.value})} 
                   onFocus={() => setActiveSuggestionField('mission')}
@@ -1060,13 +1094,13 @@ export default function SchedulesAdmin() {
                     {['default', 'left', 'center', 'right'].map(a => (
                       <button key={a} type="button" className={`align-toggle-btn ${getFieldAlign(currentSchedule.location) === a ? 'active' : ''}`}
                         onClick={() => setCurrentSchedule({...currentSchedule, location: setFieldAlign(currentSchedule.location, a)})}
-                      >{a === 'default' ? 'ค่าเดิม' : a === 'left' ? '◧ ซ้าย' : a === 'center' ? '◫ กลาง' : '◨ ขวา'}</button>
+                      >{a === 'default' ? 'ค่าเดิม' : a === 'left' ? '≡ ซ้าย' : a === 'center' ? '≡ กลาง' : '≡ ขวา'}</button>
                     ))}
                   </div>
                 </div>
                 <textarea 
                   className="form-input" 
-                  style={{ height: '60px' }} 
+                  style={{ height: '80px', resize: 'vertical' }} 
                   value={currentSchedule.location || ''} 
                   onChange={e => setCurrentSchedule({...currentSchedule, location: e.target.value})} 
                   onFocus={() => setActiveSuggestionField('location')}
@@ -1096,13 +1130,13 @@ export default function SchedulesAdmin() {
                       {['default', 'left', 'center', 'right'].map(a => (
                         <button key={a} type="button" className={`align-toggle-btn ${getFieldAlign(currentSchedule.agency) === a ? 'active' : ''}`}
                           onClick={() => setCurrentSchedule({...currentSchedule, agency: setFieldAlign(currentSchedule.agency, a)})}
-                        >{a === 'default' ? 'ค่าเดิม' : a === 'left' ? '◧ ซ้าย' : a === 'center' ? '◫ กลาง' : '◨ ขวา'}</button>
+                        >{a === 'default' ? 'ค่าเดิม' : a === 'left' ? '≡ ซ้าย' : a === 'center' ? '≡ กลาง' : '≡ ขวา'}</button>
                       ))}
                     </div>
                   </div>
                   <textarea 
                     className="form-input" 
-                    style={{ height: '60px' }}
+                    style={{ height: '80px', resize: 'vertical' }}
                     value={currentSchedule.agency || ''} 
                     onChange={e => setCurrentSchedule({...currentSchedule, agency: e.target.value})} 
                     onFocus={() => setActiveSuggestionField('agency')}
@@ -1131,13 +1165,13 @@ export default function SchedulesAdmin() {
                       {['default', 'left', 'center', 'right'].map(a => (
                         <button key={a} type="button" className={`align-toggle-btn ${getFieldAlign(currentSchedule.dressCode) === a ? 'active' : ''}`}
                           onClick={() => setCurrentSchedule({...currentSchedule, dressCode: setFieldAlign(currentSchedule.dressCode, a)})}
-                        >{a === 'default' ? 'ค่าเดิม' : a === 'left' ? '◧ ซ้าย' : a === 'center' ? '◫ กลาง' : '◨ ขวา'}</button>
+                        >{a === 'default' ? 'ค่าเดิม' : a === 'left' ? '≡ ซ้าย' : a === 'center' ? '≡ กลาง' : '≡ ขวา'}</button>
                       ))}
                     </div>
                   </div>
                   <textarea 
                     className="form-input" 
-                    style={{ height: '60px' }} 
+                    style={{ height: '80px', resize: 'vertical' }} 
                     value={currentSchedule.dressCode || ''} 
                     onChange={e => setCurrentSchedule({...currentSchedule, dressCode: e.target.value})} 
                     onFocus={() => setActiveSuggestionField('dressCode')}
@@ -1428,9 +1462,9 @@ export default function SchedulesAdmin() {
         }
 
         .preview-table td {
+          /* Allow native Thai word breaking, avoid middle-of-word breaks */
+          word-break: normal;
           overflow-wrap: break-word;
-          word-break: break-word;
-          max-width: 0;
         }
 
         .preview-table th,
@@ -1458,22 +1492,23 @@ export default function SchedulesAdmin() {
           border: 1px solid #cbd5e1;
           border-radius: 6px;
           overflow: hidden;
+          box-shadow: 0 1px 2px rgba(0,0,0,0.05);
         }
         .align-toggle-btn {
-          padding: 3px 8px;
-          background: white;
+          padding: 4px 12px;
+          background: #f8fafc;
           border: none;
           border-right: 1px solid #e2e8f0;
-          font-size: 0.68rem;
+          font-size: 0.75rem;
           font-weight: 600;
           cursor: pointer;
-          color: #64748b;
+          color: #475569;
           transition: all 0.15s;
           white-space: nowrap;
         }
         .align-toggle-btn:last-child { border-right: none; }
-        .align-toggle-btn:hover { background: #f1f5f9; }
-        .align-toggle-btn.active { background: #3b82f6; color: white; }
+        .align-toggle-btn:hover { background: #e2e8f0; color: #1e293b; }
+        .align-toggle-btn.active { background: #3b82f6; color: white; border-color: #3b82f6; }
         .form-row { display: flex; gap: 16px; }
         .form-row > .form-group { flex: 1; }
         .actions { display: flex; gap: 12px; margin-top: 32px; }
@@ -1486,9 +1521,9 @@ export default function SchedulesAdmin() {
           background: white;
           border: 1px solid #cbd5e1;
           border-radius: 8px;
-          box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-          z-index: 1000;
-          max-height: 160px;
+          box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+          z-index: 9999;
+          max-height: 200px;
           overflow-y: auto;
           margin-top: 4px;
         }
@@ -1529,12 +1564,11 @@ export default function SchedulesAdmin() {
         .preview-fit-to-page {
           padding: 8mm 10mm !important;
           aspect-ratio: 1.414 !important;
-          overflow-y: hidden !important;
+          overflow-y: auto !important; /* Allow scroll instead of hiding content */
         }
         .preview-fit-to-page .preview-table td,
         .preview-fit-to-page .preview-table th {
           padding: 3px 5px !important;
-          font-size: 11px !important;
           line-height: 1.1 !important;
         }
         .preview-fit-to-page .preview-banner {
@@ -1546,10 +1580,10 @@ export default function SchedulesAdmin() {
           height: 28px !important;
         }
         .preview-fit-to-page .preview-banner-title {
-          font-size: 13px !important;
+          font-size: 1.1em !important;
         }
         .preview-fit-to-page .preview-banner-sub {
-          font-size: 11px !important;
+          font-size: 0.9em !important;
         }
 
         /* QoL Admin Direct Printing Layout */
