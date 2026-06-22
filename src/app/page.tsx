@@ -1616,22 +1616,12 @@ export default function PublicSchedulePage() {
           .schedule-table {
             width: 100% !important;
             min-width: 100% !important;
-            border-collapse: separate !important;
-            border-spacing: 0 !important;
-            border-top: 1px solid #000000 !important;
-            border-left: 1px solid #000000 !important;
+            border-collapse: collapse !important;
+            border: 1px solid #000000 !important;
           }
-          .schedule-table th {
-            border-top: none !important;
-            border-left: none !important;
-            border-bottom: 1px solid #000000 !important;
-            border-right: 1px solid #000000 !important;
-          }
+          .schedule-table th,
           .schedule-table td {
-            border-top: none !important;
-            border-left: none !important;
-            border-bottom: 1px solid #000000 !important;
-            border-right: 1px solid #000000 !important;
+            border: 1px solid #000000 !important;
           }
           .schedule-row {
             break-inside: avoid !important;

@@ -1602,6 +1602,11 @@ export default function SchedulesAdmin() {
           .preview-table {
             width: 100% !important;
             max-width: 100% !important;
+            border-collapse: collapse !important;
+            border: 1px solid #000000 !important;
+          }
+          .preview-table th, .preview-table td {
+            border: 1px solid #000000 !important;
           }
           @page {
             size: A4 landscape;
