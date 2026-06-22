@@ -327,11 +327,21 @@ export default function PublicSchedulePage() {
         element.classList.add('print-fit-to-page');
       }
       
-      // Temporarily set inline-block to shrink-wrap contents and get exact width
-      const originalDisplay = element.style.display;
-      element.style.display = 'inline-block';
-      const exactWidth = element.scrollWidth;
-      element.style.display = originalDisplay;
+      const table = element.querySelector('table');
+      const banner = element.querySelector('.official-banner, .official-banner-container');
+      
+      // Measure actual content width
+      const contentWidth = Math.max(
+        table ? (table as HTMLElement).offsetWidth : 0,
+        banner ? (banner as HTMLElement).offsetWidth : 0
+      );
+      
+      let exactWidth = element.scrollWidth;
+      if (contentWidth > 0) {
+        const computed = window.getComputedStyle(element);
+        const paddingX = (parseFloat(computed.paddingLeft) || 0) + (parseFloat(computed.paddingRight) || 0);
+        exactWidth = contentWidth + paddingX;
+      }
       
       element.style.width = exactWidth + 'px';
       element.style.maxWidth = 'none';
@@ -1683,24 +1693,24 @@ export default function PublicSchedulePage() {
           border-width: 1px !important;
         }
         .print-fit-to-page .banner-title {
-          font-size: 13px !important;
+          font-size: 13px;
         }
         .print-fit-to-page .banner-date {
-          font-size: 11px !important;
+          font-size: 11px;
           margin-top: 2px !important;
           margin-bottom: 4px !important;
         }
         .print-fit-to-page .banner-footer {
-          font-size: 8px !important;
+          font-size: 8px;
         }
         .print-fit-to-page .exec-name {
-          font-size: 11px !important;
+          font-size: 11px;
         }
         .print-fit-to-page .exec-title {
-          font-size: 9px !important;
+          font-size: 9px;
         }
         .print-fit-to-page .time-end-text {
-          font-size: 8px !important;
+          font-size: 8px;
         }
         .print-fit-to-page .schedule-row {
           break-inside: auto !important;

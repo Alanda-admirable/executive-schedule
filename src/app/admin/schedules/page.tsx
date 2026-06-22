@@ -428,11 +428,21 @@ export default function SchedulesAdmin() {
       
       const originalStyle = element.getAttribute('style') || '';
 
-      // Temporarily set inline-block to shrink-wrap contents and get exact width
-      const originalDisplay = element.style.display;
-      element.style.display = 'inline-block';
-      const exactWidth = element.scrollWidth;
-      element.style.display = originalDisplay;
+      const table = element.querySelector('table');
+      const banner = element.querySelector('.preview-banner-container');
+      
+      // Measure actual content width
+      const contentWidth = Math.max(
+        table ? (table as HTMLElement).offsetWidth : 0,
+        banner ? (banner as HTMLElement).offsetWidth : 0
+      );
+      
+      let exactWidth = element.scrollWidth;
+      if (contentWidth > 0) {
+        const computed = window.getComputedStyle(element);
+        const paddingX = (parseFloat(computed.paddingLeft) || 0) + (parseFloat(computed.paddingRight) || 0);
+        exactWidth = contentWidth + paddingX;
+      }
 
       element.style.width = exactWidth + 'px';
       element.style.maxWidth = 'none';
@@ -1600,10 +1610,10 @@ export default function SchedulesAdmin() {
           height: 28px !important;
         }
         .preview-fit-to-page .preview-banner-title {
-          font-size: 1.1em !important;
+          font-size: 1.1em;
         }
         .preview-fit-to-page .preview-banner-sub {
-          font-size: 0.9em !important;
+          font-size: 0.9em;
         }
 
         /* QoL Admin Direct Printing Layout */
@@ -1689,10 +1699,10 @@ export default function SchedulesAdmin() {
             height: 28px !important;
           }
           .preview-fit-to-page .preview-banner-title {
-            font-size: 13px !important;
+            font-size: 13px;
           }
           .preview-fit-to-page .preview-banner-sub {
-            font-size: 11px !important;
+            font-size: 11px;
           }
         }
       `}</style>
