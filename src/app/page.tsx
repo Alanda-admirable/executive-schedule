@@ -351,7 +351,19 @@ export default function PublicSchedulePage() {
         responsiveWrapper.style.width = exactWidth + 'px';
       }
       
+      // Save scroll positions and scroll to top
+      const originalScrollTop = element.scrollTop;
+      const originalScrollLeft = element.scrollLeft;
+      const originalWindowScrollY = window.scrollY;
+      const originalWindowScrollX = window.scrollX;
+      
+      element.scrollTop = 0;
+      element.scrollLeft = 0;
+      window.scrollTo(0, 0);
+      
       const canvas = await html2canvas(element, {
+        scrollY: 0,
+        scrollX: 0,
         scale: 2.5,
         useCORS: true,
         allowTaint: true,

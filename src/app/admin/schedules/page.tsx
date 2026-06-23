@@ -444,11 +444,28 @@ export default function SchedulesAdmin() {
         exactWidth = contentWidth + paddingX;
       }
 
+      // Save scroll positions and scroll to top
+      const originalScrollTop = element.scrollTop;
+      const originalScrollLeft = element.scrollLeft;
+      const originalWindowScrollY = window.scrollY;
+      const originalWindowScrollX = window.scrollX;
+      
+      element.scrollTop = 0;
+      element.scrollLeft = 0;
+      window.scrollTo(0, 0);
+
+      // Force element to expand to full height
+      element.style.setProperty('height', 'auto', 'important');
+      element.style.setProperty('max-height', 'none', 'important');
+      element.style.setProperty('aspect-ratio', 'auto', 'important');
+
       element.style.width = exactWidth + 'px';
       element.style.maxWidth = 'none';
       element.style.overflow = 'visible';
       
       const canvas = await html2canvas(element, {
+        scrollY: 0,
+        scrollX: 0,
         scale: 2.5,
         useCORS: true,
         allowTaint: true,
@@ -472,6 +489,11 @@ export default function SchedulesAdmin() {
       });
       
       element.setAttribute('style', originalStyle);
+      
+      // Restore scroll positions
+      element.scrollTop = originalScrollTop;
+      element.scrollLeft = originalScrollLeft;
+      window.scrollTo(originalWindowScrollX, originalWindowScrollY);
       
       const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
       const link = document.createElement('a');
