@@ -875,7 +875,12 @@ export default function SchedulesAdmin() {
             </div>
           </div>
           
-          <div className={`a4-landscape-page ${fitToPage ? 'preview-fit-to-page' : ''}`} id="admin-print-preview-page" style={{ fontFamily: fontFamily, maxWidth: getContainerWidth() }}>
+          <div className={`a4-landscape-page ${fitToPage ? 'preview-fit-to-page' : ''}`} id="admin-print-preview-page" style={{ 
+            fontFamily: fontFamily, 
+            maxWidth: columnLayout === 'auto' ? 'none' : getContainerWidth(),
+            width: columnLayout === 'auto' ? 'max-content' : '100%',
+            aspectRatio: columnLayout === 'auto' ? 'auto' : '1.414'
+          }}>
             {/* Seal and Title Banner */}
             <div className="preview-banner-container">
               <div className="preview-seal-logo">
@@ -906,7 +911,8 @@ export default function SchedulesAdmin() {
                 fontStyle: fontStyle,
                 textDecoration: textDecoration,
                 lineHeight: lineHeight,
-                tableLayout: 'fixed',
+                tableLayout: columnLayout === 'auto' ? 'auto' : 'fixed',
+                width: columnLayout === 'auto' ? 'max-content' : '100%',
               }}
             >
               <thead>
