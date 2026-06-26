@@ -913,7 +913,7 @@ export default function SchedulesAdmin() {
                       <tr key={exec.id} style={{ color: exec.color === '#000000' ? '#1e293b' : exec.color }}>
                         <td style={{ padding: getPaddingStyle(), textAlign: 'center', fontWeight: 'inherit', verticalAlign: 'middle', overflowWrap: 'break-word', wordBreak: 'break-word' }}>
                           <div style={{ color: exec.color === '#000000' ? '#1e293b' : exec.color }}>{exec.name}</div>
-                          <div style={{ fontSize: '0.72rem', fontWeight: 'inherit', color: exec.color === '#000000' ? '#1e293b' : exec.color }}>{exec.title}</div>
+                          <div style={{ fontWeight: 'inherit', color: exec.color === '#000000' ? '#1e293b' : exec.color }}>{exec.title}</div>
                         </td>
                         {colTimeVisible && <td style={{ padding: getPaddingStyle(), textAlign: 'center', fontWeight: 'inherit' }}>-</td>}
                         <td style={{ padding: getPaddingStyle(), textAlign: missionAlign === 'center' ? 'center' : 'left', fontWeight: 'inherit' }}>ปฏิบัติราชการปกติ</td>
@@ -937,7 +937,7 @@ export default function SchedulesAdmin() {
                           style={{ padding: getPaddingStyle(), textAlign: 'center', fontWeight: 'inherit', verticalAlign: 'middle', overflowWrap: 'break-word', wordBreak: 'break-word' }}
                         >
                           <div style={{ color: exec.color === '#000000' ? '#1e293b' : exec.color }}>{exec.name}</div>
-                          <div style={{ fontSize: '0.72rem', fontWeight: 'inherit', color: exec.color === '#000000' ? '#1e293b' : exec.color }}>{exec.title}</div>
+                          <div style={{ fontWeight: 'inherit', color: exec.color === '#000000' ? '#1e293b' : exec.color }}>{exec.title}</div>
                         </td>
                       )}
                       {colTimeVisible && (

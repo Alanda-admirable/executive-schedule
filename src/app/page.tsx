@@ -1416,7 +1416,7 @@ export default function PublicSchedulePage() {
         }
 
         .exec-title {
-          font-size: 0.72rem;
+          font-size: 0.88rem;
           color: #64748b;
           font-weight: 800;
         }
@@ -1719,7 +1719,7 @@ export default function PublicSchedulePage() {
           font-size: 11px;
         }
         .print-fit-to-page .exec-title {
-          font-size: 9px;
+          font-size: 11px;
         }
         .print-fit-to-page .time-end-text {
           font-size: 8px;
