@@ -1453,7 +1453,8 @@ export default function SchedulesAdmin() {
           border: 1px solid #334155;
           display: flex;
           flex-direction: column;
-          align-items: center;
+          align-items: flex-start;
+          overflow-x: auto;
         }
 
         .preview-label {
