@@ -122,6 +122,7 @@ export default function PublicSchedulePage() {
   const [printCellPadding, setPrintCellPadding] = useState("normal")
   const [fitToPage, setFitToPage] = useState(true)
   const [printBannerFontSize, setPrintBannerFontSize] = useState("20px")
+  const [printColumnLayout, setPrintColumnLayout] = useState("auto")
   const [downloadingImage, setDownloadingImage] = useState(false)
   
   const [colTimeVisible, setColTimeVisible] = useState(true)
@@ -218,6 +219,7 @@ export default function PublicSchedulePage() {
           if (config.cellPadding) setPrintCellPadding(config.cellPadding)
           if (config.fitToPage !== undefined) setFitToPage(config.fitToPage)
           if (config.bannerFontSize) setPrintBannerFontSize(config.bannerFontSize)
+            if (config.columnLayout) setPrintColumnLayout(config.columnLayout)
           
           if (config.visibleColumns) {
             setColTimeVisible(config.visibleColumns.time !== false)
@@ -254,6 +256,7 @@ export default function PublicSchedulePage() {
         if (config.cellPadding) setPrintCellPadding(config.cellPadding)
         if (config.fitToPage !== undefined) setFitToPage(config.fitToPage)
         if (config.bannerFontSize) setPrintBannerFontSize(config.bannerFontSize)
+            if (config.columnLayout) setPrintColumnLayout(config.columnLayout)
         
         if (config.visibleColumns) {
           setColTimeVisible(config.visibleColumns.time !== false)
@@ -666,7 +669,7 @@ export default function PublicSchedulePage() {
                         fontStyle: printFontStyle,
                         textDecoration: printTextDecoration,
                         lineHeight: printLineHeight,
-                        tableLayout: 'fixed',
+                        tableLayout: printColumnLayout === 'auto' ? 'auto' : 'fixed',
                       }}
                     >
                       <thead>
