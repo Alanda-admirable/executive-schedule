@@ -161,6 +161,7 @@ export default function SchedulesAdmin() {
   const [cellPadding, setCellPadding] = useState("normal")
   const [fitToPage, setFitToPage] = useState(true)
   const [bannerFontSize, setBannerFontSize] = useState("20px")
+  const [columnLayout, setColumnLayout] = useState("auto")
   
   // Column Visibility State
   const [colTimeVisible, setColTimeVisible] = useState(true)
@@ -335,6 +336,7 @@ export default function SchedulesAdmin() {
         if (config.cellPadding) setCellPadding(config.cellPadding)
         if (config.fitToPage !== undefined) setFitToPage(config.fitToPage)
         if (config.bannerFontSize) setBannerFontSize(config.bannerFontSize)
+        if (config.columnLayout) setColumnLayout(config.columnLayout)
         
         if (config.visibleColumns) {
           setColTimeVisible(config.visibleColumns.time !== false)
@@ -409,6 +411,7 @@ export default function SchedulesAdmin() {
     setCellPadding(defaultConfig.cellPadding)
     setFitToPage(true)
     setBannerFontSize("20px")
+    setColumnLayout("auto")
     setColTimeVisible(true)
     setColLocationVisible(true)
     setColAgencyVisible(true)
@@ -575,6 +578,9 @@ export default function SchedulesAdmin() {
   }, [groupedPreviewSchedules])
 
   const smartColWidths = useMemo(() => {
+    if (columnLayout === 'auto') {
+      return { exec: undefined, time: undefined, mission: undefined, location: undefined, agency: undefined, dress: undefined }
+    }
     const bases = {
       exec: 15, time: colTimeVisible ? 8 : 0, mission: 38,
       location: colLocationVisible ? 16 : 0, agency: colAgencyVisible ? 12 : 0, dress: colDressVisible ? 11 : 0,
@@ -589,7 +595,17 @@ export default function SchedulesAdmin() {
       mission: `${Math.round(bases.mission)}%`, location: `${Math.round(bases.location)}%`,
       agency: `${Math.round(bases.agency)}%`, dress: `${Math.round(bases.dress)}%`,
     }
-  }, [colTimeVisible, colLocationVisible, colAgencyVisible, colDressVisible])
+  }, [colTimeVisible, colLocationVisible, colAgencyVisible, colDressVisible, columnLayout])
+
+  const getContainerWidth = useCallback(() => {
+    let numericSize = 16;
+    if (fontSize && typeof fontSize === 'string') {
+      const parsed = parseInt(fontSize.replace(/[^0-9]/g, ''));
+      if (!isNaN(parsed)) numericSize = parsed;
+    }
+    const ratio = Math.max(1, numericSize / 16); 
+    return `${Math.round(1080 * ratio)}px`;
+  }, [fontSize]);
 
 
 
@@ -859,7 +875,7 @@ export default function SchedulesAdmin() {
             </div>
           </div>
           
-          <div className={`a4-landscape-page ${fitToPage ? 'preview-fit-to-page' : ''}`} id="admin-print-preview-page" style={{ fontFamily: fontFamily }}>
+          <div className={`a4-landscape-page ${fitToPage ? 'preview-fit-to-page' : ''}`} id="admin-print-preview-page" style={{ fontFamily: fontFamily, maxWidth: getContainerWidth() }}>
             {/* Seal and Title Banner */}
             <div className="preview-banner-container">
               <div className="preview-seal-logo">
