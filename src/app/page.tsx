@@ -1399,6 +1399,7 @@ export default function PublicSchedulePage() {
           background-color: #fcfdfd;
           font-weight: 700;
           text-align: center;
+          white-space: nowrap;
         }
 
         .exec-name-cell {

@@ -927,7 +927,7 @@ export default function SchedulesAdmin() {
                   if (execSchedules.length === 0) {
                     return (
                       <tr key={exec.id} style={{ color: exec.color === '#000000' ? '#1e293b' : exec.color }}>
-                        <td style={{ padding: getPaddingStyle(), textAlign: 'center', fontWeight: 'inherit', verticalAlign: 'middle', overflowWrap: 'break-word', wordBreak: 'break-word' }}>
+                        <td style={{ padding: getPaddingStyle(), textAlign: 'center', fontWeight: 'inherit', verticalAlign: 'middle', whiteSpace: 'nowrap' }}>
                           <div style={{ color: exec.color === '#000000' ? '#1e293b' : exec.color }}>{exec.name}</div>
                           <div style={{ fontWeight: 'inherit', color: exec.color === '#000000' ? '#1e293b' : exec.color }}>{exec.title}</div>
                         </td>
@@ -950,7 +950,7 @@ export default function SchedulesAdmin() {
                       {index === 0 && (
                         <td 
                           rowSpan={execSchedules.length}
-                          style={{ padding: getPaddingStyle(), textAlign: 'center', fontWeight: 'inherit', verticalAlign: 'middle', overflowWrap: 'break-word', wordBreak: 'break-word' }}
+                          style={{ padding: getPaddingStyle(), textAlign: 'center', fontWeight: 'inherit', verticalAlign: 'middle', whiteSpace: 'nowrap' }}
                         >
                           <div style={{ color: exec.color === '#000000' ? '#1e293b' : exec.color }}>{exec.name}</div>
                           <div style={{ fontWeight: 'inherit', color: exec.color === '#000000' ? '#1e293b' : exec.color }}>{exec.title}</div>
