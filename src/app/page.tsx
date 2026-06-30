@@ -1286,8 +1286,8 @@ export default function PublicSchedulePage() {
         }
 
         .banner-seal {
-          width: 64px;
-          height: 64px;
+          width: 80px;
+          height: 80px;
           border-radius: 50%;
           background: white;
           display: flex;
@@ -1704,8 +1704,8 @@ export default function PublicSchedulePage() {
           border-radius: 4px !important;
         }
         .print-fit-to-page .banner-seal {
-          width: 28px !important;
-          height: 28px !important;
+          width: 44px !important;
+          height: 44px !important;
           border-width: 1px !important;
         }
         .print-fit-to-page .banner-title {

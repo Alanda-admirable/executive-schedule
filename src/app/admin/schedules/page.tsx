@@ -1487,8 +1487,8 @@ export default function SchedulesAdmin() {
         }
 
         .preview-seal-logo {
-          width: 48px;
-          height: 48px;
+          width: 64px;
+          height: 64px;
           border-radius: 50%;
           background: white;
           display: flex;
@@ -1651,8 +1651,8 @@ export default function SchedulesAdmin() {
           margin-bottom: 6px !important;
         }
         .preview-fit-to-page .preview-seal-logo {
-          width: 28px !important;
-          height: 28px !important;
+          width: 44px !important;
+          height: 44px !important;
         }
         .preview-fit-to-page .preview-banner-title {
           font-size: 1.1em;
