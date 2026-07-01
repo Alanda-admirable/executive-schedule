@@ -374,6 +374,12 @@ export default function SchedulesAdmin() {
     
     localStorage.setItem('printSettings', JSON.stringify(currentConfig))
     
+    fetch('/api/settings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key: 'printSettings', value: currentConfig })
+    }).catch(e => console.error('Failed to save settings to DB', e));
+    
     // Also save legacy compatibility options for older code references
     localStorage.setItem('printFontFamily', currentConfig.fontFamily)
     localStorage.setItem('printFontSize', currentConfig.fontSize)
@@ -418,6 +424,13 @@ export default function SchedulesAdmin() {
     setColDressVisible(true)
     
     localStorage.setItem('printSettings', JSON.stringify(defaultConfig))
+    
+    fetch('/api/settings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key: 'printSettings', value: defaultConfig })
+    }).catch(e => console.error('Failed to reset settings in DB', e));
+    
     localStorage.setItem('printFontFamily', defaultConfig.fontFamily)
     localStorage.setItem('printFontSize', defaultConfig.fontSize)
   }
