@@ -351,7 +351,6 @@ export default function PublicSchedulePage() {
       element.style.overflow = 'visible';
       if (responsiveWrapper) {
         responsiveWrapper.style.overflowX = 'visible';
-        responsiveWrapper.style.width = exactWidth + 'px';
       }
       
       // Save scroll positions and scroll to top
@@ -635,11 +634,7 @@ export default function PublicSchedulePage() {
               {loading ? (
                 <div className="loading-state">กำลังดึงข้อมูล...</div>
               ) : (
-                <div className="table-container" id="schedule-table-container" style={{ 
-                  width: printColumnLayout === 'auto' ? 'max-content' : '100%',
-                  maxWidth: printColumnLayout === 'auto' ? 'none' : '1080px',
-                  margin: '0 auto'
-                }}>
+                <div className="table-container" id="schedule-table-container">
                   {/* Official PDF/Excel Banner */}
                   <div className="official-banner-container">
                     <div className="banner-seal-wrapper">
@@ -1331,7 +1326,6 @@ export default function PublicSchedulePage() {
 
         .schedule-list {
           flex: 1;
-          overflow-x: auto;
         }
 
         .table-container {
