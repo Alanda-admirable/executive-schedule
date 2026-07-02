@@ -906,10 +906,10 @@ export default function SchedulesAdmin() {
                   fontFamily: fontFamily 
                 }}
               >
-                <h2 className="preview-banner-title" style={{ fontFamily: fontFamily, fontSize: bannerFontSize }}>
+                <h2 className="preview-banner-title" style={{ fontFamily: fontFamily, fontSize: bannerFontSize, fontWeight: 'bold', whiteSpace: 'pre-wrap' }}>
                   {renderText(`วาระงานผู้ว่าราชการจังหวัดและผู้บริหารของจังหวัดปทุมธานี ${getPreviewDateText()}`)}
                 </h2>
-                <div className="preview-banner-sub" style={{ fontFamily: fontFamily, fontSize: bannerFontSize }}>
+                <div className="preview-banner-sub" style={{ fontFamily: fontFamily, fontSize: bannerFontSize, whiteSpace: 'pre-wrap' }}>
                   {renderText(`จัดทำโดย สำนักงานจังหวัดปทุมธานี สามารถดาวน์โหลดข้อมูลได้ที่ www.pathumthani.go.th หัวข้อ "วาระงานผู้ว่าราชการจังหวัดและผู้บริหารของจังหวัดปทุมธานี"`)}
                 </div>
               </div>

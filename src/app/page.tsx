@@ -649,10 +649,10 @@ export default function PublicSchedulePage() {
                         fontFamily: printFontFamily
                       }}
                     >
-                      <h2 className="banner-title" style={{ fontFamily: printFontFamily, fontSize: printBannerFontSize }}>
+                      <h2 className="banner-title" style={{ fontFamily: printFontFamily, fontSize: printBannerFontSize, fontWeight: 'bold', whiteSpace: 'pre-wrap' }}>
                         {renderText(`วาระงานผู้ว่าราชการจังหวัดและผู้บริหารของจังหวัดปทุมธานี ${formatThaiDateFull(selectedDate)}`)}
                       </h2>
-                      <div className="banner-footer" style={{ fontFamily: printFontFamily, fontSize: printBannerFontSize }}>
+                      <div className="banner-footer" style={{ fontFamily: printFontFamily, fontSize: printBannerFontSize, whiteSpace: 'pre-wrap' }}>
                         {renderText(`จัดทำโดย สำนักงานจังหวัดปทุมธานี สามารถดาวน์โหลดข้อมูลได้ที่ www.pathumthani.go.th หัวข้อ "วาระงานผู้ว่าราชการจังหวัดและผู้บริหารของจังหวัดปทุมธานี"`)}
                       </div>
                     </div>
