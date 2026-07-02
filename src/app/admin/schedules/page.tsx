@@ -237,7 +237,7 @@ export default function SchedulesAdmin() {
     const match = text.match(/^\{\{([CLR])\}\}/);
     if (match) {
       const alignMap: Record<string, string> = { C: 'center', L: 'left', R: 'right' };
-      return { text: text.replace(/^\{\{[CLR]\}\}/, '').trim(), align: alignMap[match[1]] || null };
+      return { text: text.replace(/^\{\{[CLR]\}\}/, '').replace(/^\s+/, ''), align: alignMap[match[1]] || null };
     }
     return { text, align: null };
   }
@@ -261,7 +261,7 @@ export default function SchedulesAdmin() {
 
   // Set alignment marker on a field value
   const setFieldAlign = (value: string | null | undefined, align: string): string => {
-    const cleanValue = (value || '').replace(/^\{\{[CLR]\}\}/, '').trim();
+    const cleanValue = (value || '').replace(/^\{\{[CLR]\}\}/, '').replace(/^\s+/, '');
     if (align === 'default') return cleanValue; // remove marker
     const markerMap: Record<string, string> = { left: '{{L}}', center: '{{C}}', right: '{{R}}' };
     return (markerMap[align] || '') + cleanValue;
@@ -535,10 +535,10 @@ export default function SchedulesAdmin() {
       date: selectedDate,
       startTime: (currentSchedule.startTime || '').trim(),
       endTime: (currentSchedule.endTime || '').trim() || null,
-      mission: (currentSchedule.mission || '').trim(),
-      location: (currentSchedule.location || '').trim(),
-      agency: (currentSchedule.agency || '').trim(),
-      dressCode: (currentSchedule.dressCode || '').trim() || null,
+        mission: currentSchedule.mission || '',
+        location: currentSchedule.location || '',
+        agency: currentSchedule.agency || '',
+        dressCode: currentSchedule.dressCode || null,
     }
 
     const res = await fetch(url, {

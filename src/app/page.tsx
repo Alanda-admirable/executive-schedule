@@ -190,7 +190,7 @@ export default function PublicSchedulePage() {
     const match = text.match(/^\{\{([CLR])\}\}/);
     if (match) {
       const alignMap: Record<string, string> = { C: 'center', L: 'left', R: 'right' };
-      return { text: text.replace(/^\{\{[CLR]\}\}/, '').trim(), align: alignMap[match[1]] || null };
+      return { text: text.replace(/^\{\{[CLR]\}\}/, '').replace(/^\s+/, ''), align: alignMap[match[1]] || null };
     }
     return { text, align: null };
   }
