@@ -220,7 +220,7 @@ export default function SchedulesAdmin() {
     formatted = thaiSmartBreak(formatted);
     
     // 6. Clean up consecutive newlines
-    formatted = formatted.replace(/\n{2,}/g, '\n');
+    // Allow multiple newlines to preserve blank lines
 
     // Always convert Arabic digits to Thai digits for formal Thai document presentation
     formatted = toThaiDigits(formatted);
