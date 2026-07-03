@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useMemo, useCallback, Fragment } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import html2canvas from 'html2canvas'
 
 interface Executive {
@@ -153,7 +153,7 @@ export default function PublicSchedulePage() {
       .replace(/ {2,}/g, '\n');
     
     // 4. Prevent word-wrap break after common Thai prefixes/titles
-    formatted = formatted.replace(/(นาย|นาง|นางสาว|ว่าที่ร้อยตรี|ดร\.|พล\.ต\.|พ\.ต\.|ร\.ต\.|ปลัดจังหวัด|ผู้ว่าราชการจังหวัด|รองผู้ว่าราชการจังหวัด)\s+/g, '$1\u00A0');
+    formatted = formatted.replace(/(นาย|นาง|นางสาว|ว่าที่ร้อยตรี|ดร\.|พล\.ต\.|พ\.ต\.|ร\.ต\.|ปลัดจังหวัด|ผู้ว่าราชการจังหวัด|รองผู้ว่าราชการจังหวัด)[ \t]+/g, '$1\u00A0');
 
     // 5. Apply Thai smart line breaking to keep units like "พ.ศ. 2569" together
     formatted = thaiSmartBreak(formatted);
@@ -165,11 +165,8 @@ export default function PublicSchedulePage() {
     formatted = toThaiDigits(formatted);
     
     return formatted.split('\n').map((line, i, arr) => {
-      return (
-        <div key={i} style={{ minHeight: line === '' ? '1.5em' : 'auto' }}>
-          {line}
-        </div>
-      );
+      if (i === arr.length - 1) return <span key={i}>{line}</span>;
+      return <span key={i}>{line}<br /></span>;
     });
   }
 

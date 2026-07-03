@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useCallback, useMemo, Fragment } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import html2canvas from 'html2canvas'
 
 interface Executive {
@@ -47,23 +47,23 @@ const thaiSmartBreak = (text: string): string => {
   if (!text) return '';
   return text
     // 1. Prevent break inside "พ.ศ. 2569"
-    .replace(/พ\.ศ\.\s+(\d+|[๐-๙]+)/g, 'พ.ศ.\u00A0$1')
+    .replace(/พ\.ศ\.[ \t]+(\d+|[๐-๙]+)/g, 'พ.ศ.\u00A0$1')
     // 2. Prevent break inside "รุ่นที่ 85"
-    .replace(/รุ่นที่\s+(\d+|[๐-๙]+)/g, 'รุ่นที่\u00A0$1')
+    .replace(/รุ่นที่[ \t]+(\d+|[๐-๙]+)/g, 'รุ่นที่\u00A0$1')
     // 3. Prevent break inside "ครั้งที่ 5"
-    .replace(/ครั้งที่\s+(\d+|[๐-๙]+)/g, 'ครั้งที่\u00A0$1')
+    .replace(/ครั้งที่[ \t]+(\d+|[๐-๙]+)/g, 'ครั้งที่\u00A0$1')
     // 4. Prevent break inside "ชั้น 4"
-    .replace(/ชั้น\s+(\d+|[๐-๙]+|M|G|B)/g, 'ชั้น\u00A0$1')
+    .replace(/ชั้น[ \t]+(\d+|[๐-๙]+|M|G|B)/g, 'ชั้น\u00A0$1')
     // 5. Prevent break inside "หมู่ที่ 1"
-    .replace(/หมู่ที่\s+(\d+|[๐-๙]+)/g, 'หมู่ที่\u00A0$1')
+    .replace(/หมู่ที่[ \t]+(\d+|[๐-๙]+)/g, 'หมู่ที่\u00A0$1')
     // 6. Prevent break inside "อ.เมือง", "จ.ปทุมธานี", "ต.ประชาธิปัตย์"
-    .replace(/(อ\.|ต\.|จ\.)\s+([ก-๙a-zA-Z]+)/g, '$1\u00A0$2')
+    .replace(/(อ\.|ต\.|จ\.)[ \t]+([ก-๙a-zA-Z]+)/g, '$1\u00A0$2')
     // 7. Prevent break before opening parenthesis and inside parenthesis
-    .replace(/\s+\(([^)]+)\)/g, '\u00A0($1)')
+    .replace(/[ \t]+\(([^)]+)\)/g, '\u00A0($1)')
     // 8. Prevent break inside "ประจำปีงบประมาณ พ.ศ."
-    .replace(/(ประจำปีงบประมาณ|ปีงบประมาณ)\s+(พ\.ศ\.)/g, '$1\u00A0$2')
+    .replace(/(ประจำปีงบประมาณ|ปีงบประมาณ)[ \t]+(พ\.ศ\.)/g, '$1\u00A0$2')
     // 9. Prevent break in numbers with units (e.g., "10 คน", "๐๘.๐๐ น.")
-    .replace(/(\d+|[๐-๙]+)\s+(น\.|คน|ท่าน|ราย|ห้อง|แห่ง|เครื่อง|ชุด)/g, '$1\u00A0$2')
+    .replace(/(\d+|[๐-๙]+)[ \t]*(น\.|คน|ท่าน|ราย|ห้อง|แห่ง|เครื่อง|ชุด)/g, '$1\u00A0$2')
     // 10. Prevent break in time ranges like "เวลา 09.00 น."
     .replace(/เวลา\s+(\d+|[๐-๙]+)/g, 'เวลา\u00A0$1')
     // 11. Prevent break for building terms
@@ -214,7 +214,7 @@ export default function SchedulesAdmin() {
       .replace(/ {2,}/g, '\n');
     
     // 4. Prevent word-wrap break after common Thai prefixes/titles
-    formatted = formatted.replace(/(นาย|นาง|นางสาว|ว่าที่ร้อยตรี|ดร\.|พล\.ต\.|พ\.ต\.|ร\.ต\.|ปลัดจังหวัด|ผู้ว่าราชการจังหวัด|รองผู้ว่าราชการจังหวัด)\s+/g, '$1\u00A0');
+    formatted = formatted.replace(/(นาย|นาง|นางสาว|ว่าที่ร้อยตรี|ดร\.|พล\.ต\.|พ\.ต\.|ร\.ต\.|ปลัดจังหวัด|ผู้ว่าราชการจังหวัด|รองผู้ว่าราชการจังหวัด)[ \t]+/g, '$1\u00A0');
 
     // 5. Apply Thai smart line breaking to keep units like "พ.ศ. 2569" together
     formatted = thaiSmartBreak(formatted);
@@ -223,15 +223,7 @@ export default function SchedulesAdmin() {
     // Allow multiple newlines to preserve blank lines
 
     // Always convert Arabic digits to Thai digits for formal Thai document presentation
-    formatted = toThaiDigits(formatted);
-    
-    return formatted.split('\n').map((line, i, arr) => {
-      return (
-        <div key={i} style={{ minHeight: line === '' ? '1.5em' : 'auto' }}>
-          {line}
-        </div>
-      );
-    });
+    return toThaiDigits(formatted);
   }
 
   // Extract per-item alignment marker from text: {{C}} = center, {{R}} = right, {{L}} = left
