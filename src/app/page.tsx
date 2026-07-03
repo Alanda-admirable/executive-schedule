@@ -166,10 +166,9 @@ export default function PublicSchedulePage() {
     
     return formatted.split('\n').map((line, i, arr) => {
       return (
-        <Fragment key={i}>
-          {line ? <span>{line}</span> : null}
-          {i !== arr.length - 1 && <br />}
-        </Fragment>
+        <div key={i} style={{ minHeight: line === '' ? '1.5em' : 'auto' }}>
+          {line}
+        </div>
       );
     });
   }
