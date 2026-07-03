@@ -47,27 +47,27 @@ const thaiSmartBreak = (text: string): string => {
   if (!text) return '';
   return text
     // 1. Prevent break inside "พ.ศ. 2569"
-    .replace(/พ\.ศ\.\s+(\d+|[๐-๙]+)/g, 'พ.ศ.\u00A0$1')
+    .replace(/พ\.ศ\.[ \t]+(\d+|[๐-๙]+)/g, 'พ.ศ.\u00A0$1')
     // 2. Prevent break inside "รุ่นที่ 85"
-    .replace(/รุ่นที่\s+(\d+|[๐-๙]+)/g, 'รุ่นที่\u00A0$1')
+    .replace(/รุ่นที่[ \t]+(\d+|[๐-๙]+)/g, 'รุ่นที่\u00A0$1')
     // 3. Prevent break inside "ครั้งที่ 5"
-    .replace(/ครั้งที่\s+(\d+|[๐-๙]+)/g, 'ครั้งที่\u00A0$1')
+    .replace(/ครั้งที่[ \t]+(\d+|[๐-๙]+)/g, 'ครั้งที่\u00A0$1')
     // 4. Prevent break inside "ชั้น 4"
-    .replace(/ชั้น\s+(\d+|[๐-๙]+|M|G|B)/g, 'ชั้น\u00A0$1')
+    .replace(/ชั้น[ \t]+(\d+|[๐-๙]+|M|G|B)/g, 'ชั้น\u00A0$1')
     // 5. Prevent break inside "หมู่ที่ 1"
-    .replace(/หมู่ที่\s+(\d+|[๐-๙]+)/g, 'หมู่ที่\u00A0$1')
+    .replace(/หมู่ที่[ \t]+(\d+|[๐-๙]+)/g, 'หมู่ที่\u00A0$1')
     // 6. Prevent break inside "อ.เมือง", "จ.ปทุมธานี", "ต.ประชาธิปัตย์"
-    .replace(/(อ\.|ต\.|จ\.)\s+([ก-๙a-zA-Z]+)/g, '$1\u00A0$2')
+    .replace(/(อ\.|ต\.|จ\.)[ \t]+([ก-๙a-zA-Z]+)/g, '$1\u00A0$2')
     // 7. Prevent break before opening parenthesis and inside parenthesis
-    .replace(/\s+\(([^)]+)\)/g, '\u00A0($1)')
+    .replace(/[ \t]+\(([^)]+)\)/g, '\u00A0($1)')
     // 8. Prevent break inside "ประจำปีงบประมาณ พ.ศ."
-    .replace(/(ประจำปีงบประมาณ|ปีงบประมาณ)\s+(พ\.ศ\.)/g, '$1\u00A0$2')
+    .replace(/(ประจำปีงบประมาณ|ปีงบประมาณ)[ \t]+(พ\.ศ\.)/g, '$1\u00A0$2')
     // 9. Prevent break in numbers with units (e.g., "10 คน", "๐๘.๐๐ น.")
-    .replace(/(\d+|[๐-๙]+)\s*(น\.|คน|ท่าน|ราย|ห้อง|แห่ง|เครื่อง|ชุด)/g, '$1\u00A0$2')
+    .replace(/(\d+|[๐-๙]+)[ \t]*(น\.|คน|ท่าน|ราย|ห้อง|แห่ง|เครื่อง|ชุด)/g, '$1\u00A0$2')
     // 10. Prevent break in time ranges like "เวลา 09.00 น."
-    .replace(/เวลา\s+(\d+|[๐-๙]+)/g, 'เวลา\u00A0$1')
+    .replace(/เวลา[ \t]+(\d+|[๐-๙]+)/g, 'เวลา\u00A0$1')
     // 11. Prevent break for building terms
-    .replace(/(ห้องประชุม|อาคาร|ตึก|ศาลากลางจังหวัด)\s+([ก-๙a-zA-Z\d]+)/g, '$1\u00A0$2');
+    .replace(/(ห้องประชุม|อาคาร|ตึก|ศาลากลางจังหวัด)[ \t]+([ก-๙a-zA-Z\d]+)/g, '$1\u00A0$2');
 }
 
 // Helper to calculate spans for adjacent rows of the same executive
