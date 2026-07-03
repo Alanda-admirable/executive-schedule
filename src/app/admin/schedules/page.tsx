@@ -226,8 +226,12 @@ export default function SchedulesAdmin() {
     formatted = toThaiDigits(formatted);
     
     return formatted.split('\n').map((line, i, arr) => {
-      if (i === arr.length - 1) return <span key={i}>{line}</span>;
-      return <span key={i}>{line}<br /></span>;
+      return (
+        <React.Fragment key={i}>
+          {line ? <span>{line}</span> : null}
+          {i !== arr.length - 1 && <br />}
+        </React.Fragment>
+      );
     });
   }
 
