@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useMemo, useCallback } from 'react'
+import React, { useState, useEffect, useMemo, useCallback, Fragment } from 'react'
 import html2canvas from 'html2canvas'
 
 interface Executive {
@@ -166,10 +166,10 @@ export default function PublicSchedulePage() {
     
     return formatted.split('\n').map((line, i, arr) => {
       return (
-        <React.Fragment key={i}>
+        <Fragment key={i}>
           {line ? <span>{line}</span> : null}
           {i !== arr.length - 1 && <br />}
-        </React.Fragment>
+        </Fragment>
       );
     });
   }
