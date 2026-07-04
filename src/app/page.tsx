@@ -131,7 +131,12 @@ export default function PublicSchedulePage() {
   const [colDressVisible, setColDressVisible] = useState(true)
 
   const toThaiDigits = (value: string | number) => {
-    return String(value ?? "").replace(/[0-9]/g, digit => THAI_DIGITS[Number(digit)]);
+    return String(value ?? "").replace(/(\*\d+\*)|([0-9])/g, (match, escaped, digit) => {
+      if (escaped) {
+        return escaped.slice(1, -1);
+      }
+      return THAI_DIGITS[Number(digit)];
+    });
   }
 
   const renderText = (text: string | null | undefined) => {
@@ -162,12 +167,7 @@ export default function PublicSchedulePage() {
     // Allow multiple newlines to preserve blank lines
 
     // Always convert Arabic digits to Thai digits for formal Thai document presentation
-    formatted = toThaiDigits(formatted);
-    
-    return formatted.split('\n').map((line, i, arr) => {
-      if (i === arr.length - 1) return <span key={i}>{line}</span>;
-      return <span key={i}>{line}<br /></span>;
-    });
+    return toThaiDigits(formatted);
   }
 
   const formatDateKey = (date: Date) => {
