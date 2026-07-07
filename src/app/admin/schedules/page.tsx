@@ -1907,8 +1907,8 @@ export default function SchedulesAdmin() {
             margin-bottom: 6px !important;
           }
           .preview-fit-to-page .preview-seal-logo {
-            width: 28px !important;
-            height: 28px !important;
+            width: 60px !important;
+            height: 60px !important;
           }
           .preview-fit-to-page .preview-banner-title {
             font-size: 13px;
