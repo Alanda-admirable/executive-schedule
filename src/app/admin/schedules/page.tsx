@@ -695,7 +695,7 @@ export default function SchedulesAdmin() {
             </div>
 
             <div style={{ display: 'flex', gap: '12px' }}>
-              <div className="toolbar-section" style={{ flex: 1 }}>
+              <div className="toolbar-section" style={{ flex: 1, minWidth: 0 }}>
                 <span className="section-label">ขนาดอักษรเนื้อหา</span>
                 <div style={{ display: 'flex', gap: '4px' }}>
                   <input type="text" className="toolbar-input" style={{ width: '55px', padding: '6px', textAlign: 'center' }} value={fontSize} onChange={e => { setFontSize(e.target.value); savePrintSettings({ fontSize: e.target.value }); }} />
@@ -711,7 +711,7 @@ export default function SchedulesAdmin() {
                 </div>
               </div>
               
-              <div className="toolbar-section" style={{ flex: 1 }}>
+              <div className="toolbar-section" style={{ flex: 1, minWidth: 0 }}>
                 <span className="section-label">ขนาดอักษรหัวข้อ (Banner)</span>
                 <div style={{ display: 'flex', gap: '4px' }}>
                   <input type="text" className="toolbar-input" style={{ width: '55px', padding: '6px', textAlign: 'center' }} value={bannerFontSize} onChange={e => { setBannerFontSize(e.target.value); savePrintSettings({ bannerFontSize: e.target.value }); }} />
@@ -747,7 +747,7 @@ export default function SchedulesAdmin() {
             </h4>
             
             <div style={{ display: 'flex', gap: '12px' }}>
-              <div className="toolbar-section" style={{ flex: 1 }}>
+              <div className="toolbar-section" style={{ flex: 1, minWidth: 0 }}>
                 <span className="section-label">ระยะห่างบรรทัด</span>
                 <div style={{ display: 'flex', gap: '4px' }}>
                   <input type="text" className="toolbar-input" style={{ width: '55px', padding: '6px', textAlign: 'center' }} value={lineHeight} onChange={e => { setLineHeight(e.target.value); savePrintSettings({ lineHeight: e.target.value }); }} placeholder="e.g. 1.2" />
@@ -763,7 +763,7 @@ export default function SchedulesAdmin() {
                 </div>
               </div>
 
-              <div className="toolbar-section" style={{ flex: 1 }}>
+              <div className="toolbar-section" style={{ flex: 1, minWidth: 0 }}>
                 <span className="section-label">ระยะขอบเซลล์ตาราง</span>
                 <div style={{ display: 'flex', gap: '4px' }}>
                   <input type="text" className="toolbar-input" style={{ width: '85px', padding: '6px', textAlign: 'center' }} value={cellPadding === 'normal' ? '12px 10px' : cellPadding === 'compact' ? '6px 8px' : cellPadding === 'loose' ? '16px 14px' : cellPadding} onChange={e => { setCellPadding(e.target.value); savePrintSettings({ cellPadding: e.target.value }); }} placeholder="e.g. 8px หรือ 10px 12px" />
@@ -1504,7 +1504,9 @@ export default function SchedulesAdmin() {
           background: white !important;
           color: #334155 !important;
           outline: none;
-          flex-shrink: 0;
+          flex-shrink: 1;
+          min-width: 0;
+          width: 100%;
         }
 
         .toolbar-select option {
@@ -1513,8 +1515,9 @@ export default function SchedulesAdmin() {
         }
 
         .font-family-select {
-          min-width: 200px;
-          flex-shrink: 0;
+          width: 100%;
+          min-width: 0;
+          flex-shrink: 1;
         }
 
         .toolbar-input {
