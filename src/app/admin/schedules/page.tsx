@@ -1180,28 +1180,26 @@ export default function SchedulesAdmin() {
                   </div>
                   
                   {/* MISSION FIELD */}
-                  <div className="form-group" style={{ position: 'relative', marginBottom: 0 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                      <label className="form-label" style={{ marginBottom: 0 }}>รายละเอียดกำหนดการ / ภารกิจ</label>
-                      <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                        <div style={{ display: 'flex', gap: '4px' }}>
-                          <button type="button" className="helper-btn" title="บังคับใช้ตัวเลขอารบิกสำหรับส่วนนี้" onClick={() => insertTextAtCursor('mission', '*', '*')}>🔢 อารบิก</button>
-                          <button type="button" className="helper-btn" title="เคาะขึ้นบรรทัดใหม่" onClick={() => insertTextAtCursor('mission', '\n')}>⏎ ขึ้นบรรทัดใหม่</button>
-                          <button type="button" className="helper-btn" title="ขึ้นบรรทัดใหม่และพิมพ์คำว่า ณ" onClick={() => insertTextAtCursor('mission', ' ณ ')}>📍 ใส่ ณ</button>
-                        </div>
-                        <div className="align-toggle-group">
-                          {['default', 'left', 'center', 'right'].map(a => (
-                            <button key={a} type="button" className={`align-toggle-btn ${getFieldAlign(currentSchedule.mission) === a ? 'active' : ''}`}
-                              onClick={() => setCurrentSchedule({...currentSchedule, mission: setFieldAlign(currentSchedule.mission, a)})}
-                            >{a === 'default' ? 'ค่าเดิม' : a === 'left' ? '≡ ซ้าย' : a === 'center' ? '≡ กลาง' : '≡ ขวา'}</button>
-                          ))}
-                        </div>
+                  <div className="form-group" style={{ position: 'relative', marginBottom: 0, display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                    <label className="form-label" style={{ marginBottom: '4px' }}>รายละเอียดกำหนดการ / ภารกิจ</label>
+                    <div className="textarea-toolbar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px', backgroundColor: '#f1f5f9', padding: '6px 8px', borderRadius: '6px 6px 0 0', border: '1px solid #cbd5e1', borderBottom: 'none' }}>
+                      <div style={{ display: 'flex', gap: '4px' }}>
+                        <button type="button" className="helper-btn" title="บังคับใช้ตัวเลขอารบิกสำหรับส่วนนี้" onClick={() => insertTextAtCursor('mission', '*', '*')}>🔢 อารบิก</button>
+                        <button type="button" className="helper-btn" title="เคาะขึ้นบรรทัดใหม่" onClick={() => insertTextAtCursor('mission', '\n')}>⏎ ขึ้นบรรทัดใหม่</button>
+                        <button type="button" className="helper-btn" title="ขึ้นบรรทัดใหม่และพิมพ์คำว่า ณ" onClick={() => insertTextAtCursor('mission', ' ณ ')}>📍 ใส่ ณ</button>
+                      </div>
+                      <div className="align-toggle-group">
+                        {['default', 'left', 'center', 'right'].map(a => (
+                          <button key={a} type="button" className={`align-toggle-btn ${getFieldAlign(currentSchedule.mission) === a ? 'active' : ''}`}
+                            onClick={() => setCurrentSchedule({...currentSchedule, mission: setFieldAlign(currentSchedule.mission, a)})}
+                          >{a === 'default' ? 'ค่าเดิม' : a === 'left' ? '≡ ซ้าย' : a === 'center' ? '≡ กลาง' : '≡ ขวา'}</button>
+                        ))}
                       </div>
                     </div>
                     <textarea 
                       id="mission-input"
                       className="form-input" 
-                      style={{ height: '90px', resize: 'vertical' }} 
+                      style={{ height: '90px', resize: 'vertical', borderRadius: '0 0 8px 8px', borderTop: 'none' }} 
                       value={currentSchedule.mission || ''} 
                       onChange={e => setCurrentSchedule({...currentSchedule, mission: e.target.value})} 
                       onFocus={() => setActiveSuggestionField('mission')}
@@ -1224,28 +1222,26 @@ export default function SchedulesAdmin() {
                   </div>
 
                   {/* LOCATION FIELD */}
-                  <div className="form-group" style={{ position: 'relative', marginBottom: 0 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                      <label className="form-label" style={{ marginBottom: 0 }}>สถานที่</label>
-                      <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                        <div style={{ display: 'flex', gap: '4px' }}>
-                          <button type="button" className="helper-btn" title="บังคับใช้ตัวเลขอารบิกสำหรับส่วนนี้" onClick={() => insertTextAtCursor('location', '*', '*')}>🔢 อารบิก</button>
-                          <button type="button" className="helper-btn" title="เคาะขึ้นบรรทัดใหม่" onClick={() => insertTextAtCursor('location', '\n')}>⏎ ขึ้นบรรทัดใหม่</button>
-                          <button type="button" className="helper-btn" title="ขึ้นบรรทัดใหม่และพิมพ์คำว่า ณ" onClick={() => insertTextAtCursor('location', ' ณ ')}>📍 ใส่ ณ</button>
-                        </div>
-                        <div className="align-toggle-group">
-                          {['default', 'left', 'center', 'right'].map(a => (
-                            <button key={a} type="button" className={`align-toggle-btn ${getFieldAlign(currentSchedule.location) === a ? 'active' : ''}`}
-                              onClick={() => setCurrentSchedule({...currentSchedule, location: setFieldAlign(currentSchedule.location, a)})}
-                            >{a === 'default' ? 'ค่าเดิม' : a === 'left' ? '≡ ซ้าย' : a === 'center' ? '≡ กลาง' : '≡ ขวา'}</button>
-                          ))}
-                        </div>
+                  <div className="form-group" style={{ position: 'relative', marginBottom: 0, display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                    <label className="form-label" style={{ marginBottom: '4px' }}>สถานที่</label>
+                    <div className="textarea-toolbar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px', backgroundColor: '#f1f5f9', padding: '6px 8px', borderRadius: '6px 6px 0 0', border: '1px solid #cbd5e1', borderBottom: 'none' }}>
+                      <div style={{ display: 'flex', gap: '4px' }}>
+                        <button type="button" className="helper-btn" title="บังคับใช้ตัวเลขอารบิกสำหรับส่วนนี้" onClick={() => insertTextAtCursor('location', '*', '*')}>🔢 อารบิก</button>
+                        <button type="button" className="helper-btn" title="เคาะขึ้นบรรทัดใหม่" onClick={() => insertTextAtCursor('location', '\n')}>⏎ ขึ้นบรรทัดใหม่</button>
+                        <button type="button" className="helper-btn" title="ขึ้นบรรทัดใหม่และพิมพ์คำว่า ณ" onClick={() => insertTextAtCursor('location', ' ณ ')}>📍 ใส่ ณ</button>
+                      </div>
+                      <div className="align-toggle-group">
+                        {['default', 'left', 'center', 'right'].map(a => (
+                          <button key={a} type="button" className={`align-toggle-btn ${getFieldAlign(currentSchedule.location) === a ? 'active' : ''}`}
+                            onClick={() => setCurrentSchedule({...currentSchedule, location: setFieldAlign(currentSchedule.location, a)})}
+                          >{a === 'default' ? 'ค่าเดิม' : a === 'left' ? '≡ ซ้าย' : a === 'center' ? '≡ กลาง' : '≡ ขวา'}</button>
+                        ))}
                       </div>
                     </div>
                     <textarea 
                       id="location-input"
                       className="form-input" 
-                      style={{ height: '70px', resize: 'vertical' }} 
+                      style={{ height: '70px', resize: 'vertical', borderRadius: '0 0 8px 8px', borderTop: 'none' }} 
                       value={currentSchedule.location || ''} 
                       onChange={e => setCurrentSchedule({...currentSchedule, location: e.target.value})} 
                       onFocus={() => setActiveSuggestionField('location')}
@@ -1269,18 +1265,16 @@ export default function SchedulesAdmin() {
 
                   <div className="form-row" style={{ display: 'flex', gap: '16px' }}>
                     {/* AGENCY FIELD */}
-                    <div className="form-group" style={{ flex: 1, position: 'relative', marginBottom: 0 }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                        <label className="form-label" style={{ marginBottom: 0 }}>หน่วยงานเจ้าภาพ</label>
-                        <div style={{ display: 'flex', gap: '4px' }}>
-                          <button type="button" className="helper-btn" title="บังคับใช้ตัวเลขอารบิก" onClick={() => insertTextAtCursor('agency', '*', '*')}>🔢 อารบิก</button>
-                          <button type="button" className="helper-btn" title="เคาะขึ้นบรรทัดใหม่" onClick={() => insertTextAtCursor('agency', '\n')}>⏎</button>
-                        </div>
+                    <div className="form-group" style={{ flex: 1, position: 'relative', marginBottom: 0, display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                      <label className="form-label" style={{ marginBottom: '4px' }}>หน่วยงานเจ้าภาพ</label>
+                      <div className="textarea-toolbar" style={{ display: 'flex', gap: '4px', backgroundColor: '#f1f5f9', padding: '6px 8px', borderRadius: '6px 6px 0 0', border: '1px solid #cbd5e1', borderBottom: 'none' }}>
+                        <button type="button" className="helper-btn" title="บังคับใช้ตัวเลขอารบิก" onClick={() => insertTextAtCursor('agency', '*', '*')}>🔢 อารบิก</button>
+                        <button type="button" className="helper-btn" title="เคาะขึ้นบรรทัดใหม่" onClick={() => insertTextAtCursor('agency', '\n')}>⏎ ขึ้นบรรทัดใหม่</button>
                       </div>
                       <textarea 
                         id="agency-input"
                         className="form-input" 
-                        style={{ height: '70px', resize: 'vertical' }}
+                        style={{ height: '70px', resize: 'vertical', borderRadius: '0 0 8px 8px', borderTop: 'none' }}
                         value={currentSchedule.agency || ''} 
                         onChange={e => setCurrentSchedule({...currentSchedule, agency: e.target.value})} 
                         onFocus={() => setActiveSuggestionField('agency')}
@@ -1303,18 +1297,16 @@ export default function SchedulesAdmin() {
                     </div>
                     
                     {/* DRESS CODE FIELD */}
-                    <div className="form-group" style={{ flex: 1, position: 'relative', marginBottom: 0 }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                        <label className="form-label" style={{ marginBottom: 0 }}>การแต่งกาย</label>
-                        <div style={{ display: 'flex', gap: '4px' }}>
-                          <button type="button" className="helper-btn" title="บังคับใช้ตัวเลขอารบิก" onClick={() => insertTextAtCursor('dressCode', '*', '*')}>🔢 อารบิก</button>
-                          <button type="button" className="helper-btn" title="เคาะขึ้นบรรทัดใหม่" onClick={() => insertTextAtCursor('dressCode', '\n')}>⏎</button>
-                        </div>
+                    <div className="form-group" style={{ flex: 1, position: 'relative', marginBottom: 0, display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                      <label className="form-label" style={{ marginBottom: '4px' }}>การแต่งกาย</label>
+                      <div className="textarea-toolbar" style={{ display: 'flex', gap: '4px', backgroundColor: '#f1f5f9', padding: '6px 8px', borderRadius: '6px 6px 0 0', border: '1px solid #cbd5e1', borderBottom: 'none' }}>
+                        <button type="button" className="helper-btn" title="บังคับใช้ตัวเลขอารบิก" onClick={() => insertTextAtCursor('dressCode', '*', '*')}>🔢 อารบิก</button>
+                        <button type="button" className="helper-btn" title="เคาะขึ้นบรรทัดใหม่" onClick={() => insertTextAtCursor('dressCode', '\n')}>⏎ ขึ้นบรรทัดใหม่</button>
                       </div>
                       <textarea 
                         id="dressCode-input"
                         className="form-input" 
-                        style={{ height: '70px', resize: 'vertical' }} 
+                        style={{ height: '70px', resize: 'vertical', borderRadius: '0 0 8px 8px', borderTop: 'none' }} 
                         value={currentSchedule.dressCode || ''} 
                         onChange={e => setCurrentSchedule({...currentSchedule, dressCode: e.target.value})} 
                         onFocus={() => setActiveSuggestionField('dressCode')}
@@ -1454,6 +1446,7 @@ export default function SchedulesAdmin() {
           display: inline-flex;
           align-items: center;
           gap: 2px;
+          white-space: nowrap;
         }
         .helper-btn:hover {
           background: #e2e8f0;
