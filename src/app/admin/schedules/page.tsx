@@ -1836,7 +1836,7 @@ export default function SchedulesAdmin() {
             overflow: visible !important;
             background-color: white !important;
           }
-          .admin-nav, .header, .word-toolbar-card, .filter-bar, .admin-card:not(.print-preview-container), .no-print, button, .modal-backdrop {
+          .admin-nav, .sidebar-toggle-btn, .sidebar-close-btn, .header, .word-toolbar-card, .filter-bar, .admin-card:not(.print-preview-container), .no-print, button, .modal-backdrop {
             display: none !important;
           }
           .admin-page {

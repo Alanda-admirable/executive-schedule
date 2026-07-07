@@ -524,7 +524,9 @@
 }
 
 @media print {
-  .admin-nav {
+  .admin-nav,
+  .sidebar-toggle-btn,
+  .sidebar-close-btn {
     display: none !important;
   }
   .admin-main {
