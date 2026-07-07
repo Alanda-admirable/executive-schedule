@@ -1276,7 +1276,7 @@ export default function SchedulesAdmin() {
                         placeholder="ระบุภารกิจหรือรายละเอียดกิจกรรม (ไม่บังคับ)" 
                       />
                       {activeSuggestionField === 'mission' && getFilteredSuggestions('mission', currentSchedule.mission).length > 0 && (
-                        <div className="suggestions-dropdown" style={{ top: 'auto', bottom: '100%', marginBottom: '4px' }}>
+                        <div className="suggestions-dropdown" style={{ marginTop: '4px' }}>
                           {getFilteredSuggestions('mission', currentSchedule.mission).map((item, idx) => (
                             <div 
                               key={idx} 
@@ -1307,7 +1307,7 @@ export default function SchedulesAdmin() {
                         placeholder="e.g. ห้องประชุมบัวหลวง ชั้น ๕ / ศาลากลางจังหวัดปทุมธานี (ไม่บังคับ)" 
                       />
                       {activeSuggestionField === 'location' && getFilteredSuggestions('location', currentSchedule.location).length > 0 && (
-                        <div className="suggestions-dropdown" style={{ top: 'auto', bottom: '100%', marginBottom: '4px' }}>
+                        <div className="suggestions-dropdown" style={{ marginTop: '4px' }}>
                           {getFilteredSuggestions('location', currentSchedule.location).map((item, idx) => (
                             <div 
                               key={idx} 
@@ -1341,7 +1341,7 @@ export default function SchedulesAdmin() {
                         placeholder="e.g. สำนักงานจังหวัดปทุมธานี" 
                       />
                       {activeSuggestionField === 'agency' && getFilteredSuggestions('agency', currentSchedule.agency).length > 0 && (
-                        <div className="suggestions-dropdown" style={{ top: 'auto', bottom: '100%', marginBottom: '4px' }}>
+                        <div className="suggestions-dropdown" style={{ marginTop: '4px' }}>
                           {getFilteredSuggestions('agency', currentSchedule.agency).map((item, idx) => (
                             <div 
                               key={idx} 
@@ -1372,7 +1372,7 @@ export default function SchedulesAdmin() {
                         placeholder="e.g. เครื่องแบบราชการสีกากี" 
                       />
                       {activeSuggestionField === 'dressCode' && getFilteredSuggestions('dressCode', currentSchedule.dressCode).length > 0 && (
-                        <div className="suggestions-dropdown" style={{ top: 'auto', bottom: '100%', marginBottom: '4px' }}>
+                        <div className="suggestions-dropdown" style={{ marginTop: '4px' }}>
                           {getFilteredSuggestions('dressCode', currentSchedule.dressCode).map((item, idx) => (
                             <div 
                               key={idx} 
