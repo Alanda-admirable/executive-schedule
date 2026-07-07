@@ -1150,7 +1150,7 @@ export default function SchedulesAdmin() {
                 </div>
               </div>
 
-              <div className="modal-layout-container" style={{ display: 'flex', flexDirection: 'column', gap: '16px', flex: 1, overflow: 'hidden' }}>
+              <div className="modal-layout-container" style={{ display: 'flex', flexDirection: 'column', gap: '16px', flex: 1, overflowY: 'auto', WebkitOverflowScrolling: 'touch', paddingRight: '4px' }}>
                 {/* 1. LIVE PREVIEW PANEL (At the top) */}
                 <div className="live-preview-panel" style={{ width: '100%', display: 'flex', flexDirection: 'column' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
@@ -1242,7 +1242,7 @@ export default function SchedulesAdmin() {
                 {/* 2. FORM COLUMN (At the bottom) */}
                 <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px', width: '100%' }}>
                   {/* Row 1: Executive, Start Time, End Time */}
-                  <div style={{ display: 'flex', gap: '16px' }}>
+                  <div className="form-row" style={{ display: 'flex', gap: '16px' }}>
                     <div className="form-group" style={{ flex: 2, marginBottom: 0 }}>
                       <label className="form-label" style={{ fontSize: '0.82rem', marginBottom: '2px' }}>ผู้บริหาร</label>
                       <select 
@@ -1266,7 +1266,7 @@ export default function SchedulesAdmin() {
                   </div>
                   
                   {/* Row 2: Mission & Location */}
-                  <div style={{ display: 'flex', gap: '16px' }}>
+                  <div className="form-row" style={{ display: 'flex', gap: '16px' }}>
                     {/* MISSION FIELD */}
                     <div className="form-group" style={{ flex: 1, position: 'relative', marginBottom: 0, display: 'flex', flexDirection: 'column', gap: '2px' }}>
                       <label className="form-label" style={{ fontSize: '0.82rem' }}>รายละเอียดกำหนดการ / ภารกิจ</label>
@@ -1331,7 +1331,7 @@ export default function SchedulesAdmin() {
                   </div>
 
                   {/* Row 3: Host Agency & Dress Code */}
-                  <div style={{ display: 'flex', gap: '16px' }}>
+                  <div className="form-row" style={{ display: 'flex', gap: '16px' }}>
                     {/* AGENCY FIELD */}
                     <div className="form-group" style={{ flex: 1, position: 'relative', marginBottom: 0, display: 'flex', flexDirection: 'column', gap: '2px' }}>
                       <label className="form-label" style={{ fontSize: '0.82rem' }}>หน่วยงานเจ้าภาพ</label>
@@ -1451,6 +1451,11 @@ export default function SchedulesAdmin() {
           gap: 12px;
         }
 
+        .form-row {
+          display: flex;
+          gap: 16px;
+        }
+
         /* Mobile responsiveness overrides for customizer panel and previews */
         @media (max-width: 768px) {
           .header {
@@ -1490,6 +1495,26 @@ export default function SchedulesAdmin() {
           .toolbar-row {
             flex-direction: column !important;
             gap: 12px !important;
+          }
+          .modal-card {
+            padding: 16px !important;
+          }
+          .form-row {
+            flex-direction: column !important;
+            gap: 12px !important;
+          }
+          .form-row > div {
+            width: 100% !important;
+            flex: none !important;
+          }
+          .actions {
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 8px !important;
+          }
+          .actions button {
+            width: 100% !important;
+            margin: 0 !important;
           }
         }
 
