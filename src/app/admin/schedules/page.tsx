@@ -662,10 +662,10 @@ export default function SchedulesAdmin() {
       <div className="admin-card word-toolbar-card" style={{ background: 'white', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.025)', padding: '24px', marginBottom: '24px' }}>
         <div className="toolbar-header" style={{ borderBottom: '1px solid #e2e8f0', paddingBottom: '12px', marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span className="toolbar-title" style={{ fontSize: '0.95rem', fontWeight: 800, color: '#1e293b', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            🖨️ ตั้งค่ารูปแบบตารางและการพิมพ์ (Print & Layout Settings)
+            ตั้งค่ารูปแบบตารางและการพิมพ์ (Print & Layout Settings)
           </span>
           <button className="reset-btn" onClick={handleResetSettings} style={{ color: '#ef4444', backgroundColor: 'transparent', border: 'none', fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}>
-            🔄 คืนค่าเริ่มต้น
+            คืนค่าเริ่มต้น
           </button>
         </div>
         
@@ -673,7 +673,7 @@ export default function SchedulesAdmin() {
           {/* Section 1: Typography */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', borderRight: '1px solid #f1f5f9', paddingRight: '16px' }}>
             <h4 style={{ fontSize: '0.82rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', margin: 0, borderBottom: '1px solid #f1f5f9', paddingBottom: '6px' }}>
-              🅰️ รูปแบบอักษร (Typography)
+              ลักษณะตัวอักษร (Typography)
             </h4>
             
             <div className="toolbar-section">
@@ -743,29 +743,37 @@ export default function SchedulesAdmin() {
           {/* Section 2: Layout & Alignment */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', borderRight: '1px solid #f1f5f9', paddingRight: '16px' }}>
             <h4 style={{ fontSize: '0.82rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', margin: 0, borderBottom: '1px solid #f1f5f9', paddingBottom: '6px' }}>
-              📏 ระยะย่อหน้าและการจัดแนว (Layout & Align)
+              การจัดแนวและระยะห่าง (Layout & Alignment)
             </h4>
             
             <div style={{ display: 'flex', gap: '12px' }}>
               <div className="toolbar-section" style={{ flex: 1 }}>
                 <span className="section-label">ระยะห่างบรรทัด</span>
-                <select className="toolbar-select" style={{ width: '100%' }} value={lineHeight} onChange={e => { setLineHeight(e.target.value); savePrintSettings({ lineHeight: e.target.value }); }}>
-                  <option value="1.0">1.0 (เบียดสุด)</option>
-                  <option value="1.15">1.15 (กระชับ)</option>
-                  <option value="1.25">1.25 (กำลังดี)</option>
-                  <option value="1.5">1.5 (มาตรฐาน)</option>
-                  <option value="1.8">1.8</option>
-                  <option value="2.0">2.0 (ห่าง)</option>
-                </select>
+                <div style={{ display: 'flex', gap: '4px' }}>
+                  <input type="text" className="toolbar-input" style={{ width: '55px', padding: '6px', textAlign: 'center' }} value={lineHeight} onChange={e => { setLineHeight(e.target.value); savePrintSettings({ lineHeight: e.target.value }); }} placeholder="e.g. 1.2" />
+                  <select className="toolbar-select" style={{ flex: 1 }} value={["1.0", "1.15", "1.25", "1.5", "1.8", "2.0"].includes(lineHeight) ? lineHeight : "custom"} onChange={e => { if (e.target.value !== "custom") { setLineHeight(e.target.value); savePrintSettings({ lineHeight: e.target.value }); } }}>
+                    <option value="1.0">1.0 (เบียดสุด)</option>
+                    <option value="1.15">1.15 (กระชับ)</option>
+                    <option value="1.25">1.25 (กำลังดี)</option>
+                    <option value="1.5">1.5 (มาตรฐาน)</option>
+                    <option value="1.8">1.8</option>
+                    <option value="2.0">2.0 (ห่าง)</option>
+                    {!["1.0", "1.15", "1.25", "1.5", "1.8", "2.0"].includes(lineHeight) && <option value="custom">กำหนดเอง ({lineHeight})</option>}
+                  </select>
+                </div>
               </div>
 
               <div className="toolbar-section" style={{ flex: 1 }}>
                 <span className="section-label">ระยะขอบเซลล์ตาราง</span>
-                <select className="toolbar-select" style={{ width: '100%' }} value={cellPadding} onChange={e => { setCellPadding(e.target.value); savePrintSettings({ cellPadding: e.target.value }); }}>
-                  <option value="compact">ชิดขอบ (Compact)</option>
-                  <option value="normal">ขนาดปกติ (Normal)</option>
-                  <option value="loose">ระยะห่างกว้าง (Loose)</option>
-                </select>
+                <div style={{ display: 'flex', gap: '4px' }}>
+                  <input type="text" className="toolbar-input" style={{ width: '85px', padding: '6px', textAlign: 'center' }} value={cellPadding === 'normal' ? '12px 10px' : cellPadding === 'compact' ? '6px 8px' : cellPadding === 'loose' ? '16px 14px' : cellPadding} onChange={e => { setCellPadding(e.target.value); savePrintSettings({ cellPadding: e.target.value }); }} placeholder="e.g. 8px หรือ 10px 12px" />
+                  <select className="toolbar-select" style={{ flex: 1 }} value={["compact", "normal", "loose"].includes(cellPadding) ? cellPadding : "custom"} onChange={e => { if (e.target.value !== "custom") { setCellPadding(e.target.value); savePrintSettings({ cellPadding: e.target.value }); } }}>
+                    <option value="compact">ชิดขอบ (6px 8px)</option>
+                    <option value="normal">ปกติ (12px 10px)</option>
+                    <option value="loose">ห่าง (16px 14px)</option>
+                    {!["compact", "normal", "loose"].includes(cellPadding) && <option value="custom">กำหนดเอง</option>}
+                  </select>
+                </div>
               </div>
             </div>
 
@@ -775,6 +783,7 @@ export default function SchedulesAdmin() {
                 <div className="btn-group" style={{ width: '100%' }}>
                   <button className={`toolbar-btn ${missionAlign === 'left' ? 'active' : ''}`} style={{ flex: 1 }} onClick={() => { setMissionAlign('left'); savePrintSettings({ missionAlign: 'left' }); }}>ชิดซ้าย</button>
                   <button className={`toolbar-btn ${missionAlign === 'center' ? 'active' : ''}`} style={{ flex: 1 }} onClick={() => { setMissionAlign('center'); savePrintSettings({ missionAlign: 'center' }); }}>จัดกลาง</button>
+                  <button className={`toolbar-btn ${missionAlign === 'right' ? 'active' : ''}`} style={{ flex: 1 }} onClick={() => { setMissionAlign('right'); savePrintSettings({ missionAlign: 'right' }); }}>ชิดขวา</button>
                 </div>
               </div>
 
@@ -783,6 +792,7 @@ export default function SchedulesAdmin() {
                 <div className="btn-group" style={{ width: '100%' }}>
                   <button className={`toolbar-btn ${locationAlign === 'left' ? 'active' : ''}`} style={{ flex: 1 }} onClick={() => { setLocationAlign('left'); savePrintSettings({ locationAlign: 'left' }); }}>ชิดซ้าย</button>
                   <button className={`toolbar-btn ${locationAlign === 'center' ? 'active' : ''}`} style={{ flex: 1 }} onClick={() => { setLocationAlign('center'); savePrintSettings({ locationAlign: 'center' }); }}>จัดกลาง</button>
+                  <button className={`toolbar-btn ${locationAlign === 'right' ? 'active' : ''}`} style={{ flex: 1 }} onClick={() => { setLocationAlign('right'); savePrintSettings({ locationAlign: 'right' }); }}>ชิดขวา</button>
                 </div>
               </div>
             </div>
@@ -791,23 +801,23 @@ export default function SchedulesAdmin() {
           {/* Section 3: Print Options */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <h4 style={{ fontSize: '0.82rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', margin: 0, borderBottom: '1px solid #f1f5f9', paddingBottom: '6px' }}>
-              ⚙️ ตั้งค่าการพิมพ์ (Print Options)
+              ตัวเลือกการพิมพ์และคอลัมน์ (Print Settings)
             </h4>
             
             <div className="toolbar-section">
               <span className="section-label">คอลัมน์ที่จะพิมพ์ออกเอกสาร</span>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px 12px', marginTop: '4px' }}>
                 <label className="checkbox-label" style={{ userSelect: 'none' }}>
-                  <input type="checkbox" checked={colTimeVisible} onChange={e => { setColTimeVisible(e.target.checked); savePrintSettings({ visibleColumns: { time: e.target.checked, location: colLocationVisible, agency: colAgencyVisible, dress: colDressVisible } }); }} /> 🕒 เวลา
+                  <input type="checkbox" checked={colTimeVisible} onChange={e => { setColTimeVisible(e.target.checked); savePrintSettings({ visibleColumns: { time: e.target.checked, location: colLocationVisible, agency: colAgencyVisible, dress: colDressVisible } }); }} /> เวลา
                 </label>
                 <label className="checkbox-label" style={{ userSelect: 'none' }}>
-                  <input type="checkbox" checked={colLocationVisible} onChange={e => { setColLocationVisible(e.target.checked); savePrintSettings({ visibleColumns: { time: colTimeVisible, location: e.target.checked, agency: colAgencyVisible, dress: colDressVisible } }); }} /> 📍 สถานที่
+                  <input type="checkbox" checked={colLocationVisible} onChange={e => { setColLocationVisible(e.target.checked); savePrintSettings({ visibleColumns: { time: colTimeVisible, location: e.target.checked, agency: colAgencyVisible, dress: colDressVisible } }); }} /> สถานที่
                 </label>
                 <label className="checkbox-label" style={{ userSelect: 'none' }}>
-                  <input type="checkbox" checked={colAgencyVisible} onChange={e => { setColAgencyVisible(e.target.checked); savePrintSettings({ visibleColumns: { time: colTimeVisible, location: colLocationVisible, agency: e.target.checked, dress: colDressVisible } }); }} /> 🏢 หน่วยงานเจ้าภาพ
+                  <input type="checkbox" checked={colAgencyVisible} onChange={e => { setColAgencyVisible(e.target.checked); savePrintSettings({ visibleColumns: { time: colTimeVisible, location: colLocationVisible, agency: e.target.checked, dress: colDressVisible } }); }} /> หน่วยงานเจ้าภาพ
                 </label>
                 <label className="checkbox-label" style={{ userSelect: 'none' }}>
-                  <input type="checkbox" checked={colDressVisible} onChange={e => { setColDressVisible(e.target.checked); savePrintSettings({ visibleColumns: { time: colTimeVisible, location: colLocationVisible, agency: colAgencyVisible, dress: e.target.checked } }); }} /> 👔 การแต่งกาย
+                  <input type="checkbox" checked={colDressVisible} onChange={e => { setColDressVisible(e.target.checked); savePrintSettings({ visibleColumns: { time: colTimeVisible, location: colLocationVisible, agency: colAgencyVisible, dress: e.target.checked } }); }} /> การแต่งกาย
                 </label>
               </div>
             </div>
@@ -834,7 +844,7 @@ export default function SchedulesAdmin() {
                   style={{ width: '16px', height: '16px', cursor: 'pointer' }}
                   onChange={e => { setFitToPage(e.target.checked); savePrintSettings({ fitToPage: e.target.checked }); }} 
                 />
-                <span style={{ fontSize: '0.85rem' }}>✨ บีบตารางให้พอดีหน้าเดียว (Auto Fit)</span>
+                <span style={{ fontSize: '0.85rem' }}>บีบตารางให้พอดีหน้าเดียว (Auto Fit)</span>
               </label>
             </div>
           </div>
@@ -956,7 +966,7 @@ export default function SchedulesAdmin() {
                       <td style={{ padding: getPaddingStyle(), overflowWrap: 'break-word', wordBreak: 'break-word', verticalAlign: isDash(s.mission) ? 'middle' : 'top', fontWeight: 'inherit' }}>
                         {(() => {
                           const { text: mText, align: mItemAlign } = extractItemAlign(s.mission);
-                          const effectiveAlign = isDash(s.mission) ? 'center' : (mItemAlign || (missionAlign === 'center' ? 'center' : 'left'));
+                          const effectiveAlign = isDash(s.mission) ? 'center' : (mItemAlign || missionAlign || 'left');
                           return <div style={{ whiteSpace: 'pre-wrap', textAlign: effectiveAlign as any }}>{renderText(mText)}</div>;
                         })()}
                       </td>
@@ -967,7 +977,7 @@ export default function SchedulesAdmin() {
                         >
                           {(() => {
                             const { text: lText, align: lItemAlign } = extractItemAlign(s.location);
-                            const effectiveAlign = isDash(s.location) ? 'center' : (lItemAlign || (locationAlign === 'center' ? 'center' : 'left'));
+                            const effectiveAlign = isDash(s.location) ? 'center' : (lItemAlign || locationAlign || 'left');
                             return <div style={{ whiteSpace: 'pre-wrap', textAlign: effectiveAlign as any }}>{renderText(lText)}</div>;
                           })()}
                         </td>
@@ -1194,7 +1204,7 @@ export default function SchedulesAdmin() {
                           <td style={{ padding: '8px 6px', borderBottom: '1px solid black', borderRight: '1px solid black', overflowWrap: 'break-word', wordBreak: 'break-word' }}>
                             {(() => {
                               const { text: mText, align: mItemAlign } = extractItemAlign(mockSchedule.mission);
-                              const effectiveAlign = isDash(mockSchedule.mission) ? 'center' : (mItemAlign || (missionAlign === 'center' ? 'center' : 'left'));
+                              const effectiveAlign = isDash(mockSchedule.mission) ? 'center' : (mItemAlign || missionAlign || 'left');
                               return <div style={{ whiteSpace: 'pre-wrap', textAlign: effectiveAlign as any }}>{renderText(mText)}</div>;
                             })()}
                           </td>
@@ -1202,7 +1212,7 @@ export default function SchedulesAdmin() {
                             <td style={{ padding: '8px 6px', borderBottom: '1px solid black', borderRight: '1px solid black', overflowWrap: 'break-word', wordBreak: 'break-word' }}>
                               {(() => {
                                 const { text: lText, align: lItemAlign } = extractItemAlign(mockSchedule.location);
-                                const effectiveAlign = isDash(mockSchedule.location) ? 'center' : (lItemAlign || (locationAlign === 'center' ? 'center' : 'left'));
+                                const effectiveAlign = isDash(mockSchedule.location) ? 'center' : (lItemAlign || locationAlign || 'left');
                                 return <div style={{ whiteSpace: 'pre-wrap', textAlign: effectiveAlign as any }}>{renderText(lText)}</div>;
                               })()}
                             </td>
