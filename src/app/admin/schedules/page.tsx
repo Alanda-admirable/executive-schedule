@@ -777,23 +777,21 @@ export default function SchedulesAdmin() {
               </div>
             </div>
 
-            <div style={{ display: 'flex', gap: '12px' }}>
-              <div className="toolbar-section" style={{ flex: 1 }}>
-                <span className="section-label">จัดแนวคอลัมน์ภารกิจ</span>
-                <div className="btn-group" style={{ width: '100%' }}>
-                  <button className={`toolbar-btn ${missionAlign === 'left' ? 'active' : ''}`} style={{ flex: 1 }} onClick={() => { setMissionAlign('left'); savePrintSettings({ missionAlign: 'left' }); }}>ชิดซ้าย</button>
-                  <button className={`toolbar-btn ${missionAlign === 'center' ? 'active' : ''}`} style={{ flex: 1 }} onClick={() => { setMissionAlign('center'); savePrintSettings({ missionAlign: 'center' }); }}>จัดกลาง</button>
-                  <button className={`toolbar-btn ${missionAlign === 'right' ? 'active' : ''}`} style={{ flex: 1 }} onClick={() => { setMissionAlign('right'); savePrintSettings({ missionAlign: 'right' }); }}>ชิดขวา</button>
-                </div>
+            <div className="toolbar-section">
+              <span className="section-label">จัดแนวคอลัมน์ภารกิจ</span>
+              <div className="btn-group" style={{ width: '100%' }}>
+                <button className={`toolbar-btn ${missionAlign === 'left' ? 'active' : ''}`} style={{ flex: 1 }} onClick={() => { setMissionAlign('left'); savePrintSettings({ missionAlign: 'left' }); }}>ชิดซ้าย</button>
+                <button className={`toolbar-btn ${missionAlign === 'center' ? 'active' : ''}`} style={{ flex: 1 }} onClick={() => { setMissionAlign('center'); savePrintSettings({ missionAlign: 'center' }); }}>จัดกลาง</button>
+                <button className={`toolbar-btn ${missionAlign === 'right' ? 'active' : ''}`} style={{ flex: 1 }} onClick={() => { setMissionAlign('right'); savePrintSettings({ missionAlign: 'right' }); }}>ชิดขวา</button>
               </div>
+            </div>
 
-              <div className="toolbar-section" style={{ flex: 1 }}>
-                <span className="section-label">จัดแนวคอลัมน์สถานที่</span>
-                <div className="btn-group" style={{ width: '100%' }}>
-                  <button className={`toolbar-btn ${locationAlign === 'left' ? 'active' : ''}`} style={{ flex: 1 }} onClick={() => { setLocationAlign('left'); savePrintSettings({ locationAlign: 'left' }); }}>ชิดซ้าย</button>
-                  <button className={`toolbar-btn ${locationAlign === 'center' ? 'active' : ''}`} style={{ flex: 1 }} onClick={() => { setLocationAlign('center'); savePrintSettings({ locationAlign: 'center' }); }}>จัดกลาง</button>
-                  <button className={`toolbar-btn ${locationAlign === 'right' ? 'active' : ''}`} style={{ flex: 1 }} onClick={() => { setLocationAlign('right'); savePrintSettings({ locationAlign: 'right' }); }}>ชิดขวา</button>
-                </div>
+            <div className="toolbar-section">
+              <span className="section-label">จัดแนวคอลัมน์สถานที่</span>
+              <div className="btn-group" style={{ width: '100%' }}>
+                <button className={`toolbar-btn ${locationAlign === 'left' ? 'active' : ''}`} style={{ flex: 1 }} onClick={() => { setLocationAlign('left'); savePrintSettings({ locationAlign: 'left' }); }}>ชิดซ้าย</button>
+                <button className={`toolbar-btn ${locationAlign === 'center' ? 'active' : ''}`} style={{ flex: 1 }} onClick={() => { setLocationAlign('center'); savePrintSettings({ locationAlign: 'center' }); }}>จัดกลาง</button>
+                <button className={`toolbar-btn ${locationAlign === 'right' ? 'active' : ''}`} style={{ flex: 1 }} onClick={() => { setLocationAlign('right'); savePrintSettings({ locationAlign: 'right' }); }}>ชิดขวา</button>
               </div>
             </div>
           </div>
@@ -1558,6 +1556,7 @@ export default function SchedulesAdmin() {
           cursor: pointer;
           color: #475569;
           transition: all 0.15s;
+          white-space: nowrap;
         }
 
         .toolbar-btn:last-child {
