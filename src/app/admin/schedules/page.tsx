@@ -844,7 +844,7 @@ export default function SchedulesAdmin() {
       {printPreviewMode ? (
         /* LIVE PRINT PREVIEW MODE (LANDSCAPE A4 STYLE) */
         <div className="admin-card print-preview-container">
-          <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', maxWidth: '1080px', alignItems: 'center', marginBottom: '20px' }} className="no-print">
+          <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', maxWidth: getContainerWidth(), alignItems: 'center', marginBottom: '20px' }} className="no-print">
             <div className="preview-label" style={{ marginBottom: 0 }}>จำลองเอกสารพิมพ์แนวนอน (A4 Landscape Print Preview)</div>
             <div style={{ display: 'flex', gap: '8px' }}>
               <button className="btn-admin btn-admin-primary" onClick={() => window.print()} style={{ background: '#166534' }}>
@@ -1404,7 +1404,7 @@ export default function SchedulesAdmin() {
       })()}
 
       <style jsx>{`
-        .admin-page { max-width: 1200px; padding-bottom: 60px; }
+        .admin-page { width: 100%; max-width: 100%; padding-bottom: 60px; }
         .helper-btn {
           padding: 4px 8px;
           background: #f8fafc;
@@ -1599,7 +1599,7 @@ export default function SchedulesAdmin() {
           border: 1px solid #334155;
           display: flex;
           flex-direction: column;
-          align-items: flex-start;
+          align-items: center;
           overflow-x: auto;
         }
 
