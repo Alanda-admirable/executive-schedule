@@ -1172,10 +1172,12 @@ export default function SchedulesAdmin() {
                     >
                       <thead>
                         <tr>
-                          <th style={{ padding: '6px 4px', backgroundColor: headerStyle.bg, color: headerStyle.text, borderColor: headerStyle.border, width: '25%' }}>ผู้บริหาร</th>
-                          {colTimeVisible && <th style={{ padding: '6px 4px', backgroundColor: headerStyle.bg, color: headerStyle.text, borderColor: headerStyle.border, width: '15%' }}>เวลา</th>}
-                          <th style={{ padding: '6px 4px', backgroundColor: headerStyle.bg, color: headerStyle.text, borderColor: headerStyle.border, width: '35%' }}>วาระงาน</th>
-                          {colLocationVisible && <th style={{ padding: '6px 4px', backgroundColor: headerStyle.bg, color: headerStyle.text, borderColor: headerStyle.border, width: '25%' }}>สถานที่</th>}
+                          <th style={{ width: smartColWidths.exec || '25%', padding: '6px 4px', backgroundColor: headerStyle.bg, color: headerStyle.text, borderColor: headerStyle.border }}>ผู้บริหาร</th>
+                          {colTimeVisible && <th style={{ width: smartColWidths.time || '15%', padding: '6px 4px', backgroundColor: headerStyle.bg, color: headerStyle.text, borderColor: headerStyle.border }}>เวลา</th>}
+                          <th style={{ width: smartColWidths.mission || '35%', padding: '6px 4px', backgroundColor: headerStyle.bg, color: headerStyle.text, borderColor: headerStyle.border }}>วาระงาน</th>
+                          {colLocationVisible && <th style={{ width: smartColWidths.location || '25%', padding: '6px 4px', backgroundColor: headerStyle.bg, color: headerStyle.text, borderColor: headerStyle.border }}>สถานที่</th>}
+                          {colAgencyVisible && <th style={{ width: smartColWidths.agency || '15%', padding: '6px 4px', backgroundColor: headerStyle.bg, color: headerStyle.text, borderColor: headerStyle.border }}>หน่วยงาน</th>}
+                          {colDressVisible && <th style={{ width: smartColWidths.dress || '15%', padding: '6px 4px', backgroundColor: headerStyle.bg, color: headerStyle.text, borderColor: headerStyle.border }}>การแต่งกาย</th>}
                         </tr>
                       </thead>
                       <tbody>
@@ -1205,31 +1207,25 @@ export default function SchedulesAdmin() {
                               })()}
                             </td>
                           )}
+                          {colAgencyVisible && (
+                            <td style={{ padding: '8px 6px', borderBottom: '1px solid black', borderRight: '1px solid black', overflowWrap: 'break-word', wordBreak: 'break-word' }}>
+                              {(() => {
+                                const { text: aText, align: aItemAlign } = extractItemAlign(mockSchedule.agency);
+                                const effectiveAlign = isDash(mockSchedule.agency) ? 'center' : (aItemAlign || 'left');
+                                return <div style={{ whiteSpace: 'pre-wrap', textAlign: effectiveAlign as any }}>{renderText(aText)}</div>;
+                              })()}
+                            </td>
+                          )}
+                          {colDressVisible && (
+                            <td style={{ padding: '8px 6px', borderBottom: '1px solid black', borderRight: '1px solid black', overflowWrap: 'break-word', wordBreak: 'break-word' }}>
+                              {(() => {
+                                const { text: dText, align: dItemAlign } = extractItemAlign(mockSchedule.dressCode);
+                                const effectiveAlign = isDash(mockSchedule.dressCode) ? 'center' : (dItemAlign || 'left');
+                                return <div style={{ whiteSpace: 'pre-wrap', textAlign: effectiveAlign as any }}>{renderText(dText)}</div>;
+                              })()}
+                            </td>
+                          )}
                         </tr>
-                        
-                        {/* Optional Sub-row for Agency & Dress Code if they exist and columns are visible */}
-                        {(colAgencyVisible && mockSchedule.agency || colDressVisible && mockSchedule.dressCode) ? (
-                          <tr style={{ fontSize: '0.9em', color: '#475569', backgroundColor: '#fdfdfd' }}>
-                            <td style={{ padding: '6px', textAlign: 'center', fontWeight: 'bold', borderBottom: '1px solid black', borderRight: '1px solid black' }}>
-                              รายละเอียดเพิ่มเติม
-                            </td>
-                            {colTimeVisible && <td style={{ borderBottom: '1px solid black', borderRight: '1px solid black' }}></td>}
-                            <td style={{ padding: '6px', borderBottom: '1px solid black', borderRight: '1px solid black', overflowWrap: 'break-word', wordBreak: 'break-word' }}>
-                              {colAgencyVisible && mockSchedule.agency && (
-                                <div>
-                                  <span style={{ fontWeight: 'bold' }}>หน่วยงาน:</span> {toThaiDigits(mockSchedule.agency)}
-                                </div>
-                              )}
-                            </td>
-                            <td style={{ padding: '6px', borderBottom: '1px solid black', borderRight: '1px solid black', overflowWrap: 'break-word', wordBreak: 'break-word' }}>
-                              {colDressVisible && mockSchedule.dressCode && (
-                                <div>
-                                  <span style={{ fontWeight: 'bold' }}>การแต่งกาย:</span> {toThaiDigits(mockSchedule.dressCode)}
-                                </div>
-                              )}
-                            </td>
-                          </tr>
-                        ) : null}
                       </tbody>
                     </table>
                   </div>
