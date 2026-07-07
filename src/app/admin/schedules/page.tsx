@@ -1184,173 +1184,20 @@ export default function SchedulesAdmin() {
                   </div>
                 </div>
               </div>
-              
-              <div className="modal-split-container" style={{ display: 'flex', gap: '32px', flex: 1, overflow: 'hidden' }}>
-                {/* FORM COLUMN */}
-                <form onSubmit={handleSubmit} style={{ flex: 1.2, display: 'flex', flexDirection: 'column', gap: '16px', height: '100%', overflowY: 'auto', paddingRight: '12px' }}>
-                  <div className="form-group" style={{ marginBottom: 0 }}>
-                    <label className="form-label">ผู้บริหาร</label>
-                    <select 
-                      className="form-input"
-                      value={currentSchedule.executiveId || ''} 
-                      onChange={e => setCurrentSchedule({...currentSchedule, executiveId: e.target.value})}
-                      required
-                    >
-                      <option value="">เลือกผู้บริหาร</option>
-                      {executives.map(ex => <option key={ex.id} value={ex.id}>{ex.name}</option>)}
-                    </select>
-                  </div>
-                  
-                  <div className="form-row" style={{ display: 'flex', gap: '16px' }}>
-                    <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
-                      <label className="form-label">เวลาเริ่มต้น (ไม่บังคับ)</label>
-                      <input className="form-input" type="text" value={currentSchedule.startTime || ''} onChange={e => setCurrentSchedule({...currentSchedule, startTime: e.target.value})} placeholder="e.g. 08.30 หรือเว้นว่าง" />
-                    </div>
-                    <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
-                      <label className="form-label">เวลาสิ้นสุด (ไม่บังคับ)</label>
-                      <input className="form-input" type="text" value={currentSchedule.endTime || ''} onChange={e => setCurrentSchedule({...currentSchedule, endTime: e.target.value})} placeholder="e.g. 16.30 หรือเว้นว่าง" />
-                    </div>
-                  </div>
-                  
-                  {/* MISSION FIELD */}
-                  <div className="form-group" style={{ position: 'relative', marginBottom: 0, display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                    <label className="form-label">รายละเอียดกำหนดการ / ภารกิจ</label>
-                    <textarea 
-                      id="mission-input"
-                      className="form-input" 
-                      style={{ height: '90px', resize: 'vertical' }} 
-                      value={currentSchedule.mission || ''} 
-                      onChange={e => setCurrentSchedule({...currentSchedule, mission: e.target.value})} 
-                      onFocus={() => {
-                        setActiveField('mission');
-                        setActiveSuggestionField('mission');
-                      }}
-                      onBlur={() => setActiveSuggestionField(null)}
-                      placeholder="ระบุภารกิจหรือรายละเอียดกิจกรรม (ไม่บังคับ)" 
-                    />
-                    {activeSuggestionField === 'mission' && getFilteredSuggestions('mission', currentSchedule.mission).length > 0 && (
-                      <div className="suggestions-dropdown">
-                        {getFilteredSuggestions('mission', currentSchedule.mission).map((item, idx) => (
-                          <div 
-                            key={idx} 
-                            className="suggestion-item" 
-                            onMouseDown={() => setCurrentSchedule({...currentSchedule, mission: item})}
-                          >
-                            {item}
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
 
-                  {/* LOCATION FIELD */}
-                  <div className="form-group" style={{ position: 'relative', marginBottom: 0, display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                    <label className="form-label">สถานที่</label>
-                    <textarea 
-                      id="location-input"
-                      className="form-input" 
-                      style={{ height: '70px', resize: 'vertical' }} 
-                      value={currentSchedule.location || ''} 
-                      onChange={e => setCurrentSchedule({...currentSchedule, location: e.target.value})} 
-                      onFocus={() => {
-                        setActiveField('location');
-                        setActiveSuggestionField('location');
-                      }}
-                      onBlur={() => setActiveSuggestionField(null)}
-                      placeholder="e.g. ห้องประชุมบัวหลวง ชั้น ๕ / ศาลากลางจังหวัดปทุมธานี (ไม่บังคับ)" 
-                    />
-                    {activeSuggestionField === 'location' && getFilteredSuggestions('location', currentSchedule.location).length > 0 && (
-                      <div className="suggestions-dropdown">
-                        {getFilteredSuggestions('location', currentSchedule.location).map((item, idx) => (
-                          <div 
-                            key={idx} 
-                            className="suggestion-item" 
-                            onMouseDown={() => setCurrentSchedule({...currentSchedule, location: item})}
-                          >
-                            {item}
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="form-row" style={{ display: 'flex', gap: '16px' }}>
-                    {/* AGENCY FIELD */}
-                    <div className="form-group" style={{ flex: 1, position: 'relative', marginBottom: 0, display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                      <label className="form-label">หน่วยงานเจ้าภาพ</label>
-                      <textarea 
-                        id="agency-input"
-                        className="form-input" 
-                        style={{ height: '70px', resize: 'vertical' }}
-                        value={currentSchedule.agency || ''} 
-                        onChange={e => setCurrentSchedule({...currentSchedule, agency: e.target.value})} 
-                        onFocus={() => {
-                          setActiveField('agency');
-                          setActiveSuggestionField('agency');
-                        }}
-                        onBlur={() => setActiveSuggestionField(null)}
-                        placeholder="e.g. สำนักงานจังหวัดปทุมธานี" 
-                      />
-                      {activeSuggestionField === 'agency' && getFilteredSuggestions('agency', currentSchedule.agency).length > 0 && (
-                        <div className="suggestions-dropdown">
-                          {getFilteredSuggestions('agency', currentSchedule.agency).map((item, idx) => (
-                            <div 
-                              key={idx} 
-                              className="suggestion-item" 
-                              onMouseDown={() => setCurrentSchedule({...currentSchedule, agency: item})}
-                            >
-                              {item}
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                    
-                    {/* DRESS CODE FIELD */}
-                    <div className="form-group" style={{ flex: 1, position: 'relative', marginBottom: 0, display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                      <label className="form-label">การแต่งกาย</label>
-                      <textarea 
-                        id="dressCode-input"
-                        className="form-input" 
-                        style={{ height: '70px', resize: 'vertical' }} 
-                        value={currentSchedule.dressCode || ''} 
-                        onChange={e => setCurrentSchedule({...currentSchedule, dressCode: e.target.value})} 
-                        onFocus={() => {
-                          setActiveField('dressCode');
-                          setActiveSuggestionField('dressCode');
-                        }}
-                        onBlur={() => setActiveSuggestionField(null)}
-                        placeholder="e.g. เครื่องแบบราชการสีกากี" 
-                      />
-                      {activeSuggestionField === 'dressCode' && getFilteredSuggestions('dressCode', currentSchedule.dressCode).length > 0 && (
-                        <div className="suggestions-dropdown">
-                          {getFilteredSuggestions('dressCode', currentSchedule.dressCode).map((item, idx) => (
-                            <div 
-                              key={idx} 
-                              className="suggestion-item" 
-                              onMouseDown={() => setCurrentSchedule({...currentSchedule, dressCode: item})}
-                            >
-                              {item}
-                            </div>
-                          ))}
-                        </div>
-                      )}
+              <div className="modal-layout-container" style={{ display: 'flex', flexDirection: 'column', gap: '16px', flex: 1, overflow: 'hidden' }}>
+                {/* 1. LIVE PREVIEW PANEL (At the top) */}
+                <div className="live-preview-panel" style={{ width: '100%', display: 'flex', flexDirection: 'column' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                    <h3 style={{ fontSize: '0.9rem', fontWeight: 800, color: '#475569', margin: 0, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                      🖥️ แสดงตัวอย่างการจัดหน้าจริง (Real-time Preview)
+                    </h3>
+                    <div style={{ fontSize: '0.78rem', color: '#1e40af', backgroundColor: '#eff6ff', padding: '4px 8px', border: '1px solid #bfdbfe', borderRadius: '4px' }}>
+                      💡 พรีวิวนี้จะอัปเดตทันทีเมื่อกรอกข้อมูลด้านล่าง
                     </div>
                   </div>
                   
-                  <div className="actions" style={{ marginTop: '12px', display: 'flex', gap: '12px' }}>
-                    <button type="submit" className="btn-admin btn-admin-primary" style={{ flex: 1 }}>บันทึกวาระงาน</button>
-                    <button type="button" className="btn-admin btn-admin-secondary" style={{ flex: 1 }} onClick={() => setIsEditing(false)}>ยกเลิก</button>
-                  </div>
-                </form>
-
-                {/* LIVE PREVIEW COLUMN */}
-                <div className="live-preview-panel" style={{ flex: 0.8, display: 'flex', flexDirection: 'column', borderLeft: '1px solid #cbd5e1', paddingLeft: '24px', height: '100%', overflowY: 'auto' }}>
-                  <h3 style={{ fontSize: '0.95rem', fontWeight: 800, color: '#475569', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                    🖥️ แสดงตัวอย่างการจัดหน้าจริง (Real-time Preview)
-                  </h3>
-                  
-                  <div style={{ flex: 1, backgroundColor: '#f8fafc', border: '1px solid #cbd5e1', borderRadius: '8px', padding: '16px', overflow: 'auto', display: 'flex', flexDirection: 'column' }}>
+                  <div style={{ backgroundColor: '#f8fafc', border: '1px solid #cbd5e1', borderRadius: '8px', padding: '12px', overflowX: 'auto' }}>
                     <table 
                       className="preview-table"
                       style={{ 
@@ -1429,11 +1276,170 @@ export default function SchedulesAdmin() {
                       </tbody>
                     </table>
                   </div>
-                  
-                  <div style={{ marginTop: '12px', padding: '10px 14px', backgroundColor: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '6px', fontSize: '0.8rem', color: '#1e40af' }}>
-                    💡 <strong>คำแนะนำ:</strong> พรีวิวนี้จะอัปเดตทันทีที่คุณกรอกข้อมูล ลองพิมพ์เลข <strong>*90*</strong> เพื่อบังคับให้เป็นเลขอารบิก หรือใช้ปุ่มช่วยกรอกด้านซ้ายมือได้เลยครับ
-                  </div>
                 </div>
+
+                {/* 2. FORM COLUMN (At the bottom) */}
+                <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px', width: '100%' }}>
+                  {/* Row 1: Executive, Start Time, End Time */}
+                  <div style={{ display: 'flex', gap: '16px' }}>
+                    <div className="form-group" style={{ flex: 2, marginBottom: 0 }}>
+                      <label className="form-label" style={{ fontSize: '0.82rem', marginBottom: '2px' }}>ผู้บริหาร</label>
+                      <select 
+                        className="form-input"
+                        value={currentSchedule.executiveId || ''} 
+                        onChange={e => setCurrentSchedule({...currentSchedule, executiveId: e.target.value})}
+                        required
+                      >
+                        <option value="">เลือกผู้บริหาร</option>
+                        {executives.map(ex => <option key={ex.id} value={ex.id}>{ex.name}</option>)}
+                      </select>
+                    </div>
+                    <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
+                      <label className="form-label" style={{ fontSize: '0.82rem', marginBottom: '2px' }}>เวลาเริ่มต้น (ไม่บังคับ)</label>
+                      <input className="form-input" type="text" value={currentSchedule.startTime || ''} onChange={e => setCurrentSchedule({...currentSchedule, startTime: e.target.value})} placeholder="e.g. 08.30 หรือเว้นว่าง" />
+                    </div>
+                    <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
+                      <label className="form-label" style={{ fontSize: '0.82rem', marginBottom: '2px' }}>เวลาสิ้นสุด (ไม่บังคับ)</label>
+                      <input className="form-input" type="text" value={currentSchedule.endTime || ''} onChange={e => setCurrentSchedule({...currentSchedule, endTime: e.target.value})} placeholder="e.g. 16.30 หรือเว้นว่าง" />
+                    </div>
+                  </div>
+                  
+                  {/* Row 2: Mission & Location */}
+                  <div style={{ display: 'flex', gap: '16px' }}>
+                    {/* MISSION FIELD */}
+                    <div className="form-group" style={{ flex: 1, position: 'relative', marginBottom: 0, display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                      <label className="form-label" style={{ fontSize: '0.82rem' }}>รายละเอียดกำหนดการ / ภารกิจ</label>
+                      <textarea 
+                        id="mission-input"
+                        className="form-input" 
+                        style={{ height: '70px', resize: 'none' }} 
+                        value={currentSchedule.mission || ''} 
+                        onChange={e => setCurrentSchedule({...currentSchedule, mission: e.target.value})} 
+                        onFocus={() => {
+                          setActiveField('mission');
+                          setActiveSuggestionField('mission');
+                        }}
+                        onBlur={() => setActiveSuggestionField(null)}
+                        placeholder="ระบุภารกิจหรือรายละเอียดกิจกรรม (ไม่บังคับ)" 
+                      />
+                      {activeSuggestionField === 'mission' && getFilteredSuggestions('mission', currentSchedule.mission).length > 0 && (
+                        <div className="suggestions-dropdown" style={{ top: 'auto', bottom: '100%', marginBottom: '4px' }}>
+                          {getFilteredSuggestions('mission', currentSchedule.mission).map((item, idx) => (
+                            <div 
+                              key={idx} 
+                              className="suggestion-item" 
+                              onMouseDown={() => setCurrentSchedule({...currentSchedule, mission: item})}
+                            >
+                              {item}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* LOCATION FIELD */}
+                    <div className="form-group" style={{ flex: 1, position: 'relative', marginBottom: 0, display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                      <label className="form-label" style={{ fontSize: '0.82rem' }}>สถานที่</label>
+                      <textarea 
+                        id="location-input"
+                        className="form-input" 
+                        style={{ height: '70px', resize: 'none' }} 
+                        value={currentSchedule.location || ''} 
+                        onChange={e => setCurrentSchedule({...currentSchedule, location: e.target.value})} 
+                        onFocus={() => {
+                          setActiveField('location');
+                          setActiveSuggestionField('location');
+                        }}
+                        onBlur={() => setActiveSuggestionField(null)}
+                        placeholder="e.g. ห้องประชุมบัวหลวง ชั้น ๕ / ศาลากลางจังหวัดปทุมธานี (ไม่บังคับ)" 
+                      />
+                      {activeSuggestionField === 'location' && getFilteredSuggestions('location', currentSchedule.location).length > 0 && (
+                        <div className="suggestions-dropdown" style={{ top: 'auto', bottom: '100%', marginBottom: '4px' }}>
+                          {getFilteredSuggestions('location', currentSchedule.location).map((item, idx) => (
+                            <div 
+                              key={idx} 
+                              className="suggestion-item" 
+                              onMouseDown={() => setCurrentSchedule({...currentSchedule, location: item})}
+                            >
+                              {item}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Row 3: Host Agency & Dress Code */}
+                  <div style={{ display: 'flex', gap: '16px' }}>
+                    {/* AGENCY FIELD */}
+                    <div className="form-group" style={{ flex: 1, position: 'relative', marginBottom: 0, display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                      <label className="form-label" style={{ fontSize: '0.82rem' }}>หน่วยงานเจ้าภาพ</label>
+                      <textarea 
+                        id="agency-input"
+                        className="form-input" 
+                        style={{ height: '55px', resize: 'none' }}
+                        value={currentSchedule.agency || ''} 
+                        onChange={e => setCurrentSchedule({...currentSchedule, agency: e.target.value})} 
+                        onFocus={() => {
+                          setActiveField('agency');
+                          setActiveSuggestionField('agency');
+                        }}
+                        onBlur={() => setActiveSuggestionField(null)}
+                        placeholder="e.g. สำนักงานจังหวัดปทุมธานี" 
+                      />
+                      {activeSuggestionField === 'agency' && getFilteredSuggestions('agency', currentSchedule.agency).length > 0 && (
+                        <div className="suggestions-dropdown" style={{ top: 'auto', bottom: '100%', marginBottom: '4px' }}>
+                          {getFilteredSuggestions('agency', currentSchedule.agency).map((item, idx) => (
+                            <div 
+                              key={idx} 
+                              className="suggestion-item" 
+                              onMouseDown={() => setCurrentSchedule({...currentSchedule, agency: item})}
+                            >
+                              {item}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* DRESS CODE FIELD */}
+                    <div className="form-group" style={{ flex: 1, position: 'relative', marginBottom: 0, display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                      <label className="form-label" style={{ fontSize: '0.82rem' }}>การแต่งกาย</label>
+                      <textarea 
+                        id="dressCode-input"
+                        className="form-input" 
+                        style={{ height: '55px', resize: 'none' }} 
+                        value={currentSchedule.dressCode || ''} 
+                        onChange={e => setCurrentSchedule({...currentSchedule, dressCode: e.target.value})} 
+                        onFocus={() => {
+                          setActiveField('dressCode');
+                          setActiveSuggestionField('dressCode');
+                        }}
+                        onBlur={() => setActiveSuggestionField(null)}
+                        placeholder="e.g. เครื่องแบบราชการสีกากี" 
+                      />
+                      {activeSuggestionField === 'dressCode' && getFilteredSuggestions('dressCode', currentSchedule.dressCode).length > 0 && (
+                        <div className="suggestions-dropdown" style={{ top: 'auto', bottom: '100%', marginBottom: '4px' }}>
+                          {getFilteredSuggestions('dressCode', currentSchedule.dressCode).map((item, idx) => (
+                            <div 
+                              key={idx} 
+                              className="suggestion-item" 
+                              onMouseDown={() => setCurrentSchedule({...currentSchedule, dressCode: item})}
+                            >
+                              {item}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  
+                  {/* Row 4: Action Buttons */}
+                  <div className="actions" style={{ marginTop: '4px', display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+                    <button type="button" className="btn-admin btn-admin-secondary" style={{ width: '150px' }} onClick={() => setIsEditing(false)}>ยกเลิก</button>
+                    <button type="submit" className="btn-admin btn-admin-primary" style={{ width: '200px' }}>บันทึกวาระงาน</button>
+                  </div>
+                </form>
               </div>
             </div>
           </div>
