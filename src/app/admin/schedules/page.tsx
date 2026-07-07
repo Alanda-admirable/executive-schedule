@@ -225,8 +225,6 @@ export default function SchedulesAdmin() {
     // Strip alignment markers before rendering
     formatted = formatted.replace(/^\{\{[CLR]\}\}/, '');
 
-    // 2. Convert space before prepositions (like " ณ") to a newline
-    formatted = formatted.replace(/\s+ณ\s*/g, '\nณ ');
 
     // 3. Keep single spaces as newlines if they are separators, but handle | or / or ;
     // Also convert 2 or more spaces to a newline as instructed in the hint
@@ -1147,8 +1145,8 @@ export default function SchedulesAdmin() {
         const headerStyle = getWeekdayHeaderStyle(selectedDayIndex);
         
         return (
-          <div className="modal-backdrop">
-            <div className="modal-card" style={{ maxWidth: '1200px', width: '95%', padding: '28px' }}>
+          <div className="modal-backdrop" style={{ padding: 0 }}>
+            <div className="modal-card" style={{ maxWidth: '100vw', width: '100vw', height: '100vh', borderRadius: 0, padding: '24px', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
               <h2 className="modal-title" style={{ borderBottom: '1px solid #e2e8f0', paddingBottom: '12px', marginBottom: '16px' }}>
                 {currentSchedule.id ? 'แก้ไขข้อมูล' : 'เพิ่มข้อมูล'}วาระงาน
               </h2>
@@ -1160,7 +1158,6 @@ export default function SchedulesAdmin() {
                   <div style={{ display: 'flex', gap: '6px' }}>
                     <button type="button" className="helper-btn" style={{ opacity: activeField ? 1 : 0.5, cursor: activeField ? 'pointer' : 'not-allowed' }} disabled={!activeField} title="บังคับใช้ตัวเลขอารบิกสำหรับช่องที่เลือก" onClick={() => activeField && insertTextAtCursor(activeField, '*', '*')}>🔢 อารบิก</button>
                     <button type="button" className="helper-btn" style={{ opacity: activeField ? 1 : 0.5, cursor: activeField ? 'pointer' : 'not-allowed' }} disabled={!activeField} title="ขึ้นบรรทัดใหม่ในช่องที่เลือก" onClick={() => activeField && insertTextAtCursor(activeField, '\n')}>⏎ ขึ้นบรรทัดใหม่</button>
-                    <button type="button" className="helper-btn" style={{ opacity: activeField ? 1 : 0.5, cursor: activeField ? 'pointer' : 'not-allowed' }} disabled={!activeField} title="พิมพ์คำว่า ณ พร้อมขึ้นบรรทัดใหม่ในช่องที่เลือก" onClick={() => activeField && insertTextAtCursor(activeField, ' ณ ')}>📍 ใส่ ณ</button>
                   </div>
                   {activeField ? (
                     <span style={{ fontSize: '0.78rem', color: '#2563eb', marginLeft: '8px', fontWeight: 'bold' }}>
@@ -1188,9 +1185,9 @@ export default function SchedulesAdmin() {
                 </div>
               </div>
               
-              <div className="modal-split-container" style={{ display: 'flex', gap: '32px' }}>
+              <div className="modal-split-container" style={{ display: 'flex', gap: '32px', flex: 1, overflow: 'hidden' }}>
                 {/* FORM COLUMN */}
-                <form onSubmit={handleSubmit} style={{ flex: 1.2, display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <form onSubmit={handleSubmit} style={{ flex: 1.2, display: 'flex', flexDirection: 'column', gap: '16px', height: '100%', overflowY: 'auto', paddingRight: '12px' }}>
                   <div className="form-group" style={{ marginBottom: 0 }}>
                     <label className="form-label">ผู้บริหาร</label>
                     <select 
@@ -1348,12 +1345,12 @@ export default function SchedulesAdmin() {
                 </form>
 
                 {/* LIVE PREVIEW COLUMN */}
-                <div className="live-preview-panel" style={{ flex: 0.8, display: 'flex', flexDirection: 'column', borderLeft: '1px solid #cbd5e1', paddingLeft: '24px' }}>
+                <div className="live-preview-panel" style={{ flex: 0.8, display: 'flex', flexDirection: 'column', borderLeft: '1px solid #cbd5e1', paddingLeft: '24px', height: '100%', overflowY: 'auto' }}>
                   <h3 style={{ fontSize: '0.95rem', fontWeight: 800, color: '#475569', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                     🖥️ แสดงตัวอย่างการจัดหน้าจริง (Real-time Preview)
                   </h3>
                   
-                  <div style={{ flex: 1, backgroundColor: '#f8fafc', border: '1px solid #cbd5e1', borderRadius: '8px', padding: '16px', overflowX: 'auto', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                  <div style={{ flex: 1, backgroundColor: '#f8fafc', border: '1px solid #cbd5e1', borderRadius: '8px', padding: '16px', overflow: 'auto', display: 'flex', flexDirection: 'column' }}>
                     <table 
                       className="preview-table"
                       style={{ 

@@ -147,8 +147,6 @@ export default function PublicSchedulePage() {
     // Strip alignment markers before rendering
     formatted = formatted.replace(/^\{\{[CLR]\}\}/, '');
 
-    // 2. Convert space before prepositions (like " ณ") to a newline
-    formatted = formatted.replace(/\s+ณ\s*/g, '\nณ ');
 
     // 3. Keep single spaces as newlines if they are separators, but handle | or / or ;
     formatted = formatted
