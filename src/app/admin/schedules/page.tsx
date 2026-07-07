@@ -652,7 +652,7 @@ export default function SchedulesAdmin() {
           >
             <span>{printPreviewMode ? '🖥️ กลับหน้าจัดการปกติ' : '🖨️ พรีวิวก่อนพิมพ์'}</span>
           </button>
-          <button className="btn-admin btn-admin-primary" onClick={() => { setIsEditing(true); setCurrentSchedule({ startTime: '08:30', executiveId: executives[0]?.id }); }}>
+          <button className="btn-admin btn-admin-primary" onClick={() => { setIsEditing(true); setCurrentSchedule({ startTime: '08.30', executiveId: executives[0]?.id }); }}>
             <span>+ เพิ่มวาระงานใหม่</span>
           </button>
         </div>
@@ -1204,11 +1204,11 @@ export default function SchedulesAdmin() {
                   <div className="form-row" style={{ display: 'flex', gap: '16px' }}>
                     <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
                       <label className="form-label">เวลาเริ่มต้น (ไม่บังคับ)</label>
-                      <input className="form-input" type="text" value={currentSchedule.startTime || ''} onChange={e => setCurrentSchedule({...currentSchedule, startTime: e.target.value})} placeholder="e.g. 08:30 หรือเว้นว่าง" />
+                      <input className="form-input" type="text" value={currentSchedule.startTime || ''} onChange={e => setCurrentSchedule({...currentSchedule, startTime: e.target.value})} placeholder="e.g. 08.30 หรือเว้นว่าง" />
                     </div>
                     <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
                       <label className="form-label">เวลาสิ้นสุด (ไม่บังคับ)</label>
-                      <input className="form-input" type="text" value={currentSchedule.endTime || ''} onChange={e => setCurrentSchedule({...currentSchedule, endTime: e.target.value})} placeholder="e.g. 16:30 หรือเว้นว่าง" />
+                      <input className="form-input" type="text" value={currentSchedule.endTime || ''} onChange={e => setCurrentSchedule({...currentSchedule, endTime: e.target.value})} placeholder="e.g. 16.30 หรือเว้นว่าง" />
                     </div>
                   </div>
                   
