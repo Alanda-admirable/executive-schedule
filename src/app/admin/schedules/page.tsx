@@ -1818,14 +1818,23 @@ export default function SchedulesAdmin() {
         }
 
         /* QoL Admin Direct Printing Layout */
+        /* QoL Admin Direct Printing Layout */
         @media print {
+          * {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+          @page {
+            size: A4 landscape;
+            margin: 0 !important; /* Clear default browser margin, headers, and footers */
+          }
           html, body {
-            width: 100% !important;
-            max-width: 100% !important;
-            min-width: 100% !important;
+            width: 297mm !important;
+            height: 210mm !important;
             padding: 0 !important;
             margin: 0 !important;
-            overflow: visible !important;
+            overflow: hidden !important;
+            background-color: white !important;
           }
           .admin-nav, .header, .word-toolbar-card, .filter-bar, .admin-card:not(.print-preview-container), .no-print, button, .modal-backdrop {
             display: none !important;
@@ -1833,8 +1842,10 @@ export default function SchedulesAdmin() {
           .admin-page {
             padding: 0 !important;
             margin: 0 !important;
-            width: 100% !important;
-            max-width: 100% !important;
+            width: 297mm !important;
+            height: 210mm !important;
+            max-width: 297mm !important;
+            overflow: hidden !important;
           }
           .print-preview-container {
             background: transparent !important;
@@ -1842,17 +1853,25 @@ export default function SchedulesAdmin() {
             border: none !important;
             border-radius: 0 !important;
             box-shadow: none !important;
-            width: 100% !important;
-            max-width: 100% !important;
+            width: 297mm !important;
+            height: 210mm !important;
+            max-width: 297mm !important;
+            overflow: hidden !important;
+            display: block !important;
           }
           .a4-landscape-page {
             box-shadow: none !important;
             border: none !important;
-            padding: 0 !important;
-            width: 100% !important;
-            max-width: 100% !important;
-            overflow: visible !important;
-            aspect-ratio: auto !important;
+            padding: 20mm 15mm !important; /* Exactly match screen preview padding */
+            width: 297mm !important;
+            height: 210mm !important;
+            max-width: 297mm !important;
+            min-height: 210mm !important;
+            overflow: hidden !important;
+            aspect-ratio: 1.414 !important;
+            background: white !important;
+            box-sizing: border-box !important;
+            margin: 0 !important;
           }
           .preview-banner-container {
             width: 100% !important;
@@ -1880,10 +1899,6 @@ export default function SchedulesAdmin() {
             border-right: 1px solid #000000 !important;
             position: static !important;
             background-clip: border-box !important;
-          }
-          @page {
-            size: A4 landscape;
-            margin: 8mm 10mm;
           }
           /* Apply the same compact styles for printing when fitToPage is active */
           .preview-fit-to-page .preview-table td,
