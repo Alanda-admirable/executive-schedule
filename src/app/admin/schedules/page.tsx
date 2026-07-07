@@ -1540,10 +1540,12 @@ export default function SchedulesAdmin() {
         }
 
         .btn-group {
-          display: flex;
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
           border-radius: 6px;
           overflow: hidden;
           border: 1px solid #cbd5e1;
+          width: 100%;
         }
 
         .toolbar-btn {
@@ -1557,6 +1559,7 @@ export default function SchedulesAdmin() {
           color: #475569;
           transition: all 0.15s;
           white-space: nowrap;
+          text-align: center;
         }
 
         .toolbar-btn:last-child {
@@ -1570,7 +1573,6 @@ export default function SchedulesAdmin() {
         .toolbar-btn.active {
           background: #3b82f6;
           color: white;
-          border-color: #3b82f6;
         }
 
         .column-visibility-section {
