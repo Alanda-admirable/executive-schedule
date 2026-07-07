@@ -1690,6 +1690,9 @@ export default function PublicSchedulePage() {
         }
 
         /* Single Page Fit Styles (Applies to both screen/html2canvas and print) */
+        .print-fit-to-page .schedule-table {
+          font-size: 0.82em !important;
+        }
         .print-fit-to-page .schedule-table td,
         .print-fit-to-page .schedule-table th {
           padding: 3px 5px !important;
@@ -1706,24 +1709,24 @@ export default function PublicSchedulePage() {
           border-width: 1px !important;
         }
         .print-fit-to-page .banner-title {
-          font-size: 13px;
+          font-size: 13px !important;
         }
         .print-fit-to-page .banner-date {
-          font-size: 11px;
+          font-size: 11px !important;
           margin-top: 2px !important;
           margin-bottom: 4px !important;
         }
         .print-fit-to-page .banner-footer {
-          font-size: 8px;
+          font-size: 8px !important;
         }
         .print-fit-to-page .exec-name {
-          font-size: 11px;
+          font-size: 11px !important;
         }
         .print-fit-to-page .exec-title {
-          font-size: 11px;
+          font-size: 11px !important;
         }
         .print-fit-to-page .time-end-text {
-          font-size: 8px;
+          font-size: 8px !important;
         }
         .print-fit-to-page .schedule-row {
           break-inside: auto !important;

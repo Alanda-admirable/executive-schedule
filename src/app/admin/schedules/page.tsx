@@ -669,9 +669,9 @@ export default function SchedulesAdmin() {
           </button>
         </div>
         
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
+        <div className="toolbar-grid" style={{ gap: '24px' }}>
           {/* Section 1: Typography */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', borderRight: '1px solid #f1f5f9', paddingRight: '16px' }}>
+          <div className="toolbar-col" style={{ display: 'flex', flexDirection: 'column', gap: '16px', borderRight: '1px solid #f1f5f9', paddingRight: '16px' }}>
             <h4 style={{ fontSize: '0.82rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', margin: 0, borderBottom: '1px solid #f1f5f9', paddingBottom: '6px' }}>
               ลักษณะตัวอักษร (Typography)
             </h4>
@@ -694,7 +694,7 @@ export default function SchedulesAdmin() {
               </select>
             </div>
 
-            <div style={{ display: 'flex', gap: '12px' }}>
+            <div className="toolbar-row" style={{ display: 'flex', gap: '12px' }}>
               <div className="toolbar-section" style={{ flex: 1, minWidth: 0 }}>
                 <span className="section-label">ขนาดอักษรเนื้อหา</span>
                 <div style={{ display: 'flex', gap: '4px' }}>
@@ -741,12 +741,12 @@ export default function SchedulesAdmin() {
           </div>
 
           {/* Section 2: Layout & Alignment */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', borderRight: '1px solid #f1f5f9', paddingRight: '16px' }}>
+          <div className="toolbar-col" style={{ display: 'flex', flexDirection: 'column', gap: '16px', borderRight: '1px solid #f1f5f9', paddingRight: '16px' }}>
             <h4 style={{ fontSize: '0.82rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', margin: 0, borderBottom: '1px solid #f1f5f9', paddingBottom: '6px' }}>
               การจัดแนวและระยะห่าง (Layout & Alignment)
             </h4>
             
-            <div style={{ display: 'flex', gap: '12px' }}>
+            <div className="toolbar-row" style={{ display: 'flex', gap: '12px' }}>
               <div className="toolbar-section" style={{ flex: 1, minWidth: 0 }}>
                 <span className="section-label">ระยะห่างบรรทัด</span>
                 <div style={{ display: 'flex', gap: '4px' }}>
@@ -797,7 +797,7 @@ export default function SchedulesAdmin() {
           </div>
 
           {/* Section 3: Print Options */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div className="toolbar-col last" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <h4 style={{ fontSize: '0.82rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', margin: 0, borderBottom: '1px solid #f1f5f9', paddingBottom: '6px' }}>
               ตัวเลือกการพิมพ์และคอลัมน์ (Print Settings)
             </h4>
@@ -1439,6 +1439,72 @@ export default function SchedulesAdmin() {
           margin-bottom: 24px;
           background: #f8fafc;
           border: 1px solid #cbd5e1;
+        }
+
+        .toolbar-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        }
+
+        .toolbar-row {
+          display: flex;
+          gap: 12px;
+        }
+
+        /* Mobile responsiveness overrides for customizer panel and previews */
+        @media (max-width: 768px) {
+          .header {
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 16px !important;
+          }
+          .header > div:first-child {
+            width: 100% !important;
+          }
+          .title {
+            font-size: 1.45rem !important;
+            line-height: 1.25 !important;
+            word-wrap: break-word !important;
+          }
+          .subtitle {
+            font-size: 0.82rem !important;
+            line-height: 1.4 !important;
+          }
+          .word-toolbar-card {
+            padding: 16px !important;
+          }
+          .toolbar-grid {
+            grid-template-columns: 1fr !important;
+            gap: 16px !important;
+          }
+          .toolbar-col {
+            border-right: none !important;
+            padding-right: 0 !important;
+            border-bottom: 1px dashed #e2e8f0 !important;
+            padding-bottom: 16px !important;
+          }
+          .toolbar-col.last {
+            border-bottom: none !important;
+            padding-bottom: 0 !important;
+          }
+          .toolbar-row {
+            flex-direction: column !important;
+            gap: 12px !important;
+          }
+        }
+
+        @media (max-width: 1023px) {
+          .print-preview-container {
+            justify-content: flex-start !important;
+            padding: 12px !important;
+            overflow-x: auto !important;
+            -webkit-overflow-scrolling: touch !important;
+          }
+          .a4-landscape-page {
+            min-width: 960px !important;
+            box-shadow: none !important;
+            margin: 0 auto !important;
+          }
         }
 
         .toolbar-header {
