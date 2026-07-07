@@ -1797,6 +1797,9 @@ export default function SchedulesAdmin() {
           aspect-ratio: 1.414 !important;
           overflow-y: auto !important; /* Allow scroll instead of hiding content */
         }
+        .preview-fit-to-page .preview-table {
+          font-size: 0.82em !important;
+        }
         .preview-fit-to-page .preview-table td,
         .preview-fit-to-page .preview-table th {
           padding: 3px 5px !important;
@@ -1807,14 +1810,14 @@ export default function SchedulesAdmin() {
           margin-bottom: 6px !important;
         }
         .preview-fit-to-page .preview-seal-logo {
-          width: 52px !important;
-          height: 52px !important;
+          width: 50px !important;
+          height: 50px !important;
         }
         .preview-fit-to-page .preview-banner-title {
-          font-size: 1.1em;
+          font-size: 1.1em !important;
         }
         .preview-fit-to-page .preview-banner-sub {
-          font-size: 0.9em;
+          font-size: 0.9em !important;
         }
 
         /* QoL Admin Direct Printing Layout */
@@ -1897,24 +1900,30 @@ export default function SchedulesAdmin() {
             background-clip: border-box !important;
           }
           /* Apply the same compact styles for printing when fitToPage is active */
+          .preview-fit-to-page.a4-landscape-page {
+            padding: 6mm 5mm !important; /* Save vertical margin space */
+          }
+          .preview-fit-to-page .preview-table {
+            font-size: 0.82em !important;
+          }
           .preview-fit-to-page .preview-table td,
           .preview-fit-to-page .preview-table th {
             padding: 3px 5px !important;
             line-height: 1.1 !important;
           }
           .preview-fit-to-page .preview-banner {
-            padding: 6px 10px !important;
-            margin-bottom: 6px !important;
+            padding: 4px 8px !important;
+            margin-bottom: 4px !important;
           }
           .preview-fit-to-page .preview-seal-logo {
-            width: 60px !important;
-            height: 60px !important;
+            width: 50px !important;
+            height: 50px !important;
           }
           .preview-fit-to-page .preview-banner-title {
-            font-size: 13px;
+            font-size: 13px !important;
           }
           .preview-fit-to-page .preview-banner-sub {
-            font-size: 11px;
+            font-size: 10px !important;
           }
         }
       `}</style>
