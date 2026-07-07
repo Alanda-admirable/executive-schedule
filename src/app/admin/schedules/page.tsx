@@ -1818,7 +1818,6 @@ export default function SchedulesAdmin() {
         }
 
         /* QoL Admin Direct Printing Layout */
-        /* QoL Admin Direct Printing Layout */
         @media print {
           * {
             -webkit-print-color-adjust: exact !important;
@@ -1826,14 +1825,15 @@ export default function SchedulesAdmin() {
           }
           @page {
             size: A4 landscape;
-            margin: 0 !important; /* Clear default browser margin, headers, and footers */
+            margin: 8mm 10mm !important; /* Safe standard margin to prevent printer hardware clipping */
           }
           html, body {
-            width: 297mm !important;
-            height: 210mm !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            min-width: 100% !important;
             padding: 0 !important;
             margin: 0 !important;
-            overflow: hidden !important;
+            overflow: visible !important;
             background-color: white !important;
           }
           .admin-nav, .header, .word-toolbar-card, .filter-bar, .admin-card:not(.print-preview-container), .no-print, button, .modal-backdrop {
@@ -1842,10 +1842,8 @@ export default function SchedulesAdmin() {
           .admin-page {
             padding: 0 !important;
             margin: 0 !important;
-            width: 297mm !important;
-            height: 210mm !important;
-            max-width: 297mm !important;
-            overflow: hidden !important;
+            width: 100% !important;
+            max-width: 100% !important;
           }
           .print-preview-container {
             background: transparent !important;
@@ -1853,22 +1851,20 @@ export default function SchedulesAdmin() {
             border: none !important;
             border-radius: 0 !important;
             box-shadow: none !important;
-            width: 297mm !important;
-            height: 210mm !important;
-            max-width: 297mm !important;
-            overflow: hidden !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            overflow: visible !important;
             display: block !important;
           }
           .a4-landscape-page {
             box-shadow: none !important;
             border: none !important;
-            padding: 20mm 15mm !important; /* Exactly match screen preview padding */
-            width: 297mm !important;
-            height: 210mm !important;
-            max-width: 297mm !important;
-            min-height: 210mm !important;
-            overflow: hidden !important;
-            aspect-ratio: 1.414 !important;
+            padding: 12mm 5mm !important; /* 8mm page margin + 12mm padding = 20mm vertical margin; 10mm page margin + 5mm padding = 15mm horizontal margin */
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            overflow: visible !important;
+            aspect-ratio: auto !important;
             background: white !important;
             box-sizing: border-box !important;
             margin: 0 !important;
