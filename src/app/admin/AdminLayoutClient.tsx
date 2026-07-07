@@ -46,6 +46,14 @@ export default function AdminLayoutClient({
         </button>
       )}
 
+      {/* Backdrop for mobile */}
+      {!isCollapsed && (
+        <div 
+          className="sidebar-backdrop" 
+          onClick={() => setIsCollapsed(true)}
+        />
+      )}
+
       <nav className="admin-nav">
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2.5rem' }}>
           <div className="admin-nav-brand" style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: 0 }}>

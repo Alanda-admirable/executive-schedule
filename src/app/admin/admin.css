@@ -533,3 +533,78 @@
     padding: 0 !important;
   }
 }
+
+/* Sidebar Backdrop */
+.sidebar-backdrop {
+  display: none;
+}
+
+/* Responsive Layout Drawer for Mobile/Tablet */
+@media (max-width: 1023px) {
+  .sidebar-backdrop {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 998;
+    animation: fadeIn 0.2s ease-out;
+  }
+
+  .admin-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    height: 100vh;
+    z-index: 1000;
+    box-shadow: 10px 0 30px rgba(0, 0, 0, 0.25);
+    width: 280px;
+    transform: translateX(0);
+  }
+
+  /* When collapsed on mobile, slide drawer completely out of the viewport */
+  .admin-container.sidebar-collapsed .admin-nav {
+    transform: translateX(-280px);
+    width: 280px;
+    padding: 24px;
+    border: none;
+  }
+
+  /* Adjust main content padding when sidebar is collapsed on mobile */
+  .admin-container.sidebar-collapsed .admin-main {
+    padding-left: 15px !important;
+    padding-right: 15px !important;
+    padding-top: 75px !important; /* Space for the floating button */
+  }
+
+  .admin-main {
+    padding: 15px !important;
+    padding-top: 75px !important;
+    min-width: 0;
+  }
+
+  .sidebar-toggle-btn {
+    top: 15px;
+    left: 15px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  }
+
+  .sidebar-close-btn {
+    display: block !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  .sidebar-close-btn {
+    display: none !important;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
