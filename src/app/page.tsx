@@ -765,7 +765,7 @@ export default function PublicSchedulePage() {
                                   <td 
                                     className="td-location" 
                                     rowSpan={locationSpans[index].span}
-                                    style={{ padding: getPaddingStyle() }}
+                                    style={{ padding: getPaddingStyle(), verticalAlign: locationSpans[index].span > 1 ? 'middle' : 'top' }}
                                   >
                                     {(() => {
                                       const { text: lText, align: lItemAlign } = extractItemAlign(s.location);
@@ -778,7 +778,7 @@ export default function PublicSchedulePage() {
                                   <td 
                                     className="td-agency" 
                                     rowSpan={agencySpans[index].span}
-                                    style={{ padding: getPaddingStyle() }}
+                                    style={{ padding: getPaddingStyle(), verticalAlign: agencySpans[index].span > 1 ? 'middle' : 'top' }}
                                   >
                                     {(() => {
                                       const { text: aText, align: aItemAlign } = extractItemAlign(s.agency);
@@ -791,7 +791,7 @@ export default function PublicSchedulePage() {
                                   <td 
                                     className="td-dress" 
                                     rowSpan={dressSpans[index].span}
-                                    style={{ padding: getPaddingStyle() }}
+                                    style={{ padding: getPaddingStyle(), verticalAlign: dressSpans[index].span > 1 ? 'middle' : 'top' }}
                                   >
                                     {(() => {
                                       const { text: dText, align: dItemAlign } = extractItemAlign(s.dressCode);
@@ -1283,8 +1283,8 @@ export default function PublicSchedulePage() {
         }
 
         .banner-seal {
-          width: 80px;
-          height: 80px;
+          width: 60px;
+          height: 60px;
           border-radius: 50%;
           background: white;
           display: flex;
@@ -1342,11 +1342,8 @@ export default function PublicSchedulePage() {
         /* Official Excel Table Styling */
         .schedule-table {
           width: 100%;
-          min-width: 900px;
-          border-collapse: separate;
-          border-spacing: 0;
-          border-top: 1px solid #000000;
-          border-left: 1px solid #000000;
+          min-width: 1300px;
+          border-collapse: collapse;
           background-color: white;
         }
 
@@ -1355,29 +1352,20 @@ export default function PublicSchedulePage() {
           font-weight: 800;
           text-transform: uppercase;
           padding: 12px 8px;
-          border-top: none !important;
-          border-left: none !important;
-          border-bottom: 1px solid #000000 !important;
-          border-right: 1px solid #000000 !important;
+          border: 1px solid rgba(0,0,0,0.35) !important;
           text-align: center;
           transition: background-color 0.2s, color 0.2s;
-          position: relative;
-          background-clip: padding-box;
         }
 
         /* Excel style table cells — Smart Word Break */
         .schedule-table td {
-          padding: 12px 10px;
-          vertical-align: middle;
-          border-top: none !important;
-          border-left: none !important;
-          border-bottom: 1px solid #000000 !important;
-          border-right: 1px solid #000000 !important;
+          padding: 6px 8px;
+          vertical-align: top;
+          border: 1px solid rgba(0,0,0,0.35) !important;
           line-height: inherit;
-          word-break: normal;
-          overflow-wrap: break-word;
-          position: relative;
-          background-clip: padding-box;
+          word-break: break-word;
+          overflow-wrap: anywhere;
+          overflow: hidden;
         }
 
         .schedule-table th,
@@ -1399,7 +1387,9 @@ export default function PublicSchedulePage() {
           background-color: #fcfdfd;
           font-weight: 700;
           text-align: center;
-          white-space: nowrap;
+          vertical-align: middle;
+          width: 15%;
+          min-width: 160px;
         }
 
         .exec-name-cell {
@@ -1412,12 +1402,12 @@ export default function PublicSchedulePage() {
 
         .exec-name {
           font-weight: 800;
-          font-size: 0.88rem;
+          font-size: inherit;
           line-height: 1.3;
         }
 
         .exec-title {
-          font-size: 0.88rem;
+          font-size: inherit;
           color: #64748b;
           font-weight: 800;
         }
@@ -1425,6 +1415,8 @@ export default function PublicSchedulePage() {
         .td-time {
           vertical-align: middle;
           font-weight: 800;
+          width: 8%;
+          min-width: 80px;
         }
 
         .time-end-text {
@@ -1438,12 +1430,16 @@ export default function PublicSchedulePage() {
           vertical-align: top;
           font-weight: bold;
           text-align: left;
+          width: 32%;
+          min-width: 320px;
         }
 
         .td-location {
           vertical-align: top;
           font-weight: bold;
           text-align: left;
+          width: 18%;
+          min-width: 180px;
         }
 
         .td-agency {
@@ -1451,6 +1447,8 @@ export default function PublicSchedulePage() {
           font-weight: bold;
           overflow-wrap: break-word;
           word-break: break-word;
+          width: 13%;
+          min-width: 130px;
         }
 
         .td-dress {
@@ -1458,6 +1456,8 @@ export default function PublicSchedulePage() {
           font-weight: bold;
           overflow-wrap: break-word;
           word-break: break-word;
+          width: 14%;
+          min-width: 140px;
         }
 
         .text-center {
@@ -1704,26 +1704,26 @@ export default function PublicSchedulePage() {
           border-radius: 4px !important;
         }
         .print-fit-to-page .banner-seal {
-          width: 44px !important;
-          height: 44px !important;
+          width: 50px !important;
+          height: 50px !important;
           border-width: 1px !important;
         }
         .print-fit-to-page .banner-title {
-          font-size: 13px !important;
+          font-size: inherit !important;
         }
         .print-fit-to-page .banner-date {
-          font-size: 11px !important;
+          font-size: inherit !important;
           margin-top: 2px !important;
           margin-bottom: 4px !important;
         }
         .print-fit-to-page .banner-footer {
-          font-size: 8px !important;
+          font-size: inherit !important;
         }
         .print-fit-to-page .exec-name {
-          font-size: 11px !important;
+          font-size: inherit !important;
         }
         .print-fit-to-page .exec-title {
-          font-size: 11px !important;
+          font-size: inherit !important;
         }
         .print-fit-to-page .time-end-text {
           font-size: 8px !important;

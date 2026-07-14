@@ -496,13 +496,14 @@ export default function SchedulesAdmin() {
       element.style.overflow = 'visible';
       
       const canvas = await html2canvas(element, {
-        scrollY: 0,
-        scrollX: 0,
-        scale: 2.5,
+        scrollY: -window.scrollY,
+        scrollX: -window.scrollX,
+        scale: 2,
         useCORS: true,
         allowTaint: true,
         backgroundColor: '#ffffff',
-        windowWidth: Math.max(1200, exactWidth + 40),
+        width: exactWidth,
+        height: element.scrollHeight,
         onclone: (clonedDoc) => {
           // Force relative positioning and background-clip on all table cells to resolve html2canvas rowspan border bugs
           const cells = clonedDoc.querySelectorAll('.preview-table th, .preview-table td');
@@ -927,15 +928,15 @@ export default function SchedulesAdmin() {
                   if (execSchedules.length === 0) {
                     return (
                       <tr key={exec.id} style={{ color: exec.color === '#000000' ? '#1e293b' : exec.color }}>
-                        <td style={{ padding: getPaddingStyle(), textAlign: 'center', fontWeight: 'inherit', verticalAlign: 'middle', whiteSpace: 'nowrap' }}>
+                        <td style={{ padding: getPaddingStyle(), textAlign: 'center', fontWeight: 'inherit', verticalAlign: 'top', whiteSpace: 'nowrap' }}>
                           <div style={{ color: exec.color === '#000000' ? '#1e293b' : exec.color }}>{exec.name}</div>
                           <div style={{ fontWeight: 'inherit', color: exec.color === '#000000' ? '#1e293b' : exec.color }}>{exec.title}</div>
                         </td>
-                        {colTimeVisible && <td style={{ padding: getPaddingStyle(), textAlign: 'center', fontWeight: 'inherit' }}>-</td>}
-                        <td style={{ padding: getPaddingStyle(), textAlign: missionAlign === 'center' ? 'center' : 'left', fontWeight: 'inherit' }}>ปฏิบัติราชการปกติ</td>
-                        {colLocationVisible && <td style={{ padding: getPaddingStyle(), textAlign: locationAlign === 'center' ? 'center' : 'left', fontWeight: 'inherit' }}>ศาลากลางจังหวัดปทุมธานี</td>}
-                        {colAgencyVisible && <td style={{ padding: getPaddingStyle(), textAlign: 'center', fontWeight: 'inherit' }}>-</td>}
-                        {colDressVisible && <td style={{ padding: getPaddingStyle(), textAlign: 'center', fontWeight: 'inherit' }}>-</td>}
+                        {colTimeVisible && <td style={{ padding: getPaddingStyle(), textAlign: 'center', fontWeight: 'inherit', verticalAlign: 'top' }}>-</td>}
+                        <td style={{ padding: getPaddingStyle(), textAlign: missionAlign === 'center' ? 'center' : 'left', fontWeight: 'inherit', verticalAlign: 'top' }}>ปฏิบัติราชการปกติ</td>
+                        {colLocationVisible && <td style={{ padding: getPaddingStyle(), textAlign: locationAlign === 'center' ? 'center' : 'left', fontWeight: 'inherit', verticalAlign: 'top' }}>ศาลากลางจังหวัดปทุมธานี</td>}
+                        {colAgencyVisible && <td style={{ padding: getPaddingStyle(), textAlign: 'center', fontWeight: 'inherit', verticalAlign: 'top' }}>-</td>}
+                        {colDressVisible && <td style={{ padding: getPaddingStyle(), textAlign: 'center', fontWeight: 'inherit', verticalAlign: 'top' }}>-</td>}
                       </tr>
                     );
                   }
@@ -957,11 +958,11 @@ export default function SchedulesAdmin() {
                         </td>
                       )}
                       {colTimeVisible && (
-                        <td style={{ padding: getPaddingStyle(), textAlign: 'center', fontWeight: 'inherit' }}>
+                        <td style={{ padding: getPaddingStyle(), textAlign: 'center', fontWeight: 'inherit', verticalAlign: 'top' }}>
                           {isDash(s.startTime) ? '-' : toThaiDigits(s.startTime)}
                         </td>
                       )}
-                      <td style={{ padding: getPaddingStyle(), overflowWrap: 'break-word', wordBreak: 'break-word', verticalAlign: isDash(s.mission) ? 'middle' : 'top', fontWeight: 'inherit' }}>
+                      <td style={{ padding: getPaddingStyle(), overflowWrap: 'break-word', wordBreak: 'break-word', verticalAlign: 'top', fontWeight: 'inherit' }}>
                         {(() => {
                           const { text: mText, align: mItemAlign } = extractItemAlign(s.mission);
                           const effectiveAlign = isDash(s.mission) ? 'center' : (mItemAlign || missionAlign || 'left');
@@ -971,7 +972,7 @@ export default function SchedulesAdmin() {
                       {colLocationVisible && locationSpans[index].show && (
                         <td 
                           rowSpan={locationSpans[index].span}
-                          style={{ padding: getPaddingStyle(), overflowWrap: 'break-word', wordBreak: 'break-word', verticalAlign: isDash(s.location) ? 'middle' : 'top', fontWeight: 'inherit' }}
+                          style={{ padding: getPaddingStyle(), overflowWrap: 'break-word', wordBreak: 'break-word', verticalAlign: locationSpans[index].span > 1 ? 'middle' : 'top', fontWeight: 'inherit' }}
                         >
                           {(() => {
                             const { text: lText, align: lItemAlign } = extractItemAlign(s.location);
@@ -983,7 +984,7 @@ export default function SchedulesAdmin() {
                       {colAgencyVisible && agencySpans[index].show && (
                         <td 
                           rowSpan={agencySpans[index].span}
-                          style={{ padding: getPaddingStyle(), overflowWrap: 'break-word', wordBreak: 'break-word', fontWeight: 'inherit' }}
+                          style={{ padding: getPaddingStyle(), overflowWrap: 'break-word', wordBreak: 'break-word', fontWeight: 'inherit', verticalAlign: agencySpans[index].span > 1 ? 'middle' : 'top' }}
                         >
                           {(() => {
                             const { text: aText, align: aItemAlign } = extractItemAlign(s.agency);
@@ -995,7 +996,7 @@ export default function SchedulesAdmin() {
                       {colDressVisible && dressSpans[index].show && (
                         <td 
                           rowSpan={dressSpans[index].span}
-                          style={{ padding: getPaddingStyle(), overflowWrap: 'break-word', wordBreak: 'break-word', fontWeight: 'inherit' }}
+                          style={{ padding: getPaddingStyle(), overflowWrap: 'break-word', wordBreak: 'break-word', fontWeight: 'inherit', verticalAlign: dressSpans[index].span > 1 ? 'middle' : 'top' }}
                         >
                           {(() => {
                             const { text: dText, align: dItemAlign } = extractItemAlign(s.dressCode);
@@ -1195,11 +1196,11 @@ export default function SchedulesAdmin() {
                             <div style={{ color: selectedExec.color === '#000000' ? '#64748b' : selectedExec.color, fontSize: '0.8em' }}>{selectedExec.title}</div>
                           </td>
                           {colTimeVisible && (
-                            <td style={{ padding: '8px 6px', textAlign: 'center', borderBottom: '1px solid black', borderRight: '1px solid black' }}>
+                            <td style={{ padding: '8px 6px', textAlign: 'center', verticalAlign: 'top', borderBottom: '1px solid black', borderRight: '1px solid black' }}>
                               {isDash(mockSchedule.startTime) ? '-' : toThaiDigits(mockSchedule.startTime)}
                             </td>
                           )}
-                          <td style={{ padding: '8px 6px', borderBottom: '1px solid black', borderRight: '1px solid black', overflowWrap: 'break-word', wordBreak: 'break-word' }}>
+                          <td style={{ padding: '8px 6px', borderBottom: '1px solid black', borderRight: '1px solid black', verticalAlign: 'top', overflowWrap: 'break-word', wordBreak: 'break-word' }}>
                             {(() => {
                               const { text: mText, align: mItemAlign } = extractItemAlign(mockSchedule.mission);
                               const effectiveAlign = isDash(mockSchedule.mission) ? 'center' : (mItemAlign || missionAlign || 'left');
@@ -1207,7 +1208,7 @@ export default function SchedulesAdmin() {
                             })()}
                           </td>
                           {colLocationVisible && (
-                            <td style={{ padding: '8px 6px', borderBottom: '1px solid black', borderRight: '1px solid black', overflowWrap: 'break-word', wordBreak: 'break-word' }}>
+                            <td style={{ padding: '8px 6px', borderBottom: '1px solid black', borderRight: '1px solid black', verticalAlign: 'top', overflowWrap: 'break-word', wordBreak: 'break-word' }}>
                               {(() => {
                                 const { text: lText, align: lItemAlign } = extractItemAlign(mockSchedule.location);
                                 const effectiveAlign = isDash(mockSchedule.location) ? 'center' : (lItemAlign || locationAlign || 'left');
@@ -1216,7 +1217,7 @@ export default function SchedulesAdmin() {
                             </td>
                           )}
                           {colAgencyVisible && (
-                            <td style={{ padding: '8px 6px', borderBottom: '1px solid black', borderRight: '1px solid black', overflowWrap: 'break-word', wordBreak: 'break-word' }}>
+                            <td style={{ padding: '8px 6px', borderBottom: '1px solid black', borderRight: '1px solid black', verticalAlign: 'top', overflowWrap: 'break-word', wordBreak: 'break-word' }}>
                               {(() => {
                                 const { text: aText, align: aItemAlign } = extractItemAlign(mockSchedule.agency);
                                 const effectiveAlign = isDash(mockSchedule.agency) ? 'center' : (aItemAlign || 'left');
@@ -1225,7 +1226,7 @@ export default function SchedulesAdmin() {
                             </td>
                           )}
                           {colDressVisible && (
-                            <td style={{ padding: '8px 6px', borderBottom: '1px solid black', borderRight: '1px solid black', overflowWrap: 'break-word', wordBreak: 'break-word' }}>
+                            <td style={{ padding: '8px 6px', borderBottom: '1px solid black', borderRight: '1px solid black', verticalAlign: 'top', overflowWrap: 'break-word', wordBreak: 'break-word' }}>
                               {(() => {
                                 const { text: dText, align: dItemAlign } = extractItemAlign(mockSchedule.dressCode);
                                 const effectiveAlign = isDash(mockSchedule.dressCode) ? 'center' : (dItemAlign || 'left');
@@ -1692,7 +1693,6 @@ export default function SchedulesAdmin() {
           cursor: pointer;
         }
 
-        /* Landscape A4 Print Preview Container */
         .print-preview-container {
           padding: 24px;
           background: #475569;
@@ -1700,7 +1700,7 @@ export default function SchedulesAdmin() {
           border: 1px solid #334155;
           display: flex;
           flex-direction: column;
-          align-items: center;
+          align-items: stretch; /* Stretch content so it fits 100% width of the box */
           overflow-x: auto;
         }
 
@@ -1715,7 +1715,7 @@ export default function SchedulesAdmin() {
 
         .a4-landscape-page {
           width: 100%;
-          max-width: 1080px;
+          max-width: none; /* Let it stretch to fill container width */
           aspect-ratio: 1.414; /* A4 Landscape ratio */
           background: white;
           box-shadow: 0 10px 25px rgba(0,0,0,0.3);
@@ -1723,6 +1723,7 @@ export default function SchedulesAdmin() {
           overflow-y: auto;
           box-sizing: border-box;
           border: 1px solid #cbd5e1;
+          margin: 0 auto; /* Center the table within container */
         }
 
         .preview-banner-container {

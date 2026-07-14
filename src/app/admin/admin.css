@@ -599,7 +599,7 @@
 }
 
 @media (min-width: 1024px) {
-  .sidebar-close-btn {
+  .sidebar-backdrop {
     display: none !important;
   }
 }
