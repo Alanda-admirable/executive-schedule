@@ -601,33 +601,7 @@ export default function PublicSchedulePage() {
       <main className="container main-layout">
         {/* Main Content Area: Schedule Table */}
         <div className="detail-section">
-          <div className="card detail-card">
-            {/* Search and Filter Inputs */}
-            <div className="search-filter-bar">
-              <div className="search-input-wrapper">
-                <span className="search-icon">🔍</span>
-                <input 
-                  type="text" 
-                  placeholder="ค้นหาภารกิจ/สถานที่/หน่วยงาน..." 
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="search-input"
-                />
-              </div>
-              {uniqueExecutivesInSchedules.length > 1 && (
-                <select 
-                  value={selectedExecFilter}
-                  onChange={(e) => setSelectedExecFilter(e.target.value)}
-                  className="exec-filter-select"
-                >
-                  <option value="">ผู้บริหารทั้งหมด</option>
-                  {uniqueExecutivesInSchedules.map(ex => (
-                    <option key={ex.id} value={ex.id}>{ex.name}</option>
-                  ))}
-                </select>
-              )}
-            </div>
-
+          <div className="detail-card">
             <div className="schedule-list">
               {loading ? (
                 <div className="loading-state">กำลังดึงข้อมูล...</div>
@@ -662,7 +636,7 @@ export default function PublicSchedulePage() {
                       style={{ 
                         fontFamily: printFontFamily,
                         fontSize: printFontSize,
-                        fontWeight: printFontWeight,
+                        fontWeight: 'bold',
                         fontStyle: printFontStyle,
                         textDecoration: printTextDecoration,
                         lineHeight: printLineHeight,
@@ -811,18 +785,6 @@ export default function PublicSchedulePage() {
               )}
             </div>
 
-            {/* Executive Legend Bar */}
-            <div className="executive-legend">
-              <span className="legend-title">สัญลักษณ์สี:</span>
-              {executives.map(ex => (
-                <span key={ex.id} className="legend-chip">
-                  <i className="legend-dot" style={{ backgroundColor: ex.color }}></i>
-                  <span className="legend-name">
-                    {ex.title.replace('จังหวัดปทุมธานี', '')} ({ex.name})
-                  </span>
-                </span>
-              ))}
-            </div>
           </div>
         </div>
 
@@ -1204,8 +1166,10 @@ export default function PublicSchedulePage() {
         .detail-card {
           display: flex;
           flex-direction: column;
-          background: white;
-          padding: 24px;
+          background: transparent;
+          padding: 0;
+          border: none;
+          box-shadow: none;
         }
 
         /* Search Filter Bar */
@@ -1366,12 +1330,14 @@ export default function PublicSchedulePage() {
           word-break: break-word;
           overflow-wrap: anywhere;
           overflow: hidden;
+          font-weight: 700 !important; /* Force bold readable text */
         }
 
         .schedule-table th,
         .schedule-table td {
           font-family: inherit;
           font-size: inherit;
+          font-weight: 700 !important; /* Force bold readable text */
         }
 
         .schedule-row {
