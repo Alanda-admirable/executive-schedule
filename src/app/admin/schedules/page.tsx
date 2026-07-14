@@ -22,6 +22,7 @@ interface Schedule {
   location: string
   agency: string
   dressCode: string | null
+  status?: string
 }
 
 const formatDateKey = (date: Date) => {
