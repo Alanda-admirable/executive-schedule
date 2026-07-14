@@ -628,14 +628,9 @@ export default function SchedulesAdmin() {
   }, [colTimeVisible, colLocationVisible, colAgencyVisible, colDressVisible, columnLayout])
 
   const getContainerWidth = useCallback(() => {
-    let numericSize = 16;
-    if (fontSize && typeof fontSize === 'string') {
-      const parsed = parseInt(fontSize.replace(/[^0-9]/g, ''));
-      if (!isNaN(parsed)) numericSize = parsed;
-    }
-    const ratio = Math.max(1, numericSize / 16); 
-    return `${Math.round(1080 * ratio)}px`;
-  }, [fontSize]);
+    // Keep template container width locked at 1080px to prevent layout shift or distortion
+    return '1080px';
+  }, []);
 
 
 
@@ -891,7 +886,11 @@ export default function SchedulesAdmin() {
                 <h2 className="preview-banner-title" style={{ fontFamily: fontFamily, fontSize: bannerFontSize, fontWeight: 'bold', whiteSpace: 'pre-wrap' }}>
                   {renderText(`วาระงานผู้ว่าราชการจังหวัดและผู้บริหารของจังหวัดปทุมธานี ${getPreviewDateText()}`)}
                 </h2>
-                <div className="preview-banner-sub" style={{ fontFamily: fontFamily, fontSize: bannerFontSize, whiteSpace: 'pre-wrap' }}>
+                <div className="preview-banner-sub" style={{ 
+                  fontFamily: fontFamily, 
+                  fontSize: `calc(${bannerFontSize} * 0.72)`, 
+                  whiteSpace: 'pre-wrap' 
+                }}>
                   {renderText(`จัดทำโดย สำนักงานจังหวัดปทุมธานี สามารถดาวน์โหลดข้อมูลได้ที่ www.pathumthani.go.th หัวข้อ "วาระงานผู้ว่าราชการจังหวัดและผู้บริหารของจังหวัดปทุมธานี"`)}
                 </div>
               </div>
@@ -1760,14 +1759,14 @@ export default function SchedulesAdmin() {
         }
 
         .preview-banner-title {
-          font-size: 1rem;
+          font-size: inherit;
           font-weight: 800;
           margin: 0;
           color: black;
         }
 
         .preview-banner-sub {
-          font-size: 0.72rem;
+          font-size: inherit;
           font-weight: 800;
           margin: 0;
           color: black;

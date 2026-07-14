@@ -624,7 +624,11 @@ export default function PublicSchedulePage() {
                       <h2 className="banner-title" style={{ fontFamily: printFontFamily, fontSize: printBannerFontSize, fontWeight: 'bold', whiteSpace: 'pre-wrap' }}>
                         {renderText(`วาระงานผู้ว่าราชการจังหวัดและผู้บริหารของจังหวัดปทุมธานี ${formatThaiDateFull(selectedDate)}`)}
                       </h2>
-                      <div className="banner-footer" style={{ fontFamily: printFontFamily, fontSize: printBannerFontSize, whiteSpace: 'pre-wrap' }}>
+                      <div className="banner-footer" style={{ 
+                        fontFamily: printFontFamily, 
+                        fontSize: `calc(${printBannerFontSize} * 0.72)`, 
+                        whiteSpace: 'pre-wrap' 
+                      }}>
                         {renderText(`จัดทำโดย สำนักงานจังหวัดปทุมธานี สามารถดาวน์โหลดข้อมูลได้ที่ www.pathumthani.go.th หัวข้อ "วาระงานผู้ว่าราชการจังหวัดและผู้บริหารของจังหวัดปทุมธานี"`)}
                       </div>
                     </div>
@@ -1273,14 +1277,14 @@ export default function PublicSchedulePage() {
         }
 
         .banner-title {
-          font-size: 1.25rem;
+          font-size: inherit;
           font-weight: 800;
           margin: 0;
           color: #000000 !important;
         }
 
         .banner-footer {
-          font-size: 0.82rem;
+          font-size: inherit;
           font-weight: 800;
           color: #000000 !important;
           margin: 0;
