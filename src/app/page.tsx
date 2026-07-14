@@ -1661,7 +1661,8 @@ export default function PublicSchedulePage() {
 
         /* Single Page Fit Styles (Applies to both screen/html2canvas and print) */
         .print-fit-to-page .schedule-table {
-          font-size: 0.82em !important;
+          /* Do not shrink font size on screen to keep text highly legible */
+          font-size: inherit !important;
         }
         .print-fit-to-page .schedule-table td,
         .print-fit-to-page .schedule-table th {
