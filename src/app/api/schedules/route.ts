@@ -11,8 +11,19 @@ export async function GET(request: Request) {
     const dateStr = searchParams.get('date')
     const month = searchParams.get('month')
     const year = searchParams.get('year')
+    const isPublic = searchParams.get('public') === 'true'
     
-    let where = {}
+    // Check authentication to allow admin to view drafts, but public only views active
+    const cookieStore = await cookies()
+    const sessionCookie = cookieStore.get('admin_session')
+    const isAdmin = !!sessionCookie
+
+    let statusFilter: any = undefined
+    if (isPublic || !isAdmin) {
+      statusFilter = 'ACTIVE'
+    }
+
+    let where: any = {}
     if (dateStr) {
       const date = new Date(dateStr)
       const startOfDay = new Date(date.setHours(0, 0, 0, 0))
@@ -34,6 +45,10 @@ export async function GET(request: Request) {
           lte: endOfMonth,
         },
       }
+    }
+
+    if (statusFilter) {
+      where.status = statusFilter
     }
 
     const schedules = await prisma.schedule.findMany({
@@ -85,7 +100,7 @@ export async function POST(request: Request) {
         location: body.location,
         agency: body.agency,
         dressCode: body.dressCode,
-        status: body.status || 'ACTIVE',
+        status: body.status || 'DRAFT', // Default to DRAFT so it doesn't show publicly immediately
       },
     })
     return NextResponse.json(schedule)

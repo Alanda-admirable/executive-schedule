@@ -552,10 +552,11 @@ export default function SchedulesAdmin() {
       date: selectedDate,
       startTime: (currentSchedule.startTime || '').trim(),
       endTime: (currentSchedule.endTime || '').trim() || null,
-        mission: currentSchedule.mission || '',
-        location: currentSchedule.location || '',
-        agency: currentSchedule.agency || '',
-        dressCode: currentSchedule.dressCode || null,
+      mission: currentSchedule.mission || '',
+      location: currentSchedule.location || '',
+      agency: currentSchedule.agency || '',
+      dressCode: currentSchedule.dressCode || null,
+      status: currentSchedule.status || 'DRAFT',
     }
 
     const res = await fetch(url, {
@@ -1014,7 +1015,7 @@ export default function SchedulesAdmin() {
       ) : (
         /* NORMAL MANAGEMENT VIEW */
         <>
-          <div className="filter-bar admin-card">
+          <div className="filter-bar admin-card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
             <div className="form-group" style={{ marginBottom: 0 }}>
               <label className="form-label" style={{ fontWeight: 800 }}>ดูวาระงานประจำวันที่:</label>
               <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
@@ -1025,8 +1026,45 @@ export default function SchedulesAdmin() {
                   onChange={e => setSelectedDate(e.target.value)} 
                   style={{ maxWidth: '200px' }}
                 />
-                <span className="text-slate-400">พบทั้งหมด {schedules.length} วาระงาน</span>
+                <span className="text-slate-400">
+                  พบทั้งหมด {schedules.length} วาระงาน 
+                  ({schedules.filter(s => s.status === 'DRAFT').length} แบบร่าง, {schedules.filter(s => s.status !== 'DRAFT').length} เผยแพร่แล้ว)
+                </span>
               </div>
+            </div>
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <button 
+                className="btn-admin" 
+                style={{ 
+                  backgroundColor: schedules.some(s => s.status === 'DRAFT') ? '#2563eb' : '#64748b', 
+                  color: 'white',
+                  border: 'none',
+                  fontWeight: 700,
+                  cursor: schedules.some(s => s.status === 'DRAFT') ? 'pointer' : 'default',
+                  opacity: schedules.some(s => s.status === 'DRAFT') ? 1 : 0.8
+                }}
+                disabled={!schedules.some(s => s.status === 'DRAFT')}
+                onClick={async () => {
+                  if (confirm(`คุณต้องการเผยแพร่วาระงานทั้งหมด (${schedules.filter(s => s.status === 'DRAFT').length} รายการ) ของวันที่เลือกนี้ขึ้นหน้าเว็บหลักหรือไม่?`)) {
+                    setLoading(true)
+                    // Loop and update status of all schedules on this day
+                    const promises = schedules
+                      .filter(s => s.status === 'DRAFT')
+                      .map(s => 
+                        fetch(`/api/schedules/${s.id}`, {
+                          method: 'PATCH',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ status: 'ACTIVE' })
+                        })
+                      );
+                    await Promise.all(promises);
+                    alert('เผยแพร่ข้อมูลขึ้นหน้าเว็บสาธารณะเรียบร้อยแล้ว!');
+                    fetchSchedules();
+                  }
+                }}
+              >
+                <span>🚀 เผยแพร่ข้อมูลขึ้นหน้าเว็บหลัก ({schedules.filter(s => s.status === 'DRAFT').length})</span>
+              </button>
             </div>
           </div>
 
@@ -1057,18 +1095,29 @@ export default function SchedulesAdmin() {
                         <span className="time-badge">{s.startTime} {s.endTime ? `- ${s.endTime}` : ''}</span>
                       </td>
                       <td className="font-semibold">
-                        <span 
-                          style={{ 
-                            backgroundColor: s.executive.color || '#64748b', 
-                            display: 'inline-block', 
-                            width: '8px', 
-                            height: '8px', 
-                            borderRadius: '50%', 
-                            marginRight: '8px',
-                            verticalAlign: 'middle'
-                          }}
-                        ></span>
-                        <span style={{ verticalAlign: 'middle' }}>{s.executive.name}</span>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                          <div>
+                            <span 
+                              style={{ 
+                                backgroundColor: s.executive.color || '#64748b', 
+                                display: 'inline-block', 
+                                width: '8px', 
+                                height: '8px', 
+                                borderRadius: '50%', 
+                                marginRight: '8px',
+                                verticalAlign: 'middle'
+                              }}
+                            ></span>
+                            <span style={{ verticalAlign: 'middle' }}>{s.executive.name}</span>
+                          </div>
+                          <div>
+                            {s.status === 'DRAFT' ? (
+                              <span style={{ backgroundColor: '#fef3c7', color: '#d97706', fontSize: '0.7rem', padding: '2px 6px', borderRadius: '4px', fontWeight: 800 }}>แบบร่าง (Draft)</span>
+                            ) : (
+                              <span style={{ backgroundColor: '#dcfce7', color: '#15803d', fontSize: '0.7rem', padding: '2px 6px', borderRadius: '4px', fontWeight: 800 }}>เผยแพร่แล้ว (Live)</span>
+                            )}
+                          </div>
+                        </div>
                       </td>
                       <td>
                         <div className="mission-text">{s.mission}</div>
@@ -1079,9 +1128,44 @@ export default function SchedulesAdmin() {
                         {s.dressCode && <div className="dress-text">การแต่งกาย: {s.dressCode}</div>}
                       </td>
                       <td>
-                        <div className="flex-actions">
-                          <button className="btn-admin btn-admin-secondary btn-sm" onClick={() => { setCurrentSchedule(s); setIsEditing(true); }}>แก้ไข</button>
-                          <button className="btn-admin btn-admin-danger btn-sm" onClick={() => handleDelete(s.id)}>ลบ</button>
+                        <div className="flex-actions" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                          <div style={{ display: 'flex', gap: '4px' }}>
+                            <button className="btn-admin btn-admin-secondary btn-sm" style={{ flex: 1 }} onClick={() => { setCurrentSchedule(s); setIsEditing(true); }}>แก้ไข</button>
+                            <button className="btn-admin btn-admin-danger btn-sm" style={{ flex: 1 }} onClick={() => handleDelete(s.id)}>ลบ</button>
+                          </div>
+                          {s.status === 'DRAFT' ? (
+                            <button 
+                              className="btn-admin btn-sm" 
+                              style={{ backgroundColor: '#2563eb', color: 'white', border: 'none', fontWeight: 700 }}
+                              onClick={async () => {
+                                setLoading(true)
+                                await fetch(`/api/schedules/${s.id}`, {
+                                  method: 'PATCH',
+                                  headers: { 'Content-Type': 'application/json' },
+                                  body: JSON.stringify({ status: 'ACTIVE' })
+                                })
+                                fetchSchedules()
+                              }}
+                            >
+                              🚀 เผยแพร่รายการนี้
+                            </button>
+                          ) : (
+                            <button 
+                              className="btn-admin btn-sm" 
+                              style={{ backgroundColor: '#64748b', color: 'white', border: 'none', fontWeight: 700 }}
+                              onClick={async () => {
+                                setLoading(true)
+                                await fetch(`/api/schedules/${s.id}`, {
+                                  method: 'PATCH',
+                                  headers: { 'Content-Type': 'application/json' },
+                                  body: JSON.stringify({ status: 'DRAFT' })
+                                })
+                                fetchSchedules()
+                              }}
+                            >
+                              ⏪ กลับเป็นแบบร่าง
+                            </button>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -1395,10 +1479,24 @@ export default function SchedulesAdmin() {
                     </div>
                   </div>
                   
-                  {/* Row 4: Action Buttons */}
-                  <div className="actions" style={{ marginTop: '4px', display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
-                    <button type="button" className="btn-admin btn-admin-secondary" style={{ width: '150px' }} onClick={() => setIsEditing(false)}>ยกเลิก</button>
-                    <button type="submit" className="btn-admin btn-admin-primary" style={{ width: '200px' }}>บันทึกวาระงาน</button>
+                  {/* Row 4: Status Selector & Action Buttons */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '8px', gap: '16px', flexWrap: 'wrap' }}>
+                    <div className="form-group" style={{ flex: 1, minWidth: '180px', marginBottom: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <label className="form-label" style={{ fontSize: '0.82rem', marginBottom: 0, whiteSpace: 'nowrap' }}>สถานะ:</label>
+                      <select 
+                        className="form-input"
+                        value={currentSchedule.status || 'DRAFT'} 
+                        onChange={e => setCurrentSchedule({...currentSchedule, status: e.target.value})}
+                        style={{ padding: '4px 8px', fontSize: '0.82rem' }}
+                      >
+                        <option value="DRAFT">แบบร่าง (Draft) - ยังไม่แสดงหน้าแรก</option>
+                        <option value="ACTIVE">เผยแพร่ (Live) - แสดงหน้าแรกทันที</option>
+                      </select>
+                    </div>
+                    <div className="actions" style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', flex: 1 }}>
+                      <button type="button" className="btn-admin btn-admin-secondary" style={{ width: '150px' }} onClick={() => setIsEditing(false)}>ยกเลิก</button>
+                      <button type="submit" className="btn-admin btn-admin-primary" style={{ width: '200px' }}>บันทึกวาระงาน</button>
+                    </div>
                   </div>
                 </form>
               </div>

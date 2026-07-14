@@ -298,7 +298,7 @@ export default function PublicSchedulePage() {
 
   const fetchSchedules = async () => {
     setLoading(true)
-    const res = await fetch(`/api/schedules?date=${formatDateKey(selectedDate)}`)
+    const res = await fetch(`/api/schedules?date=${formatDateKey(selectedDate)}&public=true`)
     const data = await res.json()
     setSchedules(data)
     setLoading(false)
@@ -307,7 +307,7 @@ export default function PublicSchedulePage() {
   const fetchMonthSchedules = async () => {
     const month = currentViewDate.getMonth()
     const year = currentViewDate.getFullYear()
-    const res = await fetch(`/api/schedules?month=${month}&year=${year}`)
+    const res = await fetch(`/api/schedules?month=${month}&year=${year}&public=true`)
     const data = await res.json()
     setMonthSchedules(data)
   }
