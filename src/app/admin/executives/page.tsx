@@ -171,7 +171,7 @@ export default function ExecutivesAdmin() {
       )}
 
       <style jsx>{`
-        .admin-page { max-width: 1000px; }
+        .admin-page { max-width: 1000px; margin: 0 auto; }
         .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 32px; }
         .title { font-size: 1.875rem; font-weight: 700; color: #0f172a; margin: 0; }
         .subtitle { color: #64748b; margin-top: 4px; }
