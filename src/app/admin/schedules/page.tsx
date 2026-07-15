@@ -1988,7 +1988,7 @@ export default function SchedulesAdmin() {
           overflow-y: auto !important; /* Allow scroll instead of hiding content */
         }
         .preview-fit-to-page .preview-table {
-          font-size: 0.82em !important;
+          font-size: inherit !important;
         }
         .preview-fit-to-page .preview-table td,
         .preview-fit-to-page .preview-table th {
