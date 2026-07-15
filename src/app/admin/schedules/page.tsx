@@ -2094,7 +2094,7 @@ export default function SchedulesAdmin() {
             padding: 6mm 5mm !important; /* Save vertical margin space */
           }
           .preview-fit-to-page .preview-table {
-            font-size: 0.82em !important;
+            font-size: inherit !important;
           }
           .preview-fit-to-page .preview-table td,
           .preview-fit-to-page .preview-table th {
