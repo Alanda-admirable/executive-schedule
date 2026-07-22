@@ -516,7 +516,7 @@ export default function SchedulesAdmin() {
             const el = cell as HTMLElement;
             el.style.position = 'relative';
             el.style.backgroundClip = 'padding-box';
-            el.style.webkitFontSmoothing = 'antialiased';
+            (el.style as any).webkitFontSmoothing = 'antialiased';
           });
           // Ensure all table rows are transparent during capture to prevent them from overlaying spanned cells
           const rows = clonedDoc.querySelectorAll('.preview-table tr');
