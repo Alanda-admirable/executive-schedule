@@ -370,11 +370,11 @@ export default function PublicSchedulePage() {
       const canvas = await html2canvas(element, {
         scrollY: 0,
         scrollX: 0,
-        scale: 3.5,
+        scale: 4,
         useCORS: true,
         allowTaint: true,
         backgroundColor: '#ffffff',
-        windowWidth: Math.max(1200, exactWidth + 40),
+        windowWidth: 2400,
         onclone: (clonedDoc) => {
           // Remove padding and border from container to fit table exactly
           const container = clonedDoc.getElementById('schedule-table-container');
@@ -390,6 +390,7 @@ export default function PublicSchedulePage() {
             const el = cell as HTMLElement;
             el.style.position = 'relative';
             el.style.backgroundClip = 'padding-box';
+            el.style.webkitFontSmoothing = 'antialiased';
           });
           // Set row backgrounds to transparent during capture to prevent them from overlaying spanned cells
           const rows = clonedDoc.querySelectorAll('.schedule-row');
@@ -408,10 +409,10 @@ export default function PublicSchedulePage() {
         responsiveWrapper.setAttribute('style', originalResponsiveStyle);
       }
       
-      const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
+      const dataUrl = canvas.toDataURL('image/png');
       const link = document.createElement('a');
       const dateKey = formatDateKey(selectedDate);
-      link.download = `วาระงานผู้บริหารปทุมธานี_${dateKey}.jpg`;
+      link.download = `วาระงานผู้บริหารปทุมธานี_${dateKey}.png`;
       link.href = dataUrl;
       link.click();
     } catch (error) {

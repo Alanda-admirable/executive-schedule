@@ -497,21 +497,26 @@ export default function SchedulesAdmin() {
       element.style.overflow = 'visible';
       
       const canvas = await html2canvas(element, {
-        scrollY: -window.scrollY,
-        scrollX: -window.scrollX,
-        scale: 3.5,
+        scrollY: 0,
+        scrollX: 0,
+        scale: 4,
         useCORS: true,
         allowTaint: true,
         backgroundColor: '#ffffff',
-        width: exactWidth,
-        height: element.scrollHeight,
+        windowWidth: 2400,
         onclone: (clonedDoc) => {
+          const pageEl = clonedDoc.getElementById('admin-print-preview-page');
+          if (pageEl) {
+            pageEl.style.transform = 'none';
+            pageEl.style.boxShadow = 'none';
+          }
           // Force relative positioning and background-clip on all table cells to resolve html2canvas rowspan border bugs
           const cells = clonedDoc.querySelectorAll('.preview-table th, .preview-table td');
           cells.forEach(cell => {
             const el = cell as HTMLElement;
             el.style.position = 'relative';
             el.style.backgroundClip = 'padding-box';
+            el.style.webkitFontSmoothing = 'antialiased';
           });
           // Ensure all table rows are transparent during capture to prevent them from overlaying spanned cells
           const rows = clonedDoc.querySelectorAll('.preview-table tr');
@@ -529,9 +534,10 @@ export default function SchedulesAdmin() {
       element.scrollLeft = originalScrollLeft;
       window.scrollTo(originalWindowScrollX, originalWindowScrollY);
       
-      const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
+      // Export as Lossless HD PNG for razor-sharp text
+      const dataUrl = canvas.toDataURL('image/png');
       const link = document.createElement('a');
-      link.download = `วาระงานผู้บริหารปทุมธานี_${selectedDate}.jpg`;
+      link.download = `วาระงานผู้บริหารปทุมธานี_${selectedDate}.png`;
       link.href = dataUrl;
       link.click();
     } catch (error) {
