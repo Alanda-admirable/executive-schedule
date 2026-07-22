@@ -499,7 +499,7 @@ export default function SchedulesAdmin() {
       const canvas = await html2canvas(element, {
         scrollY: -window.scrollY,
         scrollX: -window.scrollX,
-        scale: 2,
+        scale: 3.5,
         useCORS: true,
         allowTaint: true,
         backgroundColor: '#ffffff',

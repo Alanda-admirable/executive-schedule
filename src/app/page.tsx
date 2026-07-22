@@ -131,6 +131,11 @@ export default function PublicSchedulePage() {
   const [colAgencyVisible, setColAgencyVisible] = useState(true)
   const [colDressVisible, setColDressVisible] = useState(true)
 
+  // Mobile View & Ultra-HD Modal States
+  const [mobileViewMode, setMobileViewMode] = useState<'table' | 'cards'>('table')
+  const [showHDModal, setShowHDModal] = useState(false)
+  const [hdZoomLevel, setHdZoomLevel] = useState(1.3)
+
   const toThaiDigits = (value: string | number) => {
     return String(value ?? "").replace(/(\*\d+\*)|([0-9])/g, (match, escaped, digit) => {
       if (escaped) {
@@ -365,7 +370,7 @@ export default function PublicSchedulePage() {
       const canvas = await html2canvas(element, {
         scrollY: 0,
         scrollX: 0,
-        scale: 2.5,
+        scale: 3.5,
         useCORS: true,
         allowTaint: true,
         backgroundColor: '#ffffff',
@@ -585,6 +590,16 @@ export default function PublicSchedulePage() {
             </div>
             <div className="header-actions">
               <button className="nav-btn" onClick={() => { setSelectedDate(new Date()); setCurrentViewDate(new Date()); }}>วันนี้</button>
+              <button className="nav-btn hd-zoom-btn" onClick={() => setShowHDModal(true)} style={{ background: '#0284c7', color: 'white' }}>
+                <span className="icon">🔍</span> ซูมดูตารางคมชัด HD
+              </button>
+              <button 
+                className="nav-btn mobile-mode-btn" 
+                onClick={() => setMobileViewMode(prev => prev === 'table' ? 'cards' : 'table')}
+                style={{ background: mobileViewMode === 'cards' ? '#166534' : '#475569', color: 'white' }}
+              >
+                <span className="icon">{mobileViewMode === 'cards' ? '📊' : '📱'}</span> {mobileViewMode === 'cards' ? 'สลับโหมดตาราง A4' : 'สลับโหมดอ่านง่ายบนมือถือ'}
+              </button>
               <button className="nav-btn print-btn" onClick={() => window.print()}>
                 <span className="icon">🖨️</span> พิมพ์วาระงาน
               </button>
@@ -786,6 +801,71 @@ export default function PublicSchedulePage() {
                       </tbody>
                     </table>
                   </div>
+                  {mobileViewMode === 'cards' ? (
+                    <div className="mobile-cards-view" style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '16px' }}>
+                      {groupedSchedules.length === 0 ? (
+                        <div style={{ padding: '32px', textAlign: 'center', color: '#64748b', fontWeight: 'bold', background: 'white', borderRadius: '12px', border: '1px solid #cbd5e1' }}>
+                          ไม่มีข้อมูลวาระงานตรงตามที่เลือก
+                        </div>
+                      ) : (
+                        groupedSchedules.map(group => {
+                          const exec = group.executive;
+                          const execSchedules = group.schedules;
+                          const execColor = exec.color === '#000000' ? '#0f172a' : (exec.color || '#0f172a');
+                          return (
+                            <div key={exec.id} style={{ background: 'white', borderRadius: '12px', border: `2px solid ${execColor}`, overflow: 'hidden', boxShadow: '0 4px 12px rgba(0,0,0,0.06)' }}>
+                              <div style={{ background: execColor, color: 'white', padding: '12px 16px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: 'white', flexShrink: 0 }} />
+                                <div>
+                                  <div style={{ fontWeight: '800', fontSize: '1.05rem', lineHeight: '1.2' }}>{exec.name}</div>
+                                  <div style={{ fontSize: '0.82rem', opacity: 0.9, marginTop: '2px' }}>{exec.title}</div>
+                                </div>
+                              </div>
+                              <div style={{ padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                                {execSchedules.length === 0 ? (
+                                  <div style={{ color: '#64748b', fontSize: '0.9rem', fontStyle: 'italic', fontWeight: '600' }}>
+                                    ปฏิบัติราชการปกติ (ศาลากลางจังหวัดปทุมธานี)
+                                  </div>
+                                ) : (
+                                  execSchedules.map((s, idx) => (
+                                    <div key={s.id || idx} style={{ borderBottom: idx < execSchedules.length - 1 ? '1px dashed #cbd5e1' : 'none', paddingBottom: idx < execSchedules.length - 1 ? '14px' : '0' }}>
+                                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+                                        <span style={{ background: '#eff6ff', color: '#1d4ed8', fontWeight: 'bold', fontSize: '0.85rem', padding: '3px 10px', borderRadius: '6px', border: '1px solid #bfdbfe' }}>
+                                          ⏰ {formatThaiTime(s.startTime)} {s.endTime && s.endTime.trim() !== '-' && s.endTime.trim() !== '' ? `ถึง ${formatThaiTime(s.endTime)}` : ''}
+                                        </span>
+                                      </div>
+                                      <div style={{ fontWeight: 'bold', color: '#0f172a', fontSize: '1rem', lineHeight: '1.4', marginBottom: '8px', whiteSpace: 'pre-wrap' }}>
+                                        {renderText(extractItemAlign(s.mission).text)}
+                                      </div>
+                                      {s.location && s.location !== '-' && (
+                                        <div style={{ color: '#334155', fontSize: '0.875rem', marginBottom: '6px', display: 'flex', alignItems: 'flex-start', gap: '6px', fontWeight: '600' }}>
+                                          <span>📍</span> <span>{renderText(extractItemAlign(s.location).text)}</span>
+                                        </div>
+                                      )}
+                                      {(s.agency || s.dressCode) && (
+                                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '6px' }}>
+                                          {s.agency && s.agency !== '-' && (
+                                            <span style={{ background: '#f1f5f9', color: '#334155', fontSize: '0.78rem', padding: '4px 10px', borderRadius: '6px', fontWeight: '700', border: '1px solid #e2e8f0' }}>
+                                              🏢 {renderText(extractItemAlign(s.agency).text)}
+                                            </span>
+                                          )}
+                                          {s.dressCode && s.dressCode !== '-' && (
+                                            <span style={{ background: '#fef3c7', color: '#92400e', fontSize: '0.78rem', padding: '4px 10px', borderRadius: '6px', fontWeight: '700', border: '1px solid #fde68a' }}>
+                                              👔 {renderText(extractItemAlign(s.dressCode).text)}
+                                            </span>
+                                          )}
+                                        </div>
+                                      )}
+                                    </div>
+                                  ))
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })
+                      )}
+                    </div>
+                  ) : null}
                 </div>
               )}
             </div>
@@ -858,6 +938,145 @@ export default function PublicSchedulePage() {
           <p>© {toThaiDigits(new Date().getFullYear() + 543)} จังหวัดปทุมธานี - ระบบบริหารจัดการวาระงานผู้บริหาร</p>
         </div>
       </footer>
+
+      {/* Ultra-HD Pinch-to-Zoom Fullscreen Modal */}
+      {showHDModal && (
+        <div className="hd-modal-backdrop" style={{ position: 'fixed', inset: 0, zIndex: 99999, background: 'rgba(15, 23, 42, 0.95)', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+          {/* HD Modal Control Bar */}
+          <div style={{ background: '#1e293b', color: 'white', padding: '10px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #334155', zIndex: 10, flexWrap: 'wrap', gap: '8px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <span style={{ fontWeight: 'bold', fontSize: '0.95rem', color: '#38bdf8' }}>🔍 ตารางความคมชัด Ultra-HD</span>
+              <span style={{ background: '#0284c7', color: 'white', padding: '2px 8px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 'bold' }}>{Math.round(hdZoomLevel * 100)}%</span>
+            </div>
+            <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
+              <button onClick={() => setHdZoomLevel(prev => Math.min(prev + 0.25, 3.0))} style={{ background: '#334155', color: 'white', border: '1px solid #475569', borderRadius: '6px', padding: '6px 12px', fontWeight: 'bold', cursor: 'pointer', fontSize: '0.82rem' }}>➕ ซูมเข้า</button>
+              <button onClick={() => setHdZoomLevel(prev => Math.max(prev - 0.25, 0.75))} style={{ background: '#334155', color: 'white', border: '1px solid #475569', borderRadius: '6px', padding: '6px 12px', fontWeight: 'bold', cursor: 'pointer', fontSize: '0.82rem' }}>➖ ซูมออก</button>
+              <button onClick={() => setHdZoomLevel(1.3)} style={{ background: '#334155', color: 'white', border: '1px solid #475569', borderRadius: '6px', padding: '6px 12px', fontWeight: 'bold', cursor: 'pointer', fontSize: '0.82rem' }}>↺ รีเซ็ต</button>
+              <button onClick={() => setShowHDModal(false)} style={{ background: '#ef4444', color: 'white', border: 'none', borderRadius: '6px', padding: '6px 16px', fontWeight: 'bold', cursor: 'pointer', fontSize: '0.82rem' }}>✕ ปิด</button>
+            </div>
+          </div>
+          {/* Canvas Scroll Area */}
+          <div style={{ flex: 1, overflow: 'auto', padding: '24px 16px', display: 'flex', justifyContent: 'center', alignItems: 'flex-start', touchAction: 'pan-x pan-y' }}>
+            <div style={{ transform: `scale(${hdZoomLevel})`, transformOrigin: 'top center', transition: 'transform 0.15s ease', background: 'white', padding: '16px', borderRadius: '8px', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)', width: '1300px', minWidth: '1300px' }}>
+              <div className="official-banner-container" style={{ marginBottom: '16px' }}>
+                <div className="banner-seal-wrapper">
+                  <div className="banner-seal">
+                    <img src="/seal.jpg" alt="ตราจังหวัดปทุมธานี" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                  </div>
+                </div>
+                <div className="official-banner" style={{ backgroundColor: getWeekdayBannerColor(selectedDate.getDay()), fontFamily: printFontFamily }}>
+                  <h2 className="banner-title" style={{ fontFamily: printFontFamily, fontSize: printBannerFontSize, fontWeight: 'bold', whiteSpace: 'pre-wrap' }}>
+                    {renderText(`วาระงานผู้ว่าราชการจังหวัดและผู้บริหารของจังหวัดปทุมธานี ${formatThaiDateFull(selectedDate)}`)}
+                  </h2>
+                  <div className="banner-footer" style={{ fontFamily: printFontFamily, fontSize: `calc(${printBannerFontSize} * 0.72)`, whiteSpace: 'pre-wrap' }}>
+                    {renderText(`จัดทำโดย สำนักงานจังหวัดปทุมธานี สามารถดาวน์โหลดข้อมูลได้ที่ www.pathumthani.go.th หัวข้อ "วาระงานผู้ว่าราชการจังหวัดและผู้บริหารของจังหวัดปทุมธานี"`)}
+                  </div>
+                </div>
+              </div>
+              <table className="schedule-table" style={{ fontFamily: printFontFamily, fontSize: printFontSize, fontWeight: 'bold', fontStyle: printFontStyle, textDecoration: printTextDecoration, lineHeight: printLineHeight, width: '100%' }}>
+                <thead>
+                  <tr>
+                    <th className="th-exec" style={{ backgroundColor: headerStyle.bg, color: headerStyle.text, borderColor: headerStyle.border, padding: getPaddingStyle(), width: smartColWidths.exec }}>ผู้บริหาร</th>
+                    {colTimeVisible && <th className="th-time" style={{ backgroundColor: headerStyle.bg, color: headerStyle.text, borderColor: headerStyle.border, padding: getPaddingStyle(), width: smartColWidths.time }}>เวลา</th>}
+                    <th className="th-mission" style={{ backgroundColor: headerStyle.bg, color: headerStyle.text, borderColor: headerStyle.border, padding: getPaddingStyle(), width: smartColWidths.mission }}>วาระงาน</th>
+                    {colLocationVisible && <th className="th-location" style={{ backgroundColor: headerStyle.bg, color: headerStyle.text, borderColor: headerStyle.border, padding: getPaddingStyle(), width: smartColWidths.location }}>สถานที่</th>}
+                    {colAgencyVisible && <th className="th-agency" style={{ backgroundColor: headerStyle.bg, color: headerStyle.text, borderColor: headerStyle.border, padding: getPaddingStyle(), width: smartColWidths.agency, display: 'table-cell' }}>หน่วยงาน</th>}
+                    {colDressVisible && <th className="th-dress" style={{ backgroundColor: headerStyle.bg, color: headerStyle.text, borderColor: headerStyle.border, padding: getPaddingStyle(), width: smartColWidths.dress, display: 'table-cell' }}>การแต่งกาย</th>}
+                  </tr>
+                </thead>
+                <tbody>
+                  {groupedSchedules.length === 0 ? (
+                    <tr>
+                      <td colSpan={activeColCount} className="text-center py-8 text-slate-400 font-bold" style={{ padding: getPaddingStyle() }}>
+                        ไม่มีข้อมูลวาระงานตรงตามที่เลือกหรือตรงกับการค้นหา
+                      </td>
+                    </tr>
+                  ) : (
+                    groupedSchedules.map(group => {
+                      const exec = group.executive;
+                      const execSchedules = group.schedules;
+                      if (execSchedules.length === 0) {
+                        return (
+                          <tr key={`modal-empty-${exec.id}`} className="schedule-row" style={{ color: exec.color === '#000000' ? '#1e293b' : exec.color }}>
+                            <td className="td-exec" style={{ padding: getPaddingStyle() }}>
+                              <div className="exec-name-cell">
+                                <div className="exec-name" style={{ color: exec.color === '#000000' ? '#1e293b' : exec.color }}>{exec.name}</div>
+                                <div className="exec-title" style={{ color: exec.color === '#000000' ? '#1e293b' : exec.color }}>{exec.title}</div>
+                              </div>
+                            </td>
+                            {colTimeVisible && <td className="td-time text-center font-bold" style={{ padding: getPaddingStyle() }}>-</td>}
+                            <td className="td-mission" style={{ padding: getPaddingStyle(), textAlign: printMissionAlign === 'center' ? 'center' : 'left' }}>ปฏิบัติราชการปกติ</td>
+                            {colLocationVisible && <td className="td-location" style={{ padding: getPaddingStyle(), textAlign: printLocationAlign === 'center' ? 'center' : 'left' }}>ศาลากลางจังหวัดปทุมธานี</td>}
+                            {colAgencyVisible && <td className="td-agency text-center" style={{ padding: getPaddingStyle(), display: 'table-cell' }}>-</td>}
+                            {colDressVisible && <td className="td-dress text-center" style={{ padding: getPaddingStyle(), display: 'table-cell' }}>-</td>}
+                          </tr>
+                        );
+                      }
+                      const agencySpans = getSpans(execSchedules, 'agency');
+                      const dressSpans = getSpans(execSchedules, s => s.dressCode);
+                      const locationSpans = getSpans(execSchedules, 'location');
+                      return execSchedules.map((s, index) => (
+                        <tr key={`modal-${s.id}`} className="schedule-row" style={{ color: exec.color === '#000000' ? '#1e293b' : exec.color }}>
+                          {index === 0 && (
+                            <td className="td-exec" rowSpan={execSchedules.length} style={{ padding: getPaddingStyle() }}>
+                              <div className="exec-name-cell">
+                                <div className="exec-name" style={{ color: exec.color === '#000000' ? '#1e293b' : exec.color }}>{exec.name}</div>
+                                <div className="exec-title" style={{ color: exec.color === '#000000' ? '#1e293b' : exec.color }}>{exec.title}</div>
+                              </div>
+                            </td>
+                          )}
+                          {colTimeVisible && (
+                            <td className="td-time text-center font-bold" style={{ padding: getPaddingStyle() }}>
+                              {formatThaiTime(s.startTime)}
+                              {s.endTime && s.endTime.trim() !== '-' && s.endTime.trim() !== '' && (
+                                <div className="time-end-text">ถึง {formatThaiTime(s.endTime)}</div>
+                              )}
+                            </td>
+                          )}
+                          <td className="td-mission" style={{ padding: getPaddingStyle() }}>
+                            {(() => {
+                              const { text: mText, align: mItemAlign } = extractItemAlign(s.mission);
+                              const effectiveAlign = isDash(s.mission) ? 'center' : (mItemAlign || (printMissionAlign === 'center' ? 'center' : 'left'));
+                              return <div style={{ whiteSpace: 'pre-wrap', textAlign: effectiveAlign as any }}>{renderText(mText)}</div>;
+                            })()}
+                          </td>
+                          {colLocationVisible && locationSpans[index].show && (
+                            <td className="td-location" rowSpan={locationSpans[index].span} style={{ padding: getPaddingStyle(), verticalAlign: locationSpans[index].span > 1 ? 'middle' : 'top' }}>
+                              {(() => {
+                                const { text: lText, align: lItemAlign } = extractItemAlign(s.location);
+                                const effectiveAlign = isDash(s.location) ? 'center' : (lItemAlign || (printLocationAlign === 'center' ? 'center' : 'left'));
+                                return <div style={{ whiteSpace: 'pre-wrap', textAlign: effectiveAlign as any }}>{renderText(lText)}</div>;
+                              })()}
+                            </td>
+                          )}
+                          {colAgencyVisible && agencySpans[index].show && (
+                            <td className="td-agency" rowSpan={agencySpans[index].span} style={{ padding: getPaddingStyle(), verticalAlign: agencySpans[index].span > 1 ? 'middle' : 'top', display: 'table-cell' }}>
+                              {(() => {
+                                const { text: aText, align: aItemAlign } = extractItemAlign(s.agency);
+                                const effectiveAlign = isDash(s.agency) ? 'center' : (aItemAlign || 'left');
+                                return <div className="agency-text" style={{ whiteSpace: 'pre-wrap', textAlign: effectiveAlign as any }}>{renderText(aText)}</div>;
+                              })()}
+                            </td>
+                          )}
+                          {colDressVisible && dressSpans[index].show && (
+                            <td className="td-dress" rowSpan={dressSpans[index].span} style={{ padding: getPaddingStyle(), verticalAlign: dressSpans[index].span > 1 ? 'middle' : 'top', display: 'table-cell' }}>
+                              {(() => {
+                                const { text: dText, align: dItemAlign } = extractItemAlign(s.dressCode);
+                                const effectiveAlign = isDash(s.dressCode) ? 'center' : (dItemAlign || 'left');
+                                return <div className="dress-text" style={{ whiteSpace: 'pre-wrap', textAlign: effectiveAlign as any }}>{renderText(dText)}</div>;
+                              })()}
+                            </td>
+                          )}
+                        </tr>
+                      ));
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
 
       <style jsx>{`
         .app-container {
@@ -1355,12 +1574,23 @@ export default function PublicSchedulePage() {
         }
 
         .td-exec {
-          background-color: #fcfdfd;
+          background-color: #fcfdfd !important;
           font-weight: 700;
           text-align: center;
           vertical-align: middle;
           width: 15%;
           min-width: 160px;
+          position: sticky;
+          left: 0;
+          z-index: 5;
+          box-shadow: 2px 0 6px rgba(0,0,0,0.06);
+        }
+
+        .th-exec {
+          position: sticky;
+          left: 0;
+          z-index: 6;
+          box-shadow: 2px 0 6px rgba(0,0,0,0.06);
         }
 
         .exec-name-cell {
