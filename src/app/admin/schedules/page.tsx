@@ -1809,6 +1809,110 @@ export default function SchedulesAdmin() {
           background-clip: padding-box;
         }
 
+        /* Toolbar & Controls Responsive Grid */
+        .toolbar-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 24px;
+        }
+
+        .toolbar-section {
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+        }
+
+        .section-label {
+          font-size: 0.78rem;
+          font-weight: 700;
+          color: #475569;
+        }
+
+        .toolbar-select,
+        .toolbar-input {
+          padding: 8px 12px;
+          border-radius: 6px;
+          border: 1px solid #cbd5e1;
+          font-size: 0.85rem;
+          background: white;
+          color: #1e293b;
+          transition: border-color 0.15s;
+        }
+
+        .toolbar-select:focus,
+        .toolbar-input:focus {
+          outline: none;
+          border-color: #3b82f6;
+        }
+
+        .btn-group {
+          display: flex;
+          border: 1px solid #cbd5e1;
+          border-radius: 6px;
+          overflow: hidden;
+        }
+
+        .toolbar-btn {
+          padding: 6px 12px;
+          border: none;
+          border-right: 1px solid #e2e8f0;
+          background: #f8fafc;
+          color: #475569;
+          font-size: 0.8rem;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.15s;
+        }
+
+        .toolbar-btn:last-child {
+          border-right: none;
+        }
+
+        .toolbar-btn:hover {
+          background: #e2e8f0;
+          color: #0f172a;
+        }
+
+        .toolbar-btn.active {
+          background: #2563eb;
+          color: white;
+        }
+
+        .checkbox-label {
+          font-size: 0.82rem;
+          color: #334155;
+          font-weight: 600;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          cursor: pointer;
+        }
+
+        @media (max-width: 1024px) {
+          .toolbar-grid {
+            grid-template-columns: repeat(2, 1fr);
+          }
+          .toolbar-col {
+            border-right: none !important;
+            padding-right: 0 !important;
+          }
+          .toolbar-col.last {
+            grid-column: span 2;
+          }
+        }
+
+        @media (max-width: 640px) {
+          .toolbar-grid {
+            grid-template-columns: 1fr;
+          }
+          .toolbar-col.last {
+            grid-column: span 1;
+          }
+          .word-toolbar-card {
+            padding: 16px !important;
+          }
+        }
+
         /* Default Admin View Styling */
         .filter-bar { margin-bottom: 24px; padding: 16px 24px; }
         .text-slate-400 { color: #94a3b8; font-size: 0.875rem; }
