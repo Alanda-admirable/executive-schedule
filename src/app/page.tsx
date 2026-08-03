@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useMemo, useCallback } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import html2canvas from 'html2canvas'
 
 interface Executive {
@@ -47,27 +47,16 @@ const WEEKDAYS_SHORT_TH = ["อา.", "จ.", "อ.", "พ.", "พฤ.", "ศ.",
 const thaiSmartBreak = (text: string): string => {
   if (!text) return '';
   return text
-    // 1. Prevent break inside "พ.ศ. 2569"
     .replace(/พ\.ศ\.[ \t]+(\d+|[๐-๙]+)/g, 'พ.ศ.\u00A0$1')
-    // 2. Prevent break inside "รุ่นที่ 85"
     .replace(/รุ่นที่[ \t]+(\d+|[๐-๙]+)/g, 'รุ่นที่\u00A0$1')
-    // 3. Prevent break inside "ครั้งที่ 5"
     .replace(/ครั้งที่[ \t]+(\d+|[๐-๙]+)/g, 'ครั้งที่\u00A0$1')
-    // 4. Prevent break inside "ชั้น 4"
     .replace(/ชั้น[ \t]+(\d+|[๐-๙]+|M|G|B)/g, 'ชั้น\u00A0$1')
-    // 5. Prevent break inside "หมู่ที่ 1"
     .replace(/หมู่ที่[ \t]+(\d+|[๐-๙]+)/g, 'หมู่ที่\u00A0$1')
-    // 6. Prevent break inside "อ.เมือง", "จ.ปทุมธานี", "ต.ประชาธิปัตย์"
     .replace(/(อ\.|ต\.|จ\.)[ \t]+([ก-๙a-zA-Z]+)/g, '$1\u00A0$2')
-    // 7. Prevent break before opening parenthesis and inside parenthesis
     .replace(/[ \t]+\(([^)]+)\)/g, '\u00A0($1)')
-    // 8. Prevent break inside "ประจำปีงบประมาณ พ.ศ."
     .replace(/(ประจำปีงบประมาณ|ปีงบประมาณ)[ \t]+(พ\.ศ\.)/g, '$1\u00A0$2')
-    // 9. Prevent break in numbers with units (e.g., "10 คน", "๐๘.๐๐ น.")
     .replace(/(\d+|[๐-๙]+)[ \t]*(น\.|คน|ท่าน|ราย|ห้อง|แห่ง|เครื่อง|ชุด)/g, '$1\u00A0$2')
-    // 10. Prevent break in time ranges like "เวลา 09.00 น."
     .replace(/เวลา[ \t]+(\d+|[๐-๙]+)/g, 'เวลา\u00A0$1')
-    // 11. Prevent break for building terms
     .replace(/(ห้องประชุม|อาคาร|ตึก|ศาลากลางจังหวัด)[ \t]+([ก-๙a-zA-Z\d]+)/g, '$1\u00A0$2');
 }
 
@@ -106,10 +95,6 @@ export default function PublicSchedulePage() {
   const [selectedDate, setSelectedDate] = useState(new Date())
   const [currentViewDate, setCurrentViewDate] = useState(new Date())
   const [loading, setLoading] = useState(true)
-  
-  // Search and Filter States
-  const [searchQuery, setSearchQuery] = useState('')
-  const [selectedExecFilter, setSelectedExecFilter] = useState('')
 
   // Settings loaded from Admin Panel via LocalStorage
   const [printFontFamily, setPrintFontFamily] = useState("'TH Sarabun New', 'TH Sarabun PSK', 'Sarabun', sans-serif")
@@ -131,10 +116,28 @@ export default function PublicSchedulePage() {
   const [colAgencyVisible, setColAgencyVisible] = useState(true)
   const [colDressVisible, setColDressVisible] = useState(true)
 
-  // Mobile View & Ultra-HD Modal States
-  const [mobileViewMode, setMobileViewMode] = useState<'table' | 'cards'>('table')
-  const [showHDModal, setShowHDModal] = useState(false)
-  const [hdZoomLevel, setHdZoomLevel] = useState(1.3)
+  const applyPrintSettings = (config: any) => {
+    if (!config) return
+    if (config.fontFamily) setPrintFontFamily(config.fontFamily)
+    if (config.fontSize) setPrintFontSize(config.fontSize)
+    if (config.fontWeight) setPrintFontWeight(config.fontWeight)
+    if (config.fontStyle) setPrintFontStyle(config.fontStyle)
+    if (config.textDecoration) setPrintTextDecoration(config.textDecoration)
+    if (config.missionAlign) setPrintMissionAlign(config.missionAlign)
+    if (config.locationAlign) setPrintLocationAlign(config.locationAlign)
+    if (config.lineHeight) setPrintLineHeight(config.lineHeight)
+    if (config.cellPadding) setPrintCellPadding(config.cellPadding)
+    if (config.fitToPage !== undefined) setFitToPage(config.fitToPage)
+    if (config.bannerFontSize) setPrintBannerFontSize(config.bannerFontSize)
+    if (config.columnLayout) setPrintColumnLayout(config.columnLayout)
+    
+    if (config.visibleColumns) {
+      setColTimeVisible(config.visibleColumns.time !== false)
+      setColLocationVisible(config.visibleColumns.location !== false)
+      setColAgencyVisible(config.visibleColumns.agency !== false)
+      setColDressVisible(config.visibleColumns.dress !== false)
+    }
+  }
 
   const toThaiDigits = (value: string | number) => {
     return String(value ?? "").replace(/(\*\d+\*)|([0-9])/g, (match, escaped, digit) => {
@@ -147,30 +150,14 @@ export default function PublicSchedulePage() {
 
   const renderText = (text: string | null | undefined) => {
     if (!text) return '';
-    
-    let formatted = text;
-
-    // Strip alignment markers before rendering
-    formatted = formatted.replace(/^\{\{[CLR]\}\}/, '');
-
-
-    // 3. Keep single spaces as newlines if they are separators, but handle | or / or ;
+    let formatted = text.replace(/^\{\{[CLR]\}\}/, '');
     formatted = formatted
       .replace(/\s*\|\s*/g, '\n')
       .replace(/\s+;\s+/g, '\n')
       .replace(/\s+\/\s+/g, '\n')
       .replace(/ {2,}/g, '\n');
-    
-    // 4. Prevent word-wrap break after common Thai prefixes/titles
     formatted = formatted.replace(/(นาย|นาง|นางสาว|ว่าที่ร้อยตรี|ดร\.|พล\.ต\.|พ\.ต\.|ร\.ต\.|ปลัดจังหวัด|ผู้ว่าราชการจังหวัด|รองผู้ว่าราชการจังหวัด)[ \t]+/g, '$1\u00A0');
-
-    // 5. Apply Thai smart line breaking to keep units like "พ.ศ. 2569" together
     formatted = thaiSmartBreak(formatted);
-    
-    // 6. Clean up consecutive newlines
-    // Allow multiple newlines to preserve blank lines
-
-    // Always convert Arabic digits to Thai digits for formal Thai document presentation
     return toThaiDigits(formatted);
   }
 
@@ -181,14 +168,12 @@ export default function PublicSchedulePage() {
     return `${y}-${m}-${d}`;
   }
 
-  // Format time to Thai format (e.g., "08:30" -> "๐๘.๓๐ น.")
   const formatThaiTime = (timeStr: string) => {
     if (!timeStr || timeStr.trim() === '-' || timeStr.trim() === '') return timeStr?.trim() === '-' ? '-' : '';
     const clean = timeStr.replace(":", ".").replace(/\s*น\s*\.?$/, "");
     return toThaiDigits(clean);
   }
 
-  // Extract per-item alignment marker from text: {{C}} = center, {{R}} = right, {{L}} = left
   const extractItemAlign = (text: string | null | undefined): { text: string; align: string | null } => {
     if (!text) return { text: '', align: null };
     const match = text.match(/^\{\{([CLR])\}\}/);
@@ -199,38 +184,18 @@ export default function PublicSchedulePage() {
     return { text, align: null };
   }
 
-  // Check if text is just a dash (for auto-centering)
   const isDash = (text: string | null | undefined) => {
     if (!text) return false;
     const cleaned = text.replace(/^\{\{[CLR]\}\}/, '').trim();
     return cleaned === '-';
   }
 
-  // QoL real-time settings synchronizer from Admin tab
+  // Real-time settings synchronizer from Admin tab via LocalStorage event
   useEffect(() => {
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === 'printSettings' && e.newValue) {
         try {
-          const config = JSON.parse(e.newValue)
-          if (config.fontFamily) setPrintFontFamily(config.fontFamily)
-          if (config.fontSize) setPrintFontSize(config.fontSize)
-          if (config.fontWeight) setPrintFontWeight(config.fontWeight)
-          if (config.fontStyle) setPrintFontStyle(config.fontStyle)
-          if (config.textDecoration) setPrintTextDecoration(config.textDecoration)
-          if (config.missionAlign) setPrintMissionAlign(config.missionAlign)
-          if (config.locationAlign) setPrintLocationAlign(config.locationAlign)
-          if (config.lineHeight) setPrintLineHeight(config.lineHeight)
-          if (config.cellPadding) setPrintCellPadding(config.cellPadding)
-          if (config.fitToPage !== undefined) setFitToPage(config.fitToPage)
-          if (config.bannerFontSize) setPrintBannerFontSize(config.bannerFontSize)
-            if (config.columnLayout) setPrintColumnLayout(config.columnLayout)
-          
-          if (config.visibleColumns) {
-            setColTimeVisible(config.visibleColumns.time !== false)
-            setColLocationVisible(config.visibleColumns.location !== false)
-            setColAgencyVisible(config.visibleColumns.agency !== false)
-            setColDressVisible(config.visibleColumns.dress !== false)
-          }
+          applyPrintSettings(JSON.parse(e.newValue))
         } catch (err) {
           console.error("Error loading print settings from storage event", err)
         }
@@ -248,26 +213,7 @@ export default function PublicSchedulePage() {
     const saved = localStorage.getItem('printSettings')
     if (saved) {
       try {
-        const config = JSON.parse(saved)
-        if (config.fontFamily) setPrintFontFamily(config.fontFamily)
-        if (config.fontSize) setPrintFontSize(config.fontSize)
-        if (config.fontWeight) setPrintFontWeight(config.fontWeight)
-        if (config.fontStyle) setPrintFontStyle(config.fontStyle)
-        if (config.textDecoration) setPrintTextDecoration(config.textDecoration)
-        if (config.missionAlign) setPrintMissionAlign(config.missionAlign)
-        if (config.locationAlign) setPrintLocationAlign(config.locationAlign)
-        if (config.lineHeight) setPrintLineHeight(config.lineHeight)
-        if (config.cellPadding) setPrintCellPadding(config.cellPadding)
-        if (config.fitToPage !== undefined) setFitToPage(config.fitToPage)
-        if (config.bannerFontSize) setPrintBannerFontSize(config.bannerFontSize)
-            if (config.columnLayout) setPrintColumnLayout(config.columnLayout)
-        
-        if (config.visibleColumns) {
-          setColTimeVisible(config.visibleColumns.time !== false)
-          setColLocationVisible(config.visibleColumns.location !== false)
-          setColAgencyVisible(config.visibleColumns.agency !== false)
-          setColDressVisible(config.visibleColumns.dress !== false)
-        }
+        applyPrintSettings(JSON.parse(saved))
       } catch (e) {
         console.error("Error loading print settings", e)
       }
@@ -281,9 +227,6 @@ export default function PublicSchedulePage() {
 
   useEffect(() => {
     fetchSchedules()
-    // Reset filters when date changes
-    setSearchQuery('')
-    setSelectedExecFilter('')
   }, [selectedDate])
 
   useEffect(() => {
@@ -337,7 +280,6 @@ export default function PublicSchedulePage() {
       const table = element.querySelector('table');
       const banner = element.querySelector('.official-banner, .official-banner-container');
       
-      // Measure actual content width
       const contentWidth = Math.max(
         table ? (table as HTMLElement).offsetWidth : 0,
         banner ? (banner as HTMLElement).offsetWidth : 0
@@ -357,12 +299,6 @@ export default function PublicSchedulePage() {
         responsiveWrapper.style.overflowX = 'visible';
       }
       
-      // Save scroll positions and scroll to top
-      const originalScrollTop = element.scrollTop;
-      const originalScrollLeft = element.scrollLeft;
-      const originalWindowScrollY = window.scrollY;
-      const originalWindowScrollX = window.scrollX;
-      
       element.scrollTop = 0;
       element.scrollLeft = 0;
       window.scrollTo(0, 0);
@@ -376,15 +312,12 @@ export default function PublicSchedulePage() {
         backgroundColor: '#ffffff',
         windowWidth: 2400,
         onclone: (clonedDoc) => {
-          // Remove padding and border from container to fit table exactly
           const container = clonedDoc.getElementById('schedule-table-container');
           if (container) {
-            // Keep original padding so canvas dimensions perfectly match the cloned element
             container.style.border = 'none';
             container.style.borderRadius = '0';
           }
           
-          // Force relative positioning and background-clip on all table cells to resolve html2canvas rowspan border bugs
           const cells = clonedDoc.querySelectorAll('.schedule-table th, .schedule-table td');
           cells.forEach(cell => {
             const el = cell as HTMLElement;
@@ -392,7 +325,6 @@ export default function PublicSchedulePage() {
             el.style.backgroundClip = 'padding-box';
             (el.style as any).webkitFontSmoothing = 'antialiased';
           });
-          // Set row backgrounds to transparent during capture to prevent them from overlaying spanned cells
           const rows = clonedDoc.querySelectorAll('.schedule-row');
           rows.forEach(row => {
             const el = row as HTMLElement;
@@ -400,8 +332,6 @@ export default function PublicSchedulePage() {
           });
         }
       });
-      
-      // Restore original
       
       element.setAttribute('style', originalContainerStyle);
       element.className = originalClass;
@@ -423,9 +353,6 @@ export default function PublicSchedulePage() {
     }
   }
 
-  const currentTheme = themes.find(t => t.dayIndex === selectedDate.getDay())
-
-  // Dynamic solid background color for table headers matching the traditional Thai colors of the day
   const getWeekdayHeaderStyle = (dayIndex: number) => {
     const styles = [
       { bg: "#ef4444", text: "#000000", border: "#dc2626" }, // Sunday (Red)
@@ -439,7 +366,6 @@ export default function PublicSchedulePage() {
     return styles[dayIndex] || { bg: "#22c55e", text: "#000000", border: "#16a34a" };
   }
 
-  // Dynamic solid background color for the main banner matching the traditional Thai colors of the day
   const getWeekdayBannerColor = (dayIndex: number) => {
     const colors = [
       "#f87171", // Sunday (Red)
@@ -490,64 +416,27 @@ export default function PublicSchedulePage() {
     return `${WEEKDAYS_TH[date.getDay()]}ที่ ${day} ${month} ${year}`;
   }
 
-  // Get unique executives from currently selected day's schedules for the filter dropdown
-  const uniqueExecutivesInSchedules = useMemo(() => {
-    const map = new Map<string, { id: string, name: string }>()
-    schedules.forEach(s => {
-      if (s.executive) {
-        map.set(s.executiveId, { id: s.executiveId, name: s.executive.name })
-      }
-    })
-    return Array.from(map.values())
-  }, [schedules])
-
-  // Group schedules by executive for rowspan formal table display
   const groupedSchedules = useMemo(() => {
     const sortedExecutives = [...executives].sort((a, b) => a.order - b.order)
 
     return sortedExecutives.map(exec => {
-      const execSchedules = schedules.filter(s => s.executiveId === exec.id).filter(s => {
-        if (!searchQuery) return true;
-        const q = searchQuery.toLowerCase();
-        return (s.mission || '').toLowerCase().includes(q) ||
-               (s.location || '').toLowerCase().includes(q) ||
-               (s.agency || '').toLowerCase().includes(q) ||
-               (s.dressCode && s.dressCode.toLowerCase().includes(q));
-      });
-
+      const execSchedules = schedules.filter(s => s.executiveId === exec.id)
       return {
         executive: exec,
         schedules: execSchedules
       };
-    }).filter(group => {
-      if (selectedExecFilter && group.executive.id !== selectedExecFilter) {
-        return false;
-      }
-      if (searchQuery && group.schedules.length === 0) {
-        return false;
-      }
-      return true;
-    });
-  }, [executives, schedules, searchQuery, selectedExecFilter])
+    })
+  }, [executives, schedules])
 
   const getPaddingStyle = () => {
     if (printCellPadding === 'compact') return '6px 8px'
     if (printCellPadding === 'loose') return '16px 14px'
-    return '12px 10px' // normal
+    return '12px 10px'
   }
 
   const activeColCount = 2 + (colTimeVisible ? 1 : 0) + (colLocationVisible ? 1 : 0) + (colAgencyVisible ? 1 : 0) + (colDressVisible ? 1 : 0)
 
-  // === SMART TABLE ALGORITHM ===
-
-  // Count total visible rows for dynamic table-layout
-  const totalVisibleRows = useMemo(() => {
-    return groupedSchedules.reduce((sum, g) => sum + Math.max(g.schedules.length, 1), 0)
-  }, [groupedSchedules])
-
-  // Smart column widths: redistribute based on which columns are visible
   const smartColWidths = useMemo(() => {
-    // Base proportions (out of 100)
     const bases = {
       exec: 15,
       time: colTimeVisible ? 8 : 0,
@@ -557,7 +446,6 @@ export default function PublicSchedulePage() {
       dress: colDressVisible ? 11 : 0
     }
     const usedTotal = Object.values(bases).reduce((a, b) => a + b, 0)
-    // Redistribute remainder proportionally to exec + mission (the main columns)
     const remainder = 100 - usedTotal
     const mainTotal = bases.exec + bases.mission
     bases.exec += remainder * (bases.exec / mainTotal)
@@ -572,8 +460,6 @@ export default function PublicSchedulePage() {
       dress: `${Math.round(bases.dress)}%`,
     }
   }, [colTimeVisible, colLocationVisible, colAgencyVisible, colDressVisible])
-
-
 
   return (
     <div className={`app-container ${fitToPage ? 'print-fit-to-page' : ''}`}>
@@ -591,21 +477,11 @@ export default function PublicSchedulePage() {
             </div>
             <div className="header-actions">
               <button className="nav-btn" onClick={() => { setSelectedDate(new Date()); setCurrentViewDate(new Date()); }}>วันนี้</button>
-              <button className="nav-btn hd-zoom-btn" onClick={() => setShowHDModal(true)} style={{ background: '#0284c7', color: 'white' }}>
-                <span className="icon">🔍</span> ซูมดูตารางคมชัด HD
-              </button>
-              <button 
-                className="nav-btn mobile-mode-btn" 
-                onClick={() => setMobileViewMode(prev => prev === 'table' ? 'cards' : 'table')}
-                style={{ background: mobileViewMode === 'cards' ? '#166534' : '#475569', color: 'white' }}
-              >
-                <span className="icon">{mobileViewMode === 'cards' ? '📊' : '📱'}</span> {mobileViewMode === 'cards' ? 'สลับโหมดตาราง A4' : 'สลับโหมดอ่านง่ายบนมือถือ'}
-              </button>
               <button className="nav-btn print-btn" onClick={() => window.print()}>
                 <span className="icon">🖨️</span> พิมพ์วาระงาน
               </button>
               <button className="nav-btn download-image-btn" onClick={handleDownloadImage} disabled={downloadingImage}>
-                <span className="icon">🖼️</span> {downloadingImage ? 'กำลังสร้างรูป...' : 'บันทึกเป็นรูปภาพ (.jpg)'}
+                <span className="icon">🖼️</span> {downloadingImage ? 'กำลังสร้างรูป...' : 'บันทึกเป็นรูปภาพ (.png)'}
               </button>
               <a href="/admin" className="admin-link">
                 จัดการระบบ (Admin)
@@ -668,7 +544,7 @@ export default function PublicSchedulePage() {
                         <tr>
                           <th className="th-exec" style={{ backgroundColor: headerStyle.bg, color: headerStyle.text, borderColor: headerStyle.border, padding: getPaddingStyle(), width: smartColWidths.exec }}>ผู้บริหาร</th>
                           {colTimeVisible && <th className="th-time" style={{ backgroundColor: headerStyle.bg, color: headerStyle.text, borderColor: headerStyle.border, padding: getPaddingStyle(), width: smartColWidths.time }}>เวลา</th>}
-                           <th className="th-mission" style={{ backgroundColor: headerStyle.bg, color: headerStyle.text, borderColor: headerStyle.border, padding: getPaddingStyle(), width: smartColWidths.mission }}>วาระงาน</th>
+                          <th className="th-mission" style={{ backgroundColor: headerStyle.bg, color: headerStyle.text, borderColor: headerStyle.border, padding: getPaddingStyle(), width: smartColWidths.mission }}>วาระงาน</th>
                           {colLocationVisible && <th className="th-location" style={{ backgroundColor: headerStyle.bg, color: headerStyle.text, borderColor: headerStyle.border, padding: getPaddingStyle(), width: smartColWidths.location }}>สถานที่</th>}
                           {colAgencyVisible && <th className="th-agency" style={{ backgroundColor: headerStyle.bg, color: headerStyle.text, borderColor: headerStyle.border, padding: getPaddingStyle(), width: smartColWidths.agency }}>หน่วยงาน</th>}
                           {colDressVisible && <th className="th-dress" style={{ backgroundColor: headerStyle.bg, color: headerStyle.text, borderColor: headerStyle.border, padding: getPaddingStyle(), width: smartColWidths.dress }}>การแต่งกาย</th>}
@@ -678,7 +554,7 @@ export default function PublicSchedulePage() {
                         {groupedSchedules.length === 0 ? (
                           <tr>
                             <td colSpan={activeColCount} className="text-center py-8 text-slate-400 font-bold" style={{ padding: getPaddingStyle() }}>
-                              ไม่มีข้อมูลวาระงานตรงตามที่เลือกหรือตรงกับการค้นหา
+                              ไม่มีข้อมูลวาระงานตรงตามที่เลือก
                             </td>
                           </tr>
                         ) : (
@@ -716,7 +592,6 @@ export default function PublicSchedulePage() {
                             const dressSpans = getSpans(execSchedules, s => s.dressCode);
                             const locationSpans = getSpans(execSchedules, 'location');
 
-                            // Otherwise, map schedules and use rowspan for the first one
                             return execSchedules.map((s, index) => (
                               <tr 
                                 key={s.id} 
@@ -735,7 +610,7 @@ export default function PublicSchedulePage() {
                                       <div className="exec-name" style={{ color: exec.color === '#000000' ? '#1e293b' : exec.color }}>
                                         {exec.name}
                                       </div>
-                                       <div className="exec-title" style={{ color: exec.color === '#000000' ? '#1e293b' : exec.color }}>{exec.title}</div>
+                                      <div className="exec-title" style={{ color: exec.color === '#000000' ? '#1e293b' : exec.color }}>{exec.title}</div>
                                     </div>
                                   </td>
                                 )}
@@ -802,71 +677,6 @@ export default function PublicSchedulePage() {
                       </tbody>
                     </table>
                   </div>
-                  {mobileViewMode === 'cards' ? (
-                    <div className="mobile-cards-view" style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '16px' }}>
-                      {groupedSchedules.length === 0 ? (
-                        <div style={{ padding: '32px', textAlign: 'center', color: '#64748b', fontWeight: 'bold', background: 'white', borderRadius: '12px', border: '1px solid #cbd5e1' }}>
-                          ไม่มีข้อมูลวาระงานตรงตามที่เลือก
-                        </div>
-                      ) : (
-                        groupedSchedules.map(group => {
-                          const exec = group.executive;
-                          const execSchedules = group.schedules;
-                          const execColor = exec.color === '#000000' ? '#0f172a' : (exec.color || '#0f172a');
-                          return (
-                            <div key={exec.id} style={{ background: 'white', borderRadius: '12px', border: `2px solid ${execColor}`, overflow: 'hidden', boxShadow: '0 4px 12px rgba(0,0,0,0.06)' }}>
-                              <div style={{ background: execColor, color: 'white', padding: '12px 16px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: 'white', flexShrink: 0 }} />
-                                <div>
-                                  <div style={{ fontWeight: '800', fontSize: '1.05rem', lineHeight: '1.2' }}>{exec.name}</div>
-                                  <div style={{ fontSize: '0.82rem', opacity: 0.9, marginTop: '2px' }}>{exec.title}</div>
-                                </div>
-                              </div>
-                              <div style={{ padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                                {execSchedules.length === 0 ? (
-                                  <div style={{ color: '#64748b', fontSize: '0.9rem', fontStyle: 'italic', fontWeight: '600' }}>
-                                    ปฏิบัติราชการปกติ (ศาลากลางจังหวัดปทุมธานี)
-                                  </div>
-                                ) : (
-                                  execSchedules.map((s, idx) => (
-                                    <div key={s.id || idx} style={{ borderBottom: idx < execSchedules.length - 1 ? '1px dashed #cbd5e1' : 'none', paddingBottom: idx < execSchedules.length - 1 ? '14px' : '0' }}>
-                                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-                                        <span style={{ background: '#eff6ff', color: '#1d4ed8', fontWeight: 'bold', fontSize: '0.85rem', padding: '3px 10px', borderRadius: '6px', border: '1px solid #bfdbfe' }}>
-                                          ⏰ {formatThaiTime(s.startTime)} {s.endTime && s.endTime.trim() !== '-' && s.endTime.trim() !== '' ? `ถึง ${formatThaiTime(s.endTime)}` : ''}
-                                        </span>
-                                      </div>
-                                      <div style={{ fontWeight: 'bold', color: '#0f172a', fontSize: '1rem', lineHeight: '1.4', marginBottom: '8px', whiteSpace: 'pre-wrap' }}>
-                                        {renderText(extractItemAlign(s.mission).text)}
-                                      </div>
-                                      {s.location && s.location !== '-' && (
-                                        <div style={{ color: '#334155', fontSize: '0.875rem', marginBottom: '6px', display: 'flex', alignItems: 'flex-start', gap: '6px', fontWeight: '600' }}>
-                                          <span>📍</span> <span>{renderText(extractItemAlign(s.location).text)}</span>
-                                        </div>
-                                      )}
-                                      {(s.agency || s.dressCode) && (
-                                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '6px' }}>
-                                          {s.agency && s.agency !== '-' && (
-                                            <span style={{ background: '#f1f5f9', color: '#334155', fontSize: '0.78rem', padding: '4px 10px', borderRadius: '6px', fontWeight: '700', border: '1px solid #e2e8f0' }}>
-                                              🏢 {renderText(extractItemAlign(s.agency).text)}
-                                            </span>
-                                          )}
-                                          {s.dressCode && s.dressCode !== '-' && (
-                                            <span style={{ background: '#fef3c7', color: '#92400e', fontSize: '0.78rem', padding: '4px 10px', borderRadius: '6px', fontWeight: '700', border: '1px solid #fde68a' }}>
-                                              👔 {renderText(extractItemAlign(s.dressCode).text)}
-                                            </span>
-                                          )}
-                                        </div>
-                                      )}
-                                    </div>
-                                  ))
-                                )}
-                              </div>
-                            </div>
-                          );
-                        })
-                      )}
-                    </div>
-                  ) : null}
                 </div>
               )}
             </div>
@@ -900,7 +710,6 @@ export default function PublicSchedulePage() {
                   const daySchedules = getSchedulesForDate(date)
                   const dayTheme = themes.find(t => t.dayIndex === date.getDay())
                   
-                  // Get unique executive colors for events on this date
                   const uniqueColors = Array.from(new Set(daySchedules.map(s => s.executive?.color).filter(Boolean)))
 
                   return (
@@ -915,7 +724,6 @@ export default function PublicSchedulePage() {
                         </span>
                       </div>
                       
-                      {/* Compact Dots instead of bulky Pills */}
                       <div className="day-events-dots">
                         {uniqueColors.map((color, colorIdx) => (
                           <span 
@@ -940,145 +748,6 @@ export default function PublicSchedulePage() {
         </div>
       </footer>
 
-      {/* Ultra-HD Pinch-to-Zoom Fullscreen Modal */}
-      {showHDModal && (
-        <div className="hd-modal-backdrop" style={{ position: 'fixed', inset: 0, zIndex: 99999, background: 'rgba(15, 23, 42, 0.95)', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-          {/* HD Modal Control Bar */}
-          <div style={{ background: '#1e293b', color: 'white', padding: '10px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #334155', zIndex: 10, flexWrap: 'wrap', gap: '8px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <span style={{ fontWeight: 'bold', fontSize: '0.95rem', color: '#38bdf8' }}>🔍 ตารางความคมชัด Ultra-HD</span>
-              <span style={{ background: '#0284c7', color: 'white', padding: '2px 8px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 'bold' }}>{Math.round(hdZoomLevel * 100)}%</span>
-            </div>
-            <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
-              <button onClick={() => setHdZoomLevel(prev => Math.min(prev + 0.25, 3.0))} style={{ background: '#334155', color: 'white', border: '1px solid #475569', borderRadius: '6px', padding: '6px 12px', fontWeight: 'bold', cursor: 'pointer', fontSize: '0.82rem' }}>➕ ซูมเข้า</button>
-              <button onClick={() => setHdZoomLevel(prev => Math.max(prev - 0.25, 0.75))} style={{ background: '#334155', color: 'white', border: '1px solid #475569', borderRadius: '6px', padding: '6px 12px', fontWeight: 'bold', cursor: 'pointer', fontSize: '0.82rem' }}>➖ ซูมออก</button>
-              <button onClick={() => setHdZoomLevel(1.3)} style={{ background: '#334155', color: 'white', border: '1px solid #475569', borderRadius: '6px', padding: '6px 12px', fontWeight: 'bold', cursor: 'pointer', fontSize: '0.82rem' }}>↺ รีเซ็ต</button>
-              <button onClick={() => setShowHDModal(false)} style={{ background: '#ef4444', color: 'white', border: 'none', borderRadius: '6px', padding: '6px 16px', fontWeight: 'bold', cursor: 'pointer', fontSize: '0.82rem' }}>✕ ปิด</button>
-            </div>
-          </div>
-          {/* Canvas Scroll Area */}
-          <div style={{ flex: 1, overflow: 'auto', padding: '24px 16px', display: 'flex', justifyContent: 'center', alignItems: 'flex-start', touchAction: 'pan-x pan-y' }}>
-            <div style={{ transform: `scale(${hdZoomLevel})`, transformOrigin: 'top center', transition: 'transform 0.15s ease', background: 'white', padding: '16px', borderRadius: '8px', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)', width: '1300px', minWidth: '1300px' }}>
-              <div className="official-banner-container" style={{ marginBottom: '16px' }}>
-                <div className="banner-seal-wrapper">
-                  <div className="banner-seal">
-                    <img src="/seal.jpg" alt="ตราจังหวัดปทุมธานี" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-                  </div>
-                </div>
-                <div className="official-banner" style={{ backgroundColor: getWeekdayBannerColor(selectedDate.getDay()), fontFamily: printFontFamily }}>
-                  <h2 className="banner-title" style={{ fontFamily: printFontFamily, fontSize: printBannerFontSize, fontWeight: 'bold', whiteSpace: 'pre-wrap' }}>
-                    {renderText(`วาระงานผู้ว่าราชการจังหวัดและผู้บริหารของจังหวัดปทุมธานี ${formatThaiDateFull(selectedDate)}`)}
-                  </h2>
-                  <div className="banner-footer" style={{ fontFamily: printFontFamily, fontSize: `calc(${printBannerFontSize} * 0.72)`, whiteSpace: 'pre-wrap' }}>
-                    {renderText(`จัดทำโดย สำนักงานจังหวัดปทุมธานี สามารถดาวน์โหลดข้อมูลได้ที่ www.pathumthani.go.th หัวข้อ "วาระงานผู้ว่าราชการจังหวัดและผู้บริหารของจังหวัดปทุมธานี"`)}
-                  </div>
-                </div>
-              </div>
-              <table className="schedule-table" style={{ fontFamily: printFontFamily, fontSize: printFontSize, fontWeight: 'bold', fontStyle: printFontStyle, textDecoration: printTextDecoration, lineHeight: printLineHeight, width: '100%' }}>
-                <thead>
-                  <tr>
-                    <th className="th-exec" style={{ backgroundColor: headerStyle.bg, color: headerStyle.text, borderColor: headerStyle.border, padding: getPaddingStyle(), width: smartColWidths.exec }}>ผู้บริหาร</th>
-                    {colTimeVisible && <th className="th-time" style={{ backgroundColor: headerStyle.bg, color: headerStyle.text, borderColor: headerStyle.border, padding: getPaddingStyle(), width: smartColWidths.time }}>เวลา</th>}
-                    <th className="th-mission" style={{ backgroundColor: headerStyle.bg, color: headerStyle.text, borderColor: headerStyle.border, padding: getPaddingStyle(), width: smartColWidths.mission }}>วาระงาน</th>
-                    {colLocationVisible && <th className="th-location" style={{ backgroundColor: headerStyle.bg, color: headerStyle.text, borderColor: headerStyle.border, padding: getPaddingStyle(), width: smartColWidths.location }}>สถานที่</th>}
-                    {colAgencyVisible && <th className="th-agency" style={{ backgroundColor: headerStyle.bg, color: headerStyle.text, borderColor: headerStyle.border, padding: getPaddingStyle(), width: smartColWidths.agency, display: 'table-cell' }}>หน่วยงาน</th>}
-                    {colDressVisible && <th className="th-dress" style={{ backgroundColor: headerStyle.bg, color: headerStyle.text, borderColor: headerStyle.border, padding: getPaddingStyle(), width: smartColWidths.dress, display: 'table-cell' }}>การแต่งกาย</th>}
-                  </tr>
-                </thead>
-                <tbody>
-                  {groupedSchedules.length === 0 ? (
-                    <tr>
-                      <td colSpan={activeColCount} className="text-center py-8 text-slate-400 font-bold" style={{ padding: getPaddingStyle() }}>
-                        ไม่มีข้อมูลวาระงานตรงตามที่เลือกหรือตรงกับการค้นหา
-                      </td>
-                    </tr>
-                  ) : (
-                    groupedSchedules.map(group => {
-                      const exec = group.executive;
-                      const execSchedules = group.schedules;
-                      if (execSchedules.length === 0) {
-                        return (
-                          <tr key={`modal-empty-${exec.id}`} className="schedule-row" style={{ color: exec.color === '#000000' ? '#1e293b' : exec.color }}>
-                            <td className="td-exec" style={{ padding: getPaddingStyle() }}>
-                              <div className="exec-name-cell">
-                                <div className="exec-name" style={{ color: exec.color === '#000000' ? '#1e293b' : exec.color }}>{exec.name}</div>
-                                <div className="exec-title" style={{ color: exec.color === '#000000' ? '#1e293b' : exec.color }}>{exec.title}</div>
-                              </div>
-                            </td>
-                            {colTimeVisible && <td className="td-time text-center font-bold" style={{ padding: getPaddingStyle() }}>-</td>}
-                            <td className="td-mission" style={{ padding: getPaddingStyle(), textAlign: printMissionAlign === 'center' ? 'center' : 'left' }}>ปฏิบัติราชการปกติ</td>
-                            {colLocationVisible && <td className="td-location" style={{ padding: getPaddingStyle(), textAlign: printLocationAlign === 'center' ? 'center' : 'left' }}>ศาลากลางจังหวัดปทุมธานี</td>}
-                            {colAgencyVisible && <td className="td-agency text-center" style={{ padding: getPaddingStyle(), display: 'table-cell' }}>-</td>}
-                            {colDressVisible && <td className="td-dress text-center" style={{ padding: getPaddingStyle(), display: 'table-cell' }}>-</td>}
-                          </tr>
-                        );
-                      }
-                      const agencySpans = getSpans(execSchedules, 'agency');
-                      const dressSpans = getSpans(execSchedules, s => s.dressCode);
-                      const locationSpans = getSpans(execSchedules, 'location');
-                      return execSchedules.map((s, index) => (
-                        <tr key={`modal-${s.id}`} className="schedule-row" style={{ color: exec.color === '#000000' ? '#1e293b' : exec.color }}>
-                          {index === 0 && (
-                            <td className="td-exec" rowSpan={execSchedules.length} style={{ padding: getPaddingStyle() }}>
-                              <div className="exec-name-cell">
-                                <div className="exec-name" style={{ color: exec.color === '#000000' ? '#1e293b' : exec.color }}>{exec.name}</div>
-                                <div className="exec-title" style={{ color: exec.color === '#000000' ? '#1e293b' : exec.color }}>{exec.title}</div>
-                              </div>
-                            </td>
-                          )}
-                          {colTimeVisible && (
-                            <td className="td-time text-center font-bold" style={{ padding: getPaddingStyle() }}>
-                              {formatThaiTime(s.startTime)}
-                              {s.endTime && s.endTime.trim() !== '-' && s.endTime.trim() !== '' && (
-                                <div className="time-end-text">ถึง {formatThaiTime(s.endTime)}</div>
-                              )}
-                            </td>
-                          )}
-                          <td className="td-mission" style={{ padding: getPaddingStyle() }}>
-                            {(() => {
-                              const { text: mText, align: mItemAlign } = extractItemAlign(s.mission);
-                              const effectiveAlign = isDash(s.mission) ? 'center' : (mItemAlign || (printMissionAlign === 'center' ? 'center' : 'left'));
-                              return <div style={{ whiteSpace: 'pre-wrap', textAlign: effectiveAlign as any }}>{renderText(mText)}</div>;
-                            })()}
-                          </td>
-                          {colLocationVisible && locationSpans[index].show && (
-                            <td className="td-location" rowSpan={locationSpans[index].span} style={{ padding: getPaddingStyle(), verticalAlign: locationSpans[index].span > 1 ? 'middle' : 'top' }}>
-                              {(() => {
-                                const { text: lText, align: lItemAlign } = extractItemAlign(s.location);
-                                const effectiveAlign = isDash(s.location) ? 'center' : (lItemAlign || (printLocationAlign === 'center' ? 'center' : 'left'));
-                                return <div style={{ whiteSpace: 'pre-wrap', textAlign: effectiveAlign as any }}>{renderText(lText)}</div>;
-                              })()}
-                            </td>
-                          )}
-                          {colAgencyVisible && agencySpans[index].show && (
-                            <td className="td-agency" rowSpan={agencySpans[index].span} style={{ padding: getPaddingStyle(), verticalAlign: agencySpans[index].span > 1 ? 'middle' : 'top', display: 'table-cell' }}>
-                              {(() => {
-                                const { text: aText, align: aItemAlign } = extractItemAlign(s.agency);
-                                const effectiveAlign = isDash(s.agency) ? 'center' : (aItemAlign || 'left');
-                                return <div className="agency-text" style={{ whiteSpace: 'pre-wrap', textAlign: effectiveAlign as any }}>{renderText(aText)}</div>;
-                              })()}
-                            </td>
-                          )}
-                          {colDressVisible && dressSpans[index].show && (
-                            <td className="td-dress" rowSpan={dressSpans[index].span} style={{ padding: getPaddingStyle(), verticalAlign: dressSpans[index].span > 1 ? 'middle' : 'top', display: 'table-cell' }}>
-                              {(() => {
-                                const { text: dText, align: dItemAlign } = extractItemAlign(s.dressCode);
-                                const effectiveAlign = isDash(s.dressCode) ? 'center' : (dItemAlign || 'left');
-                                return <div className="dress-text" style={{ whiteSpace: 'pre-wrap', textAlign: effectiveAlign as any }}>{renderText(dText)}</div>;
-                              })()}
-                            </td>
-                          )}
-                        </tr>
-                      ));
-                    })
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      )}
-
       <style jsx>{`
         .app-container {
           min-height: 100vh;
@@ -1098,181 +767,184 @@ export default function PublicSchedulePage() {
         .main-header {
           background: white;
           box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.03);
-          padding: 16px 0;
+          border-bottom: 1px solid #e2e8f0;
           position: sticky;
           top: 0;
-          z-index: 100;
-          border-bottom: 1px solid #f1f5f9;
+          z-index: 50;
         }
 
         .header-content {
           display: flex;
           justify-content: space-between;
           align-items: center;
+          height: 72px;
         }
 
         .brand-section {
           display: flex;
           align-items: center;
-          gap: 16px;
+          gap: 12px;
         }
 
         .logo-placeholder {
-          width: 48px;
-          height: 48px;
-          background: linear-gradient(135deg, #166534, #15803d);
-          border-radius: 12px;
+          width: 40px;
+          height: 40px;
+          border-radius: 8px;
           display: flex;
           align-items: center;
           justify-content: center;
-          box-shadow: 0 4px 12px rgba(22, 101, 52, 0.15);
-        }
-
-        .logo-inner {
-          color: white;
-          font-weight: 800;
-          font-size: 1.25rem;
         }
 
         .brand-text h1 {
-          font-size: 1.2rem;
+          font-size: 1.125rem;
           font-weight: 700;
-          margin: 0;
           color: #0f172a;
+          margin: 0;
+          line-height: 1.2;
         }
 
         .brand-text p {
-          font-size: 0.8rem;
+          font-size: 0.75rem;
           color: #64748b;
-          margin: 2px 0 0;
-          font-weight: 500;
+          margin: 0;
         }
 
         .header-actions {
           display: flex;
-          gap: 12px;
+          gap: 8px;
           align-items: center;
         }
 
         .nav-btn {
-          background: white;
-          border: 1px solid #e2e8f0;
-          padding: 8px 16px;
-          border-radius: 10px;
+          padding: 8px 14px;
+          border-radius: 8px;
+          font-size: 0.85rem;
           font-weight: 600;
-          font-size: 0.875rem;
-          color: #475569;
+          border: 1px solid #cbd5e1;
+          background: white;
+          color: #334155;
           cursor: pointer;
           transition: all 0.2s;
+          display: flex;
+          align-items: center;
+          gap: 6px;
         }
 
         .nav-btn:hover {
-          background: #f8fafc;
-          border-color: #cbd5e1;
-          color: #0f172a;
+          background: #f1f5f9;
+          border-color: #94a3b8;
+        }
+
+        .print-btn {
+          background: #166534;
+          color: white;
+          border-color: #166534;
+        }
+
+        .print-btn:hover {
+          background: #14532d;
+          border-color: #14532d;
         }
 
         .download-image-btn {
-          background: #0284c7 !important;
-          color: white !important;
-          border-color: #0369a1 !important;
+          background: #0284c7;
+          color: white;
+          border-color: #0284c7;
         }
 
         .download-image-btn:hover {
-          background: #0369a1 !important;
+          background: #0369a1;
+          border-color: #0369a1;
         }
 
         .download-image-btn:disabled {
-          background: #bae6fd !important;
-          border-color: #bae6fd !important;
-          color: #0369a1 !important;
+          opacity: 0.6;
           cursor: not-allowed;
         }
 
         .admin-link {
-          background: #166534;
-          color: white;
-          padding: 8px 16px;
-          border-radius: 10px;
+          padding: 8px 14px;
+          border-radius: 8px;
+          font-size: 0.85rem;
           font-weight: 600;
-          font-size: 0.875rem;
+          background: #f8fafc;
+          color: #475569;
           text-decoration: none;
+          border: 1px solid #e2e8f0;
           transition: all 0.2s;
-          box-shadow: 0 2px 4px rgba(22, 101, 52, 0.1);
         }
 
         .admin-link:hover {
-          background: #14532d;
-          box-shadow: 0 4px 10px rgba(22, 101, 52, 0.2);
+          background: #e2e8f0;
+          color: #0f172a;
         }
 
-        /* Layout - Table full width with Calendar below */
+        /* Layout Grid */
         .main-layout {
-          display: flex;
-          flex-direction: column;
-          gap: 32px;
+          display: grid;
+          grid-template-columns: 1fr 340px;
+          gap: 24px;
           padding-top: 24px;
-          padding-bottom: 48px;
+          padding-bottom: 40px;
         }
 
+        .detail-section {
+          min-width: 0;
+        }
+
+        /* Calendar Sidebar */
         .calendar-section {
-          width: 100%;
-          max-width: 480px;
-          margin: 0 auto;
+          min-width: 0;
         }
 
-        .card {
-          background: white;
-          border-radius: 16px;
-          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-          overflow: hidden;
-          border: 1px solid #e2e8f0;
-        }
-
-        /* Calendar Card */
         .calendar-card {
-          position: relative;
+          background: white;
+          border-radius: 12px;
+          border: 1px solid #e2e8f0;
+          overflow: hidden;
+          box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+          position: sticky;
+          top: 96px;
         }
 
         .calendar-toolbar {
-          padding: 16px 20px;
+          padding: 16px;
+          border-bottom: 1px solid #f1f5f9;
           display: flex;
           justify-content: space-between;
           align-items: center;
-          border-bottom: 1px solid #f1f5f9;
         }
 
         .view-title h2 {
-          font-size: 1.1rem;
-          font-weight: 800;
-          margin: 0;
+          font-size: 1rem;
+          font-weight: 700;
           color: #0f172a;
+          margin: 0;
         }
 
         .view-nav {
           display: flex;
-          gap: 6px;
           align-items: center;
+          gap: 4px;
         }
 
         .icon-btn {
           width: 28px;
           height: 28px;
+          border-radius: 6px;
+          border: 1px solid #e2e8f0;
+          background: white;
+          color: #64748b;
           display: flex;
           align-items: center;
           justify-content: center;
-          border-radius: 50%;
-          border: 1px solid #e2e8f0;
-          background: white;
           cursor: pointer;
+          font-size: 0.75rem;
           transition: all 0.2s;
-          color: #475569;
-          font-size: 0.7rem;
         }
 
         .icon-btn:hover {
           background: #f8fafc;
-          border-color: #cbd5e1;
           color: #0f172a;
         }
 
@@ -1397,67 +1069,6 @@ export default function PublicSchedulePage() {
           box-shadow: none;
         }
 
-        /* Search Filter Bar */
-        .search-filter-bar {
-          display: flex;
-          gap: 12px;
-          padding: 12px 16px;
-          background: #f8fafc;
-          border-radius: 12px;
-          border: 1px solid #edf2f7;
-          margin-bottom: 20px;
-        }
-
-        .search-input-wrapper {
-          position: relative;
-          flex: 1;
-        }
-
-        .search-icon {
-          position: absolute;
-          left: 10px;
-          top: 50%;
-          transform: translateY(-50%);
-          font-size: 0.85rem;
-          color: #94a3b8;
-        }
-
-        .search-input {
-          width: 100%;
-          padding: 8px 12px 8px 30px;
-          border: 1px solid #cbd5e1;
-          border-radius: 8px;
-          font-size: 0.85rem;
-          font-family: inherit;
-          outline: none;
-          background-color: white;
-          color: #1e293b;
-          transition: all 0.2s;
-        }
-
-        .search-input:focus {
-          border-color: #3b82f6;
-          box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
-        }
-
-        .exec-filter-select {
-          padding: 8px 24px 8px 12px;
-          border: 1px solid #cbd5e1;
-          border-radius: 8px;
-          font-size: 0.85rem;
-          font-family: inherit;
-          outline: none;
-          background-color: white;
-          color: #1e293b;
-          max-width: 180px;
-          cursor: pointer;
-          transition: border-color 0.2s;
-        }
-
-        .exec-filter-select:focus {
-          border-color: #3b82f6;
-        }
-
         /* Official PDF / Excel Style Banner Container */
         .official-banner-container {
           display: flex;
@@ -1491,7 +1102,7 @@ export default function PublicSchedulePage() {
           padding: 12px 24px;
           width: 100%;
           border: none;
-          color: #000000 !important; /* Black text */
+          color: #000000 !important;
           box-sizing: border-box;
           gap: 4px;
           border-radius: 0;
@@ -1555,14 +1166,14 @@ export default function PublicSchedulePage() {
           word-break: break-word;
           overflow-wrap: anywhere;
           overflow: hidden;
-          font-weight: 700 !important; /* Force bold readable text */
+          font-weight: 700 !important;
         }
 
         .schedule-table th,
         .schedule-table td {
           font-family: inherit;
           font-size: inherit;
-          font-weight: 700 !important; /* Force bold readable text */
+          font-weight: 700 !important;
         }
 
         .schedule-row {
@@ -1666,44 +1277,6 @@ export default function PublicSchedulePage() {
           text-align: center;
         }
 
-        /* Executive Legend Bar */
-        .executive-legend {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 12px;
-          padding: 16px 0 0 0;
-          margin-top: 24px;
-          border-top: 1px solid #f1f5f9;
-          align-items: center;
-        }
-
-        .legend-title {
-          font-size: 0.75rem;
-          font-weight: 800;
-          color: #64748b;
-          text-transform: uppercase;
-        }
-
-        .legend-chip {
-          display: inline-flex;
-          align-items: center;
-          gap: 6px;
-          background: white;
-          border: 1px solid #e2e8f0;
-          padding: 4px 10px;
-          border-radius: 99px;
-          font-size: 0.72rem;
-          font-weight: 600;
-          color: #475569;
-        }
-
-        .legend-dot {
-          width: 8px;
-          height: 8px;
-          border-radius: 50%;
-          display: inline-block;
-        }
-
         /* Footer */
         .main-footer {
           padding: 32px 0;
@@ -1729,7 +1302,6 @@ export default function PublicSchedulePage() {
           .calendar-card {
             position: static;
           }
-          /* Re-order elements in mobile view so calendar is on top */
           .calendar-section {
             order: -1;
           }
@@ -1777,8 +1349,8 @@ export default function PublicSchedulePage() {
             print-color-adjust: exact !important;
           }
           @page {
-            size: A4 landscape; /* Print landscape to fit the 6 columns beautifully */
-            margin: 8mm 10mm; /* Tighten margins to fit more content on a single page */
+            size: A4 landscape;
+            margin: 8mm 10mm;
           }
           html, body {
             width: 100% !important;
@@ -1788,7 +1360,7 @@ export default function PublicSchedulePage() {
             margin: 0 !important;
             overflow: visible !important;
           }
-          .main-header, .calendar-section, .header-actions, .main-footer, .nav-btn, .search-filter-bar, .executive-legend {
+          .main-header, .calendar-section, .header-actions, .main-footer, .nav-btn {
             display: none !important;
           }
           .app-container {
@@ -1884,16 +1456,13 @@ export default function PublicSchedulePage() {
             break-inside: avoid !important;
           }
           
-          /* Override mobile display: none !important to ensure columns show up in PDF print */
           .th-agency, .td-agency, .th-dress, .td-dress {
             display: table-cell !important;
           }
-
         }
 
         /* Single Page Fit Styles (Applies to both screen/html2canvas and print) */
         .print-fit-to-page .schedule-table {
-          /* Do not shrink font size on screen to keep text highly legible */
           font-size: inherit !important;
         }
         .print-fit-to-page .schedule-table td,
