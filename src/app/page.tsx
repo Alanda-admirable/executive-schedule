@@ -95,6 +95,7 @@ export default function PublicSchedulePage() {
   const [selectedDate, setSelectedDate] = useState(new Date())
   const [currentViewDate, setCurrentViewDate] = useState(new Date())
   const [loading, setLoading] = useState(true)
+  const [showCalendar, setShowCalendar] = useState(false)
 
   // Settings loaded from Admin Panel via LocalStorage
   const [printFontFamily, setPrintFontFamily] = useState("'TH Sarabun New', 'TH Sarabun PSK', 'Sarabun', sans-serif")
@@ -477,6 +478,9 @@ export default function PublicSchedulePage() {
             </div>
             <div className="header-actions">
               <button className="nav-btn" onClick={() => { setSelectedDate(new Date()); setCurrentViewDate(new Date()); }}>วันนี้</button>
+              <button className="nav-btn calendar-btn" onClick={() => setShowCalendar(!showCalendar)} style={{ background: showCalendar ? '#e0f2fe' : 'white', borderColor: showCalendar ? '#0284c7' : '#cbd5e1', color: showCalendar ? '#0369a1' : '#334155' }}>
+                <span className="icon">📅</span> {showCalendar ? 'ซ่อนปฏิทิน' : 'เลือกวันที่ (ปฏิทิน)'}
+              </button>
               <button className="nav-btn print-btn" onClick={() => window.print()}>
                 <span className="icon">🖨️</span> พิมพ์วาระงาน
               </button>
@@ -492,7 +496,66 @@ export default function PublicSchedulePage() {
       </header>
 
       <main className="container main-layout">
-        {/* Main Content Area: Schedule Table */}
+        {/* Optional Collapsible Top Calendar Panel */}
+        {showCalendar && (
+          <div className="calendar-section">
+            <div className="card calendar-card">
+              <div className="calendar-toolbar">
+                <div className="view-title">
+                  <h2>{THAI_MONTHS[currentViewDate.getMonth()]} {toThaiDigits(currentViewDate.getFullYear() + 543)}</h2>
+                </div>
+                <div className="view-nav">
+                  <button className="icon-btn" onClick={() => changeMonth(-1)}>❮</button>
+                  <button className="text-btn" onClick={() => setCurrentViewDate(new Date())}>เดือนนี้</button>
+                  <button className="icon-btn" onClick={() => changeMonth(1)}>❯</button>
+                </div>
+              </div>
+
+              <div className="calendar-grid">
+                <div className="weekday-row">
+                  {WEEKDAYS_SHORT_TH.map(d => <div key={d} className="weekday-cell">{d}</div>)}
+                </div>
+                <div className="days-grid">
+                  {calendarDays.map((date, idx) => {
+                    const isOutside = date.getMonth() !== currentViewDate.getMonth()
+                    const isToday = formatDateKey(date) === formatDateKey(new Date())
+                    const isSelected = formatDateKey(date) === formatDateKey(selectedDate)
+                    const daySchedules = getSchedulesForDate(date)
+                    const dayTheme = themes.find(t => t.dayIndex === date.getDay())
+                    
+                    const uniqueColors = Array.from(new Set(daySchedules.map(s => s.executive?.color).filter(Boolean)))
+
+                    return (
+                      <div 
+                        key={idx} 
+                        className={`day-cell ${isOutside ? 'is-outside' : ''} ${isToday ? 'is-today' : ''} ${isSelected ? 'is-selected' : ''}`}
+                        onClick={() => setSelectedDate(date)}
+                      >
+                        <div className="day-header">
+                          <span className="day-number" style={isSelected && dayTheme ? { background: dayTheme.bg, color: dayTheme.ink } : {}}>
+                            {toThaiDigits(date.getDate())}
+                          </span>
+                        </div>
+                        
+                        <div className="day-events-dots">
+                          {uniqueColors.map((color, colorIdx) => (
+                            <span 
+                              key={colorIdx} 
+                              className="day-event-dot" 
+                              style={{ backgroundColor: color }}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Main Content Area: Schedule Table (Full 100% Width) */}
         <div className="detail-section">
           <div className="detail-card">
             <div className="schedule-list">
@@ -683,63 +746,6 @@ export default function PublicSchedulePage() {
 
           </div>
         </div>
-
-        {/* Sidebar Area: Compact Calendar */}
-        <div className="calendar-section">
-          <div className="card calendar-card">
-            <div className="calendar-toolbar">
-              <div className="view-title">
-                <h2>{THAI_MONTHS[currentViewDate.getMonth()]} {toThaiDigits(currentViewDate.getFullYear() + 543)}</h2>
-              </div>
-              <div className="view-nav">
-                <button className="icon-btn" onClick={() => changeMonth(-1)}>❮</button>
-                <button className="text-btn" onClick={() => setCurrentViewDate(new Date())}>เดือนนี้</button>
-                <button className="icon-btn" onClick={() => changeMonth(1)}>❯</button>
-              </div>
-            </div>
-
-            <div className="calendar-grid">
-              <div className="weekday-row">
-                {WEEKDAYS_SHORT_TH.map(d => <div key={d} className="weekday-cell">{d}</div>)}
-              </div>
-              <div className="days-grid">
-                {calendarDays.map((date, idx) => {
-                  const isOutside = date.getMonth() !== currentViewDate.getMonth()
-                  const isToday = formatDateKey(date) === formatDateKey(new Date())
-                  const isSelected = formatDateKey(date) === formatDateKey(selectedDate)
-                  const daySchedules = getSchedulesForDate(date)
-                  const dayTheme = themes.find(t => t.dayIndex === date.getDay())
-                  
-                  const uniqueColors = Array.from(new Set(daySchedules.map(s => s.executive?.color).filter(Boolean)))
-
-                  return (
-                    <div 
-                      key={idx} 
-                      className={`day-cell ${isOutside ? 'is-outside' : ''} ${isToday ? 'is-today' : ''} ${isSelected ? 'is-selected' : ''}`}
-                      onClick={() => setSelectedDate(date)}
-                    >
-                      <div className="day-header">
-                        <span className="day-number" style={isSelected && dayTheme ? { background: dayTheme.bg, color: dayTheme.ink } : {}}>
-                          {toThaiDigits(date.getDate())}
-                        </span>
-                      </div>
-                      
-                      <div className="day-events-dots">
-                        {uniqueColors.map((color, colorIdx) => (
-                          <span 
-                            key={colorIdx} 
-                            className="day-event-dot" 
-                            style={{ backgroundColor: color }}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            </div>
-          </div>
-        </div>
       </main>
 
       <footer className="main-footer">
@@ -758,7 +764,7 @@ export default function PublicSchedulePage() {
         }
 
         .container {
-          max-width: 1560px;
+          max-width: 1600px;
           margin: 0 auto;
           padding: 0 24px;
         }
@@ -879,22 +885,25 @@ export default function PublicSchedulePage() {
           color: #0f172a;
         }
 
-        /* Layout Grid */
+        /* Layout - Full Width 100% Stacked Layout */
         .main-layout {
-          display: grid;
-          grid-template-columns: 1fr 340px;
-          gap: 24px;
+          display: flex;
+          flex-direction: column;
+          gap: 20px;
           padding-top: 24px;
           padding-bottom: 40px;
         }
 
         .detail-section {
+          width: 100%;
           min-width: 0;
         }
 
-        /* Calendar Sidebar */
+        /* Top Calendar Card */
         .calendar-section {
-          min-width: 0;
+          width: 100%;
+          max-width: 440px;
+          margin: 0 auto;
         }
 
         .calendar-card {
@@ -902,9 +911,7 @@ export default function PublicSchedulePage() {
           border-radius: 12px;
           border: 1px solid #e2e8f0;
           overflow: hidden;
-          box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-          position: sticky;
-          top: 96px;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.06);
         }
 
         .calendar-toolbar {
@@ -1132,6 +1139,7 @@ export default function PublicSchedulePage() {
           overflow: hidden;
           padding: 16px;
           background-color: white;
+          width: 100%;
         }
 
         .table-responsive {
@@ -1139,10 +1147,10 @@ export default function PublicSchedulePage() {
           overflow-x: auto;
         }
 
-        /* Official Excel Table Styling */
+        /* Official Excel Table Styling - Full 100% width display */
         .schedule-table {
           width: 100%;
-          min-width: 1300px;
+          min-width: 100%;
           border-collapse: collapse;
           background-color: white;
         }
@@ -1294,19 +1302,6 @@ export default function PublicSchedulePage() {
         }
 
         /* Responsive design */
-        @media (max-width: 1200px) {
-          .main-layout {
-            grid-template-columns: 1fr;
-            gap: 24px;
-          }
-          .calendar-card {
-            position: static;
-          }
-          .calendar-section {
-            order: -1;
-          }
-        }
-
         @media (max-width: 768px) {
           .container {
             padding: 0 16px;
@@ -1336,7 +1331,6 @@ export default function PublicSchedulePage() {
           .banner-date {
             font-size: 0.9rem;
           }
-          /* Hide agency/dress columns on mobile for column priority */
           .th-agency, .td-agency, .th-dress, .td-dress {
             display: none !important;
           }
