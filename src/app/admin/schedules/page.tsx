@@ -576,15 +576,15 @@ export default function SchedulesAdmin() {
           </button>
         </div>
         
-        <div className="toolbar-grid" style={{ gap: '24px' }}>
-          {/* Section 1: Typography */}
-          <div className="toolbar-col" style={{ display: 'flex', flexDirection: 'column', gap: '16px', borderRight: '1px solid #f1f5f9', paddingRight: '16px' }}>
-            <h4 style={{ fontSize: '0.82rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', margin: 0, borderBottom: '1px solid #f1f5f9', paddingBottom: '6px' }}>
-              ลักษณะตัวอักษร (Typography)
+        <div className="toolbar-grid">
+          {/* Column 1: Typography & Spacing */}
+          <div className="toolbar-col" style={{ display: 'flex', flexDirection: 'column', gap: '16px', borderRight: '1px solid #f1f5f9', paddingRight: '24px' }}>
+            <h4 style={{ fontSize: '0.82rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', margin: 0, borderBottom: '1px solid #f1f5f9', paddingBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span>🔤</span> ลักษณะตัวอักษรและระยะห่าง (Typography & Spacing)
             </h4>
             
             <div className="toolbar-section">
-              <span className="section-label">รูปแบบฟอนต์</span>
+              <span className="section-label">รูปแบบฟอนต์เอกสาร</span>
               <select className="toolbar-select font-family-select" style={{ width: '100%' }} value={fontFamily} onChange={e => { setFontFamily(e.target.value); savePrintSettings({ fontFamily: e.target.value }); }}>
                 <option value="'TH Sarabun 9', 'TH Sarabun New', 'TH Sarabun PSK', 'Sarabun', sans-serif">TH Sarabun ๙ (ตัวเลขไทย)</option>
                 <option value="'TH Sarabun New', 'TH Sarabun PSK', 'Sarabun', sans-serif">TH Sarabun New (ฟอนต์ราชการ)</option>
@@ -637,22 +637,6 @@ export default function SchedulesAdmin() {
               </div>
             </div>
 
-            <div className="toolbar-section">
-              <span className="section-label">ลักษณะอักษรเริ่มต้น</span>
-              <div className="btn-group" style={{ width: '100%' }}>
-                <button className={`toolbar-btn ${fontWeight === 'bold' ? 'active' : ''}`} style={{ flex: 1 }} onClick={() => { const val = fontWeight === 'bold' ? 'normal' : 'bold'; setFontWeight(val); savePrintSettings({ fontWeight: val }); }} title="ตัวหนา"><b>B</b></button>
-                <button className={`toolbar-btn ${fontStyle === 'italic' ? 'active' : ''}`} style={{ flex: 1 }} onClick={() => { const val = fontStyle === 'italic' ? 'normal' : 'italic'; setFontStyle(val); savePrintSettings({ fontStyle: val }); }} title="ตัวเอียง"><i>I</i></button>
-                <button className={`toolbar-btn ${textDecoration === 'underline' ? 'active' : ''}`} style={{ flex: 1 }} onClick={() => { const val = textDecoration === 'underline' ? 'none' : 'underline'; setTextDecoration(val); savePrintSettings({ textDecoration: val }); }} title="ขีดเส้นใต้"><u>U</u></button>
-              </div>
-            </div>
-          </div>
-
-          {/* Section 2: Layout & Alignment */}
-          <div className="toolbar-col" style={{ display: 'flex', flexDirection: 'column', gap: '16px', borderRight: '1px solid #f1f5f9', paddingRight: '16px' }}>
-            <h4 style={{ fontSize: '0.82rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', margin: 0, borderBottom: '1px solid #f1f5f9', paddingBottom: '6px' }}>
-              การจัดแนวและระยะห่าง (Layout & Alignment)
-            </h4>
-            
             <div className="toolbar-row" style={{ display: 'flex', gap: '12px' }}>
               <div className="toolbar-section" style={{ flex: 1, minWidth: 0 }}>
                 <span className="section-label">ระยะห่างบรรทัด</span>
@@ -684,18 +668,25 @@ export default function SchedulesAdmin() {
               </div>
             </div>
 
-
+            <div className="toolbar-section">
+              <span className="section-label">ลักษณะอักษรเริ่มต้น</span>
+              <div className="btn-group" style={{ width: '100%' }}>
+                <button className={`toolbar-btn ${fontWeight === 'bold' ? 'active' : ''}`} style={{ flex: 1 }} onClick={() => { const val = fontWeight === 'bold' ? 'normal' : 'bold'; setFontWeight(val); savePrintSettings({ fontWeight: val }); }} title="ตัวหนา"><b>B (ตัวหนา)</b></button>
+                <button className={`toolbar-btn ${fontStyle === 'italic' ? 'active' : ''}`} style={{ flex: 1 }} onClick={() => { const val = fontStyle === 'italic' ? 'normal' : 'italic'; setFontStyle(val); savePrintSettings({ fontStyle: val }); }} title="ตัวเอียง"><i>I (ตัวเอียง)</i></button>
+                <button className={`toolbar-btn ${textDecoration === 'underline' ? 'active' : ''}`} style={{ flex: 1 }} onClick={() => { const val = textDecoration === 'underline' ? 'none' : 'underline'; setTextDecoration(val); savePrintSettings({ textDecoration: val }); }} title="ขีดเส้นใต้"><u>U (ขีดเส้นใต้)</u></button>
+              </div>
+            </div>
           </div>
 
-          {/* Section 3: Print Options */}
+          {/* Column 2: Column Visibility & Print Options */}
           <div className="toolbar-col last" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <h4 style={{ fontSize: '0.82rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', margin: 0, borderBottom: '1px solid #f1f5f9', paddingBottom: '6px' }}>
-              ตัวเลือกการพิมพ์และคอลัมน์ (Print Settings)
+            <h4 style={{ fontSize: '0.82rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', margin: 0, borderBottom: '1px solid #f1f5f9', paddingBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span>📊</span> การแสดงคอลัมน์และการพิมพ์ (Column & Print Options)
             </h4>
             
             <div className="toolbar-section">
-              <span className="section-label">คอลัมน์ที่จะพิมพ์ออกเอกสาร</span>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px 12px', marginTop: '4px' }}>
+              <span className="section-label">เลือกคอลัมน์ที่จะแสดงและพิมพ์ออกเอกสาร</span>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px 16px', marginTop: '6px', background: '#f8fafc', padding: '16px', borderRadius: '8px', border: '1px solid #f1f5f9' }}>
                 <label className="checkbox-label" style={{ userSelect: 'none' }}>
                   <input type="checkbox" checked={colTimeVisible} onChange={e => { setColTimeVisible(e.target.checked); savePrintSettings({ visibleColumns: { time: e.target.checked, location: colLocationVisible, agency: colAgencyVisible, dress: colDressVisible } }); }} /> เวลา
                 </label>
@@ -718,11 +709,11 @@ export default function SchedulesAdmin() {
                 backgroundColor: fitToPage ? '#ecfdf5' : '#f8fafc',
                 border: fitToPage ? '1px solid #a7f3d0' : '1px solid #e2e8f0',
                 borderRadius: '8px', 
-                padding: '12px 16px',
+                padding: '14px 18px',
                 transition: 'all 0.2s',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '8px',
+                gap: '10px',
                 width: '100%',
                 userSelect: 'none',
                 cursor: 'pointer'
@@ -730,10 +721,10 @@ export default function SchedulesAdmin() {
                 <input 
                   type="checkbox" 
                   checked={fitToPage} 
-                  style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+                  style={{ width: '18px', height: '18px', cursor: 'pointer' }}
                   onChange={e => { setFitToPage(e.target.checked); savePrintSettings({ fitToPage: e.target.checked }); }} 
                 />
-                <span style={{ fontSize: '0.85rem' }}>บีบตารางให้พอดีหน้าเดียว (Auto Fit)</span>
+                <span style={{ fontSize: '0.88rem' }}>บีบตารางให้พอดีหน้าเดียว (Auto Fit Single Page)</span>
               </label>
             </div>
           </div>
@@ -1796,8 +1787,8 @@ export default function SchedulesAdmin() {
         /* Toolbar & Controls Responsive Grid */
         .toolbar-grid {
           display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          gap: 24px;
+          grid-template-columns: 1fr 1fr;
+          gap: 32px;
         }
 
         .toolbar-section {
