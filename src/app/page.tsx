@@ -34,58 +34,22 @@ interface DayTheme {
   border: string
 }
 
-const THAI_MONTHS = [
-  "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
-  "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"
-];
-
-const THAI_DIGITS = ["๐", "๑", "๒", "๓", "๔", "๕", "๖", "๗", "๘", "๙"];
-
-const WEEKDAYS_TH = ["วันอาทิตย์", "วันจันทร์", "วันอังคาร", "วันพุธ", "วันพฤหัสบดี", "วันศุกร์", "วันเสาร์"];
-const WEEKDAYS_SHORT_TH = ["อา.", "จ.", "อ.", "พ.", "พฤ.", "ศ.", "ส."];
-
-const thaiSmartBreak = (text: string): string => {
-  if (!text) return '';
-  return text
-    .replace(/พ\.ศ\.[ \t]+(\d+|[๐-๙]+)/g, 'พ.ศ.\u00A0$1')
-    .replace(/รุ่นที่[ \t]+(\d+|[๐-๙]+)/g, 'รุ่นที่\u00A0$1')
-    .replace(/ครั้งที่[ \t]+(\d+|[๐-๙]+)/g, 'ครั้งที่\u00A0$1')
-    .replace(/ชั้น[ \t]+(\d+|[๐-๙]+|M|G|B)/g, 'ชั้น\u00A0$1')
-    .replace(/หมู่ที่[ \t]+(\d+|[๐-๙]+)/g, 'หมู่ที่\u00A0$1')
-    .replace(/(อ\.|ต\.|จ\.)[ \t]+([ก-๙a-zA-Z]+)/g, '$1\u00A0$2')
-    .replace(/[ \t]+\(([^)]+)\)/g, '\u00A0($1)')
-    .replace(/(ประจำปีงบประมาณ|ปีงบประมาณ)[ \t]+(พ\.ศ\.)/g, '$1\u00A0$2')
-    .replace(/(\d+|[๐-๙]+)[ \t]*(น\.|คน|ท่าน|ราย|ห้อง|แห่ง|เครื่อง|ชุด)/g, '$1\u00A0$2')
-    .replace(/เวลา[ \t]+(\d+|[๐-๙]+)/g, 'เวลา\u00A0$1')
-    .replace(/(ห้องประชุม|อาคาร|ตึก|ศาลากลางจังหวัด)[ \t]+([ก-๙a-zA-Z\d]+)/g, '$1\u00A0$2');
-}
-
-// Helper to calculate spans for adjacent rows of the same executive
-const getSpans = (schedules: any[], field: string | ((s: any) => string | null)) => {
-  const spans: { span: number; show: boolean }[] = [];
-  let i = 0;
-  while (i < schedules.length) {
-    let span = 1;
-    const getVal = typeof field === 'function' ? field : (s: any) => s[field] as string | null;
-    const currentVal = (getVal(schedules[i]) || '').trim();
-    
-    while (i + span < schedules.length) {
-      const nextVal = (getVal(schedules[i + span]) || '').trim();
-      if (currentVal === nextVal && currentVal !== '' && currentVal !== '-') {
-        span++;
-      } else {
-        break;
-      }
-    }
-    
-    spans.push({ span, show: true });
-    for (let j = 1; j < span; j++) {
-      spans.push({ span: 1, show: false });
-    }
-    i += span;
-  }
-  return spans;
-};
+import {
+  THAI_MONTHS,
+  THAI_DIGITS,
+  WEEKDAYS_TH,
+  WEEKDAYS_SHORT_TH,
+  formatDateKey,
+  toThaiDigits,
+  thaiSmartBreak,
+  formatThaiDateFull,
+  formatThaiTime,
+  extractItemAlign,
+  isDash,
+  getSpans,
+  getWeekdayHeaderStyle,
+  getWeekdayBannerColor
+} from '@/lib/thai-utils'
 
 export default function PublicSchedulePage() {
   const [schedules, setSchedules] = useState<Schedule[]>([])

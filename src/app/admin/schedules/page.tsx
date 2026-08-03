@@ -25,116 +25,19 @@ interface Schedule {
   status?: string
 }
 
-const formatDateKey = (date: Date) => {
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, "0");
-  const d = String(date.getDate()).padStart(2, "0");
-  return `${y}-${m}-${d}`;
-}
-
-const THAI_MONTHS = [
-  "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
-  "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"
-];
-
-const THAI_DIGITS = ["๐", "๑", "๒", "๓", "๔", "๕", "๖", "๗", "๘", "๙"];
-const WEEKDAYS_TH = ["วันอาทิตย์", "วันจันทร์", "วันอังคาร", "วันพุธ", "วันพฤหัสบดี", "วันศุกร์", "วันเสาร์"];
-
-const toThaiDigits = (value: string | number) => {
-  return String(value ?? "").replace(/(\*\d+\*)|([0-9])/g, (match, escaped, digit) => {
-    if (escaped) {
-      return escaped.slice(1, -1);
-    }
-    return THAI_DIGITS[Number(digit)];
-  });
-}
-
-const thaiSmartBreak = (text: string): string => {
-  if (!text) return '';
-  return text
-    // 1. Prevent break inside "พ.ศ. 2569"
-    .replace(/พ\.ศ\.[ \t]+(\d+|[๐-๙]+)/g, 'พ.ศ.\u00A0$1')
-    // 2. Prevent break inside "รุ่นที่ 85"
-    .replace(/รุ่นที่[ \t]+(\d+|[๐-๙]+)/g, 'รุ่นที่\u00A0$1')
-    // 3. Prevent break inside "ครั้งที่ 5"
-    .replace(/ครั้งที่[ \t]+(\d+|[๐-๙]+)/g, 'ครั้งที่\u00A0$1')
-    // 4. Prevent break inside "ชั้น 4"
-    .replace(/ชั้น[ \t]+(\d+|[๐-๙]+|M|G|B)/g, 'ชั้น\u00A0$1')
-    // 5. Prevent break inside "หมู่ที่ 1"
-    .replace(/หมู่ที่[ \t]+(\d+|[๐-๙]+)/g, 'หมู่ที่\u00A0$1')
-    // 6. Prevent break inside "อ.เมือง", "จ.ปทุมธานี", "ต.ประชาธิปัตย์"
-    .replace(/(อ\.|ต\.|จ\.)[ \t]+([ก-๙a-zA-Z]+)/g, '$1\u00A0$2')
-    // 7. Prevent break before opening parenthesis and inside parenthesis
-    .replace(/[ \t]+\(([^)]+)\)/g, '\u00A0($1)')
-    // 8. Prevent break inside "ประจำปีงบประมาณ พ.ศ."
-    .replace(/(ประจำปีงบประมาณ|ปีงบประมาณ)[ \t]+(พ\.ศ\.)/g, '$1\u00A0$2')
-    // 9. Prevent break in numbers with units (e.g., "10 คน", "๐๘.๐๐ น.")
-    .replace(/(\d+|[๐-๙]+)[ \t]*(น\.|คน|ท่าน|ราย|ห้อง|แห่ง|เครื่อง|ชุด)/g, '$1\u00A0$2')
-    // 10. Prevent break in time ranges like "เวลา 09.00 น."
-    .replace(/เวลา\s+(\d+|[๐-๙]+)/g, 'เวลา\u00A0$1')
-    // 11. Prevent break for building terms
-    .replace(/(ห้องประชุม|อาคาร|ตึก|ศาลากลางจังหวัด)\s+([ก-๙a-zA-Z\d]+)/g, '$1\u00A0$2');
-}
-
-const formatThaiDateFull = (date: Date) => {
-  const day = toThaiDigits(date.getDate());
-  const month = THAI_MONTHS[date.getMonth()];
-  const year = toThaiDigits(date.getFullYear() + 543);
-  return `${WEEKDAYS_TH[date.getDay()]}ที่ ${day} ${month} ${year}`;
-}
-
-// Helper to calculate spans for adjacent rows of the same executive
-const getSpans = (schedules: any[], field: string | ((s: any) => string | null)) => {
-  const spans: { span: number; show: boolean }[] = [];
-  let i = 0;
-  while (i < schedules.length) {
-    let span = 1;
-    const getVal = typeof field === 'function' ? field : (s: any) => s[field] as string | null;
-    const currentVal = (getVal(schedules[i]) || '').trim();
-    
-    while (i + span < schedules.length) {
-      const nextVal = (getVal(schedules[i + span]) || '').trim();
-      if (currentVal === nextVal && currentVal !== '' && currentVal !== '-') {
-        span++;
-      } else {
-        break;
-      }
-    }
-    
-    spans.push({ span, show: true });
-    for (let j = 1; j < span; j++) {
-      spans.push({ span: 1, show: false });
-    }
-    i += span;
-  }
-  return spans;
-};
-
-const getWeekdayHeaderStyle = (dayIndex: number) => {
-  const styles = [
-    { bg: "#ef4444", text: "#000000", border: "#dc2626" }, // Sunday (Red)
-    { bg: "#facc15", text: "#000000", border: "#eab308" }, // Monday (Yellow)
-    { bg: "#f472b6", text: "#000000", border: "#db2777" }, // Tuesday (Pink)
-    { bg: "#22c55e", text: "#000000", border: "#16a34a" }, // Wednesday (Green)
-    { bg: "#f97316", text: "#000000", border: "#ea580c" }, // Thursday (Orange)
-    { bg: "#3b82f6", text: "#000000", border: "#2563eb" }, // Friday (Blue)
-    { bg: "#a855f7", text: "#000000", border: "#9333ea" }  // Saturday (Purple)
-  ];
-  return styles[dayIndex] || { bg: "#22c55e", text: "#000000", border: "#16a34a" };
-}
-
-const getWeekdayBannerColor = (dayIndex: number) => {
-  const colors = [
-    "#f87171", // Sunday (Red)
-    "#fde047", // Monday (Yellow)
-    "#f472b6", // Tuesday (Pink)
-    "#4ade80", // Wednesday (Green)
-    "#fb923c", // Thursday (Orange)
-    "#00b0f0", // Friday (Blue)
-    "#c084fc"  // Saturday (Purple)
-  ];
-  return colors[dayIndex] || "#00b0f0";
-}
+import {
+  THAI_MONTHS,
+  THAI_DIGITS,
+  WEEKDAYS_TH,
+  formatDateKey,
+  toThaiDigits,
+  thaiSmartBreak,
+  formatThaiDateFull,
+  formatThaiTime,
+  getSpans,
+  getWeekdayHeaderStyle,
+  getWeekdayBannerColor
+} from '@/lib/thai-utils'
 
 
 export default function SchedulesAdmin() {
