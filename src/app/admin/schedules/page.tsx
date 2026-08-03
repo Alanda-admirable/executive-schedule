@@ -1073,7 +1073,16 @@ export default function SchedulesAdmin() {
                     </div>
                   </div>
                   
-                  <div style={{ backgroundColor: '#f8fafc', border: '1px solid #cbd5e1', borderRadius: '8px', padding: '12px', overflowX: 'auto' }}>
+                  <div className={`preview-table-wrapper ${fitToPage ? 'print-fit-to-page' : ''}`} style={{ backgroundColor: '#f8fafc', border: '1px solid #cbd5e1', borderRadius: '8px', padding: '12px', overflowX: 'auto' }}>
+                    {/* Official Banner Preview in Modal */}
+                    <div className="official-banner-container" style={{ marginBottom: '12px' }}>
+                      <div className="official-banner" style={{ backgroundColor: getWeekdayBannerColor(selectedDayIndex), fontFamily: fontFamily, padding: '8px 16px', borderRadius: '4px' }}>
+                        <h2 className="banner-title" style={{ fontFamily: fontFamily, fontSize: bannerFontSize, fontWeight: 'bold', margin: 0, color: 'black', textAlign: 'center' }}>
+                          {renderText(`วาระงานผู้ว่าราชการจังหวัดและผู้บริหารของจังหวัดปทุมธานี ${formatThaiDateFull(new Date(selectedDate))}`)}
+                        </h2>
+                      </div>
+                    </div>
+
                     <table 
                       className="preview-table"
                       style={{ 
@@ -1091,43 +1100,43 @@ export default function SchedulesAdmin() {
                     >
                       <thead>
                         <tr>
-                          <th style={{ width: smartColWidths.exec || '25%', padding: '6px 4px', backgroundColor: headerStyle.bg, color: headerStyle.text, borderColor: headerStyle.border }}>ผู้บริหาร</th>
-                          {colTimeVisible && <th style={{ width: smartColWidths.time || '15%', padding: '6px 4px', backgroundColor: headerStyle.bg, color: headerStyle.text, borderColor: headerStyle.border }}>เวลา</th>}
-                          <th style={{ width: smartColWidths.mission || '35%', padding: '6px 4px', backgroundColor: headerStyle.bg, color: headerStyle.text, borderColor: headerStyle.border }}>วาระงาน</th>
-                          {colLocationVisible && <th style={{ width: smartColWidths.location || '25%', padding: '6px 4px', backgroundColor: headerStyle.bg, color: headerStyle.text, borderColor: headerStyle.border }}>สถานที่</th>}
-                          {colAgencyVisible && <th style={{ width: smartColWidths.agency || '15%', padding: '6px 4px', backgroundColor: headerStyle.bg, color: headerStyle.text, borderColor: headerStyle.border }}>หน่วยงาน</th>}
-                          {colDressVisible && <th style={{ width: smartColWidths.dress || '15%', padding: '6px 4px', backgroundColor: headerStyle.bg, color: headerStyle.text, borderColor: headerStyle.border }}>การแต่งกาย</th>}
+                          <th style={{ width: smartColWidths.exec || '15%', padding: getPaddingStyle(), backgroundColor: headerStyle.bg, color: headerStyle.text, borderColor: headerStyle.border }}>ผู้บริหาร</th>
+                          {colTimeVisible && <th style={{ width: smartColWidths.time || '8%', padding: getPaddingStyle(), backgroundColor: headerStyle.bg, color: headerStyle.text, borderColor: headerStyle.border }}>เวลา</th>}
+                          <th style={{ width: smartColWidths.mission || '38%', padding: getPaddingStyle(), backgroundColor: headerStyle.bg, color: headerStyle.text, borderColor: headerStyle.border }}>วาระงาน</th>
+                          {colLocationVisible && <th style={{ width: smartColWidths.location || '16%', padding: getPaddingStyle(), backgroundColor: headerStyle.bg, color: headerStyle.text, borderColor: headerStyle.border }}>สถานที่</th>}
+                          {colAgencyVisible && <th style={{ width: smartColWidths.agency || '12%', padding: getPaddingStyle(), backgroundColor: headerStyle.bg, color: headerStyle.text, borderColor: headerStyle.border }}>หน่วยงาน</th>}
+                          {colDressVisible && <th style={{ width: smartColWidths.dress || '11%', padding: getPaddingStyle(), backgroundColor: headerStyle.bg, color: headerStyle.text, borderColor: headerStyle.border }}>การแต่งกาย</th>}
                         </tr>
                       </thead>
                       <tbody>
                         <tr style={{ color: selectedExec.color === '#000000' ? '#1e293b' : selectedExec.color }}>
-                          <td style={{ padding: '8px 6px', textAlign: 'center', verticalAlign: 'middle', borderBottom: '1px solid black', borderRight: '1px solid black', whiteSpace: 'nowrap' }}>
+                          <td style={{ padding: getPaddingStyle(), textAlign: 'center', verticalAlign: 'middle', borderBottom: '1px solid black', borderRight: '1px solid black' }}>
                             <div style={{ color: selectedExec.color === '#000000' ? '#1e293b' : selectedExec.color, fontWeight: 'bold' }}>{selectedExec.name}</div>
                             <div style={{ color: selectedExec.color === '#000000' ? '#64748b' : selectedExec.color, fontSize: '0.8em' }}>{selectedExec.title}</div>
                           </td>
                           {colTimeVisible && (
-                            <td style={{ padding: '8px 6px', textAlign: 'center', verticalAlign: 'top', borderBottom: '1px solid black', borderRight: '1px solid black' }}>
+                            <td style={{ padding: getPaddingStyle(), textAlign: 'center', verticalAlign: 'top', borderBottom: '1px solid black', borderRight: '1px solid black' }}>
                               {isDash(mockSchedule.startTime) ? '-' : toThaiDigits(mockSchedule.startTime)}
                             </td>
                           )}
-                          <td style={{ padding: '8px 6px', borderBottom: '1px solid black', borderRight: '1px solid black', verticalAlign: 'top', overflowWrap: 'break-word', wordBreak: 'break-word' }}>
+                          <td style={{ padding: getPaddingStyle(), borderBottom: '1px solid black', borderRight: '1px solid black', verticalAlign: 'top', overflowWrap: 'break-word', wordBreak: 'break-word' }}>
                             {(() => {
                               const { text: mText, align: mItemAlign } = extractItemAlign(mockSchedule.mission);
-                              const effectiveAlign = isDash(mockSchedule.mission) ? 'center' : (mItemAlign || missionAlign || 'left');
+                              const effectiveAlign = isDash(mockSchedule.mission) ? 'center' : (mItemAlign || 'left');
                               return <div style={{ whiteSpace: 'pre-wrap', textAlign: effectiveAlign as any }}>{renderText(mText)}</div>;
                             })()}
                           </td>
                           {colLocationVisible && (
-                            <td style={{ padding: '8px 6px', borderBottom: '1px solid black', borderRight: '1px solid black', verticalAlign: 'top', overflowWrap: 'break-word', wordBreak: 'break-word' }}>
+                            <td style={{ padding: getPaddingStyle(), borderBottom: '1px solid black', borderRight: '1px solid black', verticalAlign: 'top', overflowWrap: 'break-word', wordBreak: 'break-word' }}>
                               {(() => {
                                 const { text: lText, align: lItemAlign } = extractItemAlign(mockSchedule.location);
-                                const effectiveAlign = isDash(mockSchedule.location) ? 'center' : (lItemAlign || locationAlign || 'left');
+                                const effectiveAlign = isDash(mockSchedule.location) ? 'center' : (lItemAlign || 'left');
                                 return <div style={{ whiteSpace: 'pre-wrap', textAlign: effectiveAlign as any }}>{renderText(lText)}</div>;
                               })()}
                             </td>
                           )}
                           {colAgencyVisible && (
-                            <td style={{ padding: '8px 6px', borderBottom: '1px solid black', borderRight: '1px solid black', verticalAlign: 'top', overflowWrap: 'break-word', wordBreak: 'break-word' }}>
+                            <td style={{ padding: getPaddingStyle(), borderBottom: '1px solid black', borderRight: '1px solid black', verticalAlign: 'top', overflowWrap: 'break-word', wordBreak: 'break-word' }}>
                               {(() => {
                                 const { text: aText, align: aItemAlign } = extractItemAlign(mockSchedule.agency);
                                 const effectiveAlign = isDash(mockSchedule.agency) ? 'center' : (aItemAlign || 'left');
@@ -1136,7 +1145,7 @@ export default function SchedulesAdmin() {
                             </td>
                           )}
                           {colDressVisible && (
-                            <td style={{ padding: '8px 6px', borderBottom: '1px solid black', borderRight: '1px solid black', verticalAlign: 'top', overflowWrap: 'break-word', wordBreak: 'break-word' }}>
+                            <td style={{ padding: getPaddingStyle(), borderBottom: '1px solid black', borderRight: '1px solid black', verticalAlign: 'top', overflowWrap: 'break-word', wordBreak: 'break-word' }}>
                               {(() => {
                                 const { text: dText, align: dItemAlign } = extractItemAlign(mockSchedule.dressCode);
                                 const effectiveAlign = isDash(mockSchedule.dressCode) ? 'center' : (dItemAlign || 'left');
