@@ -579,9 +579,9 @@ export default function SchedulesAdmin() {
         <div className="toolbar-full-width" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div className="toolbar-row-grid" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: '16px' }}>
             <div className="toolbar-section">
-              <span className="section-label">รูปแบบฟอนต์เอกสาร</span>
-              <select className="toolbar-select font-family-select" style={{ width: '100%' }} value={fontFamily} onChange={e => { setFontFamily(e.target.value); savePrintSettings({ fontFamily: e.target.value }); }}>
-                <option value="'TH Sarabun 9', 'TH Sarabun New', 'TH Sarabun PSK', 'Sarabun', sans-serif">TH Sarabun ๙ (ตัวเลขไทย)</option>
+              <span className="section-label" title="เลือกรูปแบบฟอนต์สำหรับตารางและการพิมพ์">รูปแบบฟอนต์เอกสาร ℹ️</span>
+              <select className="toolbar-select font-family-select" style={{ width: '100%' }} value={fontFamily} onChange={e => { setFontFamily(e.target.value); savePrintSettings({ fontFamily: e.target.value }); }} title="เลือกแบบฟอนต์สำหรับแสดงผลตารางวาระงานและพิมพ์เอกสาร (แนะนำ TH Sarabun ๙ สำหรับเลขไทย)">
+                <option value="'TH Sarabun 9', 'TH Sarabun New', 'TH Sarabun PSK', 'Sarabun', sans-serif">TH Sarabun ๙ (ตัวเลขไทย) *แนะนำสำหรับราชการ</option>
                 <option value="'TH Sarabun New', 'TH Sarabun PSK', 'Sarabun', sans-serif">TH Sarabun New (ฟอนต์ราชการ)</option>
                 <option value="'Sarabun', sans-serif">Sarabun (Google Fonts)</option>
                 <option value="'Prompt', sans-serif">Prompt</option>
@@ -597,10 +597,10 @@ export default function SchedulesAdmin() {
             </div>
 
             <div className="toolbar-section" style={{ minWidth: 0 }}>
-              <span className="section-label">ขนาดอักษรเนื้อหา</span>
+              <span className="section-label" title="ขนาดอักษรในเซลล์เนื้อหาตาราง">ขนาดอักษรเนื้อหา ℹ️</span>
               <div style={{ display: 'flex', gap: '4px' }}>
-                <input type="text" className="toolbar-input" style={{ width: '50px', padding: '6px', textAlign: 'center' }} value={fontSize} onChange={e => { setFontSize(e.target.value); savePrintSettings({ fontSize: e.target.value }); }} />
-                <select className="toolbar-select" style={{ flex: 1 }} value={["12px", "14px", "16px", "18px", "20px", "24px"].includes(fontSize) ? fontSize : "custom"} onChange={e => { if (e.target.value !== "custom") { setFontSize(e.target.value); savePrintSettings({ fontSize: e.target.value }); } }}>
+                <input type="text" className="toolbar-input" style={{ width: '50px', padding: '6px', textAlign: 'center' }} value={fontSize} onChange={e => { setFontSize(e.target.value); savePrintSettings({ fontSize: e.target.value }); }} title="พิมพ์ระบุขนาดตัวอักษรเนื้อหาเอง (เช่น 16px หรือ 12pt)" />
+                <select className="toolbar-select" style={{ flex: 1 }} value={["12px", "14px", "16px", "18px", "20px", "24px"].includes(fontSize) ? fontSize : "custom"} onChange={e => { if (e.target.value !== "custom") { setFontSize(e.target.value); savePrintSettings({ fontSize: e.target.value }); } }} title="เลือกขนาดตัวอักษรมาตรฐานในตาราง">
                   <option value="12px">9pt (12px)</option>
                   <option value="14px">10.5pt (14px)</option>
                   <option value="16px">12pt (16px) *มาตรฐาน</option>
@@ -613,10 +613,10 @@ export default function SchedulesAdmin() {
             </div>
 
             <div className="toolbar-section" style={{ minWidth: 0 }}>
-              <span className="section-label">ขนาดอักษรหัวข้อ (Banner)</span>
+              <span className="section-label" title="ขนาดอักษรแบนเนอร์หัวข้อตารางประจำวัน">ขนาดอักษรหัวข้อ (Banner) ℹ️</span>
               <div style={{ display: 'flex', gap: '4px' }}>
-                <input type="text" className="toolbar-input" style={{ width: '50px', padding: '6px', textAlign: 'center' }} value={bannerFontSize} onChange={e => { setBannerFontSize(e.target.value); savePrintSettings({ bannerFontSize: e.target.value }); }} />
-                <select className="toolbar-select" style={{ flex: 1 }} value={["16px", "18px", "20px", "22px", "24px", "26px", "28px", "32px"].includes(bannerFontSize) ? bannerFontSize : "custom"} onChange={e => { if (e.target.value !== "custom") { setBannerFontSize(e.target.value); savePrintSettings({ bannerFontSize: e.target.value }); } }}>
+                <input type="text" className="toolbar-input" style={{ width: '50px', padding: '6px', textAlign: 'center' }} value={bannerFontSize} onChange={e => { setBannerFontSize(e.target.value); savePrintSettings({ bannerFontSize: e.target.value }); }} title="พิมพ์ระบุขนาดตัวอักษรแบนเนอร์หัวข้อเอง" />
+                <select className="toolbar-select" style={{ flex: 1 }} value={["16px", "18px", "20px", "22px", "24px", "26px", "28px", "32px"].includes(bannerFontSize) ? bannerFontSize : "custom"} onChange={e => { if (e.target.value !== "custom") { setBannerFontSize(e.target.value); savePrintSettings({ bannerFontSize: e.target.value }); } }} title="เลือกขนาดตัวอักษรแถบหัวข้อตาราง">
                   <option value="16px">10pt (16px)</option>
                   <option value="18px">12pt (18px)</option>
                   <option value="20px">13.5pt (20px) *มาตรฐาน</option>
@@ -633,14 +633,14 @@ export default function SchedulesAdmin() {
 
           <div className="toolbar-row-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1.5fr', gap: '16px', alignItems: 'flex-end' }}>
             <div className="toolbar-section" style={{ minWidth: 0 }}>
-              <span className="section-label">ระยะห่างบรรทัด</span>
+              <span className="section-label" title="ปรับระยะห่างระหว่างบรรทัดข้อความ">ระยะห่างบรรทัด ℹ️</span>
               <div style={{ display: 'flex', gap: '4px' }}>
-                <input type="text" className="toolbar-input" style={{ width: '50px', padding: '6px', textAlign: 'center' }} value={lineHeight} onChange={e => { setLineHeight(e.target.value); savePrintSettings({ lineHeight: e.target.value }); }} placeholder="e.g. 1.2" />
-                <select className="toolbar-select" style={{ flex: 1 }} value={["1.0", "1.15", "1.25", "1.5", "1.8", "2.0"].includes(lineHeight) ? lineHeight : "custom"} onChange={e => { if (e.target.value !== "custom") { setLineHeight(e.target.value); savePrintSettings({ lineHeight: e.target.value }); } }}>
-                  <option value="1.0">1.0 (เบียดสุด)</option>
+                <input type="text" className="toolbar-input" style={{ width: '50px', padding: '6px', textAlign: 'center' }} value={lineHeight} onChange={e => { setLineHeight(e.target.value); savePrintSettings({ lineHeight: e.target.value }); }} placeholder="e.g. 1.2" title="พิมพ์ระบุระยะห่างบรรทัดเอง (เช่น 1.2 หรือ 1.5)" />
+                <select className="toolbar-select" style={{ flex: 1 }} value={["1.0", "1.15", "1.25", "1.5", "1.8", "2.0"].includes(lineHeight) ? lineHeight : "custom"} onChange={e => { if (e.target.value !== "custom") { setLineHeight(e.target.value); savePrintSettings({ lineHeight: e.target.value }); } }} title="เลือกสัดส่วนระยะเว้นบรรทัดข้อความ">
+                  <option value="1.0">1.0 (เบียดสุด - เหมาะกับข้อความยาวมาก)</option>
                   <option value="1.15">1.15 (กระชับ)</option>
-                  <option value="1.25">1.25 (กำลังดี)</option>
-                  <option value="1.5">1.5 (มาตรฐาน)</option>
+                  <option value="1.25">1.25 (กำลังดี *แนะนำ)</option>
+                  <option value="1.5">1.5 (มาตรฐานโปรแกรมเอกสาร)</option>
                   <option value="1.8">1.8</option>
                   <option value="2.0">2.0 (ห่าง)</option>
                   {!["1.0", "1.15", "1.25", "1.5", "1.8", "2.0"].includes(lineHeight) && <option value="custom">กำหนดเอง ({lineHeight})</option>}
@@ -649,24 +649,24 @@ export default function SchedulesAdmin() {
             </div>
 
             <div className="toolbar-section" style={{ minWidth: 0 }}>
-              <span className="section-label">ระยะขอบเซลล์ตาราง</span>
+              <span className="section-label" title="ระยะเว้นขอบในเซลล์ตาราง">ระยะขอบเซลล์ตาราง ℹ️</span>
               <div style={{ display: 'flex', gap: '4px' }}>
-                <input type="text" className="toolbar-input" style={{ width: '80px', padding: '6px', textAlign: 'center' }} value={cellPadding === 'normal' ? '12px 10px' : cellPadding === 'compact' ? '6px 8px' : cellPadding === 'loose' ? '16px 14px' : cellPadding} onChange={e => { setCellPadding(e.target.value); savePrintSettings({ cellPadding: e.target.value }); }} placeholder="e.g. 8px" />
-                <select className="toolbar-select" style={{ flex: 1 }} value={["compact", "normal", "loose"].includes(cellPadding) ? cellPadding : "custom"} onChange={e => { if (e.target.value !== "custom") { setCellPadding(e.target.value); savePrintSettings({ cellPadding: e.target.value }); } }}>
-                  <option value="compact">ชิดขอบ (6px 8px)</option>
-                  <option value="normal">ปกติ (12px 10px)</option>
-                  <option value="loose">ห่าง (16px 14px)</option>
+                <input type="text" className="toolbar-input" style={{ width: '80px', padding: '6px', textAlign: 'center' }} value={cellPadding === 'normal' ? '12px 10px' : cellPadding === 'compact' ? '6px 8px' : cellPadding === 'loose' ? '16px 14px' : cellPadding} onChange={e => { setCellPadding(e.target.value); savePrintSettings({ cellPadding: e.target.value }); }} placeholder="e.g. 8px" title="พิมพ์ระบุระยะขอบเซลล์ตารางเอง" />
+                <select className="toolbar-select" style={{ flex: 1 }} value={["compact", "normal", "loose"].includes(cellPadding) ? cellPadding : "custom"} onChange={e => { if (e.target.value !== "custom") { setCellPadding(e.target.value); savePrintSettings({ cellPadding: e.target.value }); } }} title="เลือกสไตล์ระยะเว้นขอบตาราง">
+                  <option value="compact">ชิดขอบ (6px 8px - ประหยัดพื้นที่)</option>
+                  <option value="normal">ปกติ (12px 10px - มาตรฐาน)</option>
+                  <option value="loose">ห่าง (16px 14px - สบายตา)</option>
                   {!["compact", "normal", "loose"].includes(cellPadding) && <option value="custom">กำหนดเอง</option>}
                 </select>
               </div>
             </div>
 
             <div className="toolbar-section">
-              <span className="section-label">ลักษณะอักษรเริ่มต้น</span>
+              <span className="section-label" title="กำหนดสไตล์ตัวอักษรพื้นฐานของทั้งตาราง">ลักษณะอักษรเริ่มต้น ℹ️</span>
               <div className="btn-group" style={{ width: '100%' }}>
-                <button className={`toolbar-btn ${fontWeight === 'bold' ? 'active' : ''}`} style={{ flex: 1 }} onClick={() => { const val = fontWeight === 'bold' ? 'normal' : 'bold'; setFontWeight(val); savePrintSettings({ fontWeight: val }); }} title="ตัวหนา"><b>B (ตัวหนา)</b></button>
-                <button className={`toolbar-btn ${fontStyle === 'italic' ? 'active' : ''}`} style={{ flex: 1 }} onClick={() => { const val = fontStyle === 'italic' ? 'normal' : 'italic'; setFontStyle(val); savePrintSettings({ fontStyle: val }); }} title="ตัวเอียง"><i>I (ตัวเอียง)</i></button>
-                <button className={`toolbar-btn ${textDecoration === 'underline' ? 'active' : ''}`} style={{ flex: 1 }} onClick={() => { const val = textDecoration === 'underline' ? 'none' : 'underline'; setTextDecoration(val); savePrintSettings({ textDecoration: val }); }} title="ขีดเส้นใต้"><u>U (ขีดเส้นใต้)</u></button>
+                <button className={`toolbar-btn ${fontWeight === 'bold' ? 'active' : ''}`} style={{ flex: 1 }} onClick={() => { const val = fontWeight === 'bold' ? 'normal' : 'bold'; setFontWeight(val); savePrintSettings({ fontWeight: val }); }} title="คลิกเพื่อปรับอักษรตารางทั้งหมดเป็นตัวหนา (Bold)"><b>B (ตัวหนา)</b></button>
+                <button className={`toolbar-btn ${fontStyle === 'italic' ? 'active' : ''}`} style={{ flex: 1 }} onClick={() => { const val = fontStyle === 'italic' ? 'normal' : 'italic'; setFontStyle(val); savePrintSettings({ fontStyle: val }); }} title="คลิกเพื่อปรับอักษรตารางทั้งหมดเป็นตัวเอียง (Italic)"><i>I (ตัวเอียง)</i></button>
+                <button className={`toolbar-btn ${textDecoration === 'underline' ? 'active' : ''}`} style={{ flex: 1 }} onClick={() => { const val = textDecoration === 'underline' ? 'none' : 'underline'; setTextDecoration(val); savePrintSettings({ textDecoration: val }); }} title="คลิกเพื่อปรับอักษรตารางทั้งหมดให้มีเส้นใต้ (Underline)"><u>U (ขีดเส้นใต้)</u></button>
               </div>
             </div>
           </div>
@@ -995,10 +995,10 @@ export default function SchedulesAdmin() {
               {/* GLOBAL FORM TOOLBAR */}
               <div className="global-form-toolbar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#f1f5f9', padding: '10px 16px', borderRadius: '8px', border: '1px solid #cbd5e1', marginBottom: '20px', gap: '16px', flexWrap: 'wrap' }}>
                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
-                  <span style={{ fontSize: '0.78rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase' }}>🛠️ เครื่องมือจัดรูปแบบ:</span>
+                  <span style={{ fontSize: '0.78rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase' }} title="เครื่องมือลัดสำหรับจัดรูปแบบข้อความที่เลือก">🛠️ เครื่องมือจัดรูปแบบ:</span>
                   <div style={{ display: 'flex', gap: '6px' }}>
-                    <button type="button" className="helper-btn" style={{ opacity: activeField ? 1 : 0.5, cursor: activeField ? 'pointer' : 'not-allowed' }} disabled={!activeField} title="บังคับใช้ตัวเลขอารบิกสำหรับช่องที่เลือก" onClick={() => activeField && insertTextAtCursor(activeField, '*', '*')}>🔢 อารบิก</button>
-                    <button type="button" className="helper-btn" style={{ opacity: activeField ? 1 : 0.5, cursor: activeField ? 'pointer' : 'not-allowed' }} disabled={!activeField} title="ขึ้นบรรทัดใหม่ในช่องที่เลือก" onClick={() => activeField && insertTextAtCursor(activeField, '\n')}>⏎ ขึ้นบรรทัดใหม่</button>
+                    <button type="button" className="helper-btn" style={{ opacity: activeField ? 1 : 0.5, cursor: activeField ? 'pointer' : 'not-allowed' }} disabled={!activeField} title="ใส่อักขระ * ปิดหน้าหลังเพื่อบังคับให้ข้อความส่วนนี้แสดงเป็นตัวเลขอารบิก" onClick={() => activeField && insertTextAtCursor(activeField, '*', '*')}>🔢 อารบิก</button>
+                    <button type="button" className="helper-btn" style={{ opacity: activeField ? 1 : 0.5, cursor: activeField ? 'pointer' : 'not-allowed' }} disabled={!activeField} title="ขึ้นบรรทัดใหม่ในช่องข้อความที่เลือก" onClick={() => activeField && insertTextAtCursor(activeField, '\n')}>⏎ ขึ้นบรรทัดใหม่</button>
                   </div>
                   {activeField ? (
                     <span style={{ fontSize: '0.78rem', color: '#2563eb', marginLeft: '8px', fontWeight: 'bold' }}>
@@ -1006,20 +1006,31 @@ export default function SchedulesAdmin() {
                     </span>
                   ) : (
                     <span style={{ fontSize: '0.78rem', color: '#ef4444', marginLeft: '8px', fontWeight: 'bold' }}>
-                      (คลิกเลือกช่องกรอกข้อความเพื่อใช้งานเครื่องมือ)
+                      (คลิกเลือกช่องกรอกข้อความด้านล่างเพื่อเปิดใช้งานเครื่องมือ)
                     </span>
                   )}
                 </div>
                 
                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                  <span style={{ fontSize: '0.78rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase' }}>จัดตำแหน่ง (Alignment):</span>
+                  <span style={{ fontSize: '0.78rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase' }} title="เลือกจัดแนวนอนข้อความเฉพาะช่องที่เลือก">จัดตำแหน่ง (Alignment):</span>
                   <div className="align-toggle-group" style={{ opacity: activeField ? 1 : 0.5, pointerEvents: activeField ? 'auto' : 'none' }}>
-                    {['default', 'left', 'center', 'right'].map(a => {
+                    {[
+                      { key: 'default', label: 'ค่าเดิม', hint: 'จัดวางข้อความตามค่าเริ่มต้นของตาราง (ชิดซ้าย)' },
+                      { key: 'left', label: '≡ ซ้าย', hint: 'จัดข้อความในช่องนี้ชิดซ้าย' },
+                      { key: 'center', label: '≡ กลาง', hint: 'จัดข้อความในช่องนี้ไว้ตรงกลาง' },
+                      { key: 'right', label: '≡ ขวา', hint: 'จัดข้อความในช่องนี้ชิดขวา' }
+                    ].map(item => {
                       const activeFieldVal = activeField ? (currentSchedule as any)[activeField] : '';
                       return (
-                        <button key={a} type="button" className={`align-toggle-btn ${activeField && getFieldAlign(activeFieldVal) === a ? 'active' : ''}`}
-                          onClick={() => activeField && setCurrentSchedule({...currentSchedule, [activeField]: setFieldAlign(activeFieldVal, a)})}
-                        >{a === 'default' ? 'ค่าเดิม' : a === 'left' ? '≡ ซ้าย' : a === 'center' ? '≡ กลาง' : '≡ ขวา'}</button>
+                        <button 
+                          key={item.key} 
+                          type="button" 
+                          className={`align-toggle-btn ${activeField && getFieldAlign(activeFieldVal) === item.key ? 'active' : ''}`}
+                          title={item.hint}
+                          onClick={() => activeField && setCurrentSchedule({...currentSchedule, [activeField]: setFieldAlign(activeFieldVal, item.key)})}
+                        >
+                          {item.label}
+                        </button>
                       );
                     })}
                   </div>
