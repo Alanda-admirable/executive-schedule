@@ -993,12 +993,12 @@ export default function SchedulesAdmin() {
               </h2>
 
               {/* GLOBAL FORM TOOLBAR */}
-              <div className="global-form-toolbar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#f1f5f9', padding: '10px 16px', borderRadius: '8px', border: '1px solid #cbd5e1', marginBottom: '20px', gap: '16px', flexWrap: 'wrap' }}>
+              <div className="global-form-toolbar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#f1f5f9', padding: '10px 16px', borderRadius: '8px', border: '1px solid #cbd5e1', marginBottom: '12px', gap: '16px', flexWrap: 'wrap' }}>
                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
                   <span style={{ fontSize: '0.78rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase' }} title="เครื่องมือลัดสำหรับจัดรูปแบบข้อความที่เลือก">🛠️ เครื่องมือจัดรูปแบบ:</span>
                   <div style={{ display: 'flex', gap: '6px' }}>
-                    <button type="button" className="helper-btn" style={{ opacity: activeField ? 1 : 0.5, cursor: activeField ? 'pointer' : 'not-allowed' }} disabled={!activeField} title="ใส่อักขระ * ปิดหน้าหลังเพื่อบังคับให้ข้อความส่วนนี้แสดงเป็นตัวเลขอารบิก" onClick={() => activeField && insertTextAtCursor(activeField, '*', '*')}>🔢 อารบิก</button>
-                    <button type="button" className="helper-btn" style={{ opacity: activeField ? 1 : 0.5, cursor: activeField ? 'pointer' : 'not-allowed' }} disabled={!activeField} title="ขึ้นบรรทัดใหม่ในช่องข้อความที่เลือก" onClick={() => activeField && insertTextAtCursor(activeField, '\n')}>⏎ ขึ้นบรรทัดใหม่</button>
+                    <button type="button" className="helper-btn" style={{ opacity: activeField ? 1 : 0.5, cursor: activeField ? 'pointer' : 'not-allowed' }} disabled={!activeField} title="ตัวอย่างวิธีใช้: พิมพ์ 9 ➔ แสดงเลขไทย ๙ | พิมพ์ *9* ➔ บังคับแสดงเลขอารบิก 9" onClick={() => activeField && insertTextAtCursor(activeField, '*', '*')}>🔢 อารบิก (*...*)</button>
+                    <button type="button" className="helper-btn" style={{ opacity: activeField ? 1 : 0.5, cursor: activeField ? 'pointer' : 'not-allowed' }} disabled={!activeField} title="ขึ้นบรรทัดใหม่ในช่องข้อความที่เลือก (หรือกด Shift+Enter)" onClick={() => activeField && insertTextAtCursor(activeField, '\n')}>⏎ ขึ้นบรรทัดใหม่</button>
                   </div>
                   {activeField ? (
                     <span style={{ fontSize: '0.78rem', color: '#2563eb', marginLeft: '8px', fontWeight: 'bold' }}>
@@ -1016,9 +1016,9 @@ export default function SchedulesAdmin() {
                   <div className="align-toggle-group" style={{ opacity: activeField ? 1 : 0.5, pointerEvents: activeField ? 'auto' : 'none' }}>
                     {[
                       { key: 'default', label: 'ค่าเดิม', hint: 'จัดวางข้อความตามค่าเริ่มต้นของตาราง (ชิดซ้าย)' },
-                      { key: 'left', label: '≡ ซ้าย', hint: 'จัดข้อความในช่องนี้ชิดซ้าย' },
-                      { key: 'center', label: '≡ กลาง', hint: 'จัดข้อความในช่องนี้ไว้ตรงกลาง' },
-                      { key: 'right', label: '≡ ขวา', hint: 'จัดข้อความในช่องนี้ชิดขวา' }
+                      { key: 'left', label: '≡ ซ้าย', hint: 'จัดข้อความในช่องนี้ชิดซ้าย (ลบคีย์เวิร์ดจัดตำแหน่งออก)' },
+                      { key: 'center', label: '≡ กลาง', hint: 'จัดข้อความในช่องนี้ไว้กึ่งกลาง (ใส่ [center] ข้างหน้า)' },
+                      { key: 'right', label: '≡ ขวา', hint: 'จัดข้อความในช่องนี้ชิดขวา (ใส่ [right] ข้างหน้า)' }
                     ].map(item => {
                       const activeFieldVal = activeField ? (currentSchedule as any)[activeField] : '';
                       return (
@@ -1035,6 +1035,20 @@ export default function SchedulesAdmin() {
                     })}
                   </div>
                 </div>
+              </div>
+
+              {/* VISUAL EXAMPLES CHEAT-SHEET STRIP */}
+              <div className="formatting-examples-strip" style={{ display: 'flex', gap: '12px', alignItems: 'center', backgroundColor: '#eff6ff', padding: '8px 14px', borderRadius: '6px', border: '1px solid #bfdbfe', marginBottom: '16px', fontSize: '0.78rem', color: '#1e40af', flexWrap: 'wrap' }}>
+                <span style={{ fontWeight: 800, color: '#1d4ed8', display: 'flex', alignItems: 'center', gap: '4px' }}>💡 ตัวอย่างวิธีพิมพ์จัดรูปแบบ:</span>
+                <span style={{ backgroundColor: 'white', padding: '3px 8px', borderRadius: '4px', border: '1px solid #cbd5e1', boxShadow: '0 1px 2px rgba(0,0,0,0.03)' }} title="ตัวอย่างการแสดงผลตัวเลขไทย vs อารบิก">
+                  <b>เลขไทย/อารบิก:</b> พิมพ์ <code style={{ backgroundColor: '#f1f5f9', padding: '1px 4px', borderRadius: '3px' }}>9</code> ➔ <span style={{ color: '#059669', fontWeight: 'bold' }}>๙</span> | พิมพ์ <code style={{ backgroundColor: '#f1f5f9', padding: '1px 4px', borderRadius: '3px' }}>*9*</code> ➔ <span style={{ color: '#2563eb', fontWeight: 'bold' }}>9 (บังคับอารบิก)</span>
+                </span>
+                <span style={{ backgroundColor: 'white', padding: '3px 8px', borderRadius: '4px', border: '1px solid #cbd5e1', boxShadow: '0 1px 2px rgba(0,0,0,0.03)' }} title="ตัวอย่างการใส่คีย์เวิร์ดจัดข้อความกึ่งกลาง">
+                  <b>จัดกึ่งกลาง:</b> พิมพ์ <code style={{ backgroundColor: '#f1f5f9', padding: '1px 4px', borderRadius: '3px' }}>[center]ข้อความ</code> ➔ <span style={{ color: '#2563eb', fontWeight: 'bold' }}>≡ ข้อความอยู่ตรงกลาง</span>
+                </span>
+                <span style={{ backgroundColor: 'white', padding: '3px 8px', borderRadius: '4px', border: '1px solid #cbd5e1', boxShadow: '0 1px 2px rgba(0,0,0,0.03)' }} title="ตัวอย่างการใส่เครื่องหมาย - กรณีไม่มีข้อมูล">
+                  <b>เว้นว่าง (-):</b> พิมพ์ <code style={{ backgroundColor: '#f1f5f9', padding: '1px 4px', borderRadius: '3px' }}>-</code> ➔ <span style={{ color: '#64748b', fontWeight: 'bold' }}>แสดง - ไว้ตรงกลาง</span>
+                </span>
               </div>
 
               <div className="modal-layout-container" style={{ display: 'flex', flexDirection: 'column', gap: '16px', flex: 1, overflowY: 'auto', WebkitOverflowScrolling: 'touch', paddingRight: '4px' }}>
