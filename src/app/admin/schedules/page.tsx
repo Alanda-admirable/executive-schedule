@@ -955,44 +955,9 @@ export default function SchedulesAdmin() {
                         {s.dressCode && <div className="dress-text">การแต่งกาย: {s.dressCode}</div>}
                       </td>
                       <td>
-                        <div className="flex-actions" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                          <div style={{ display: 'flex', gap: '4px' }}>
-                            <button className="btn-admin btn-admin-secondary btn-sm" style={{ flex: 1 }} onClick={() => { setCurrentSchedule(s); setIsEditing(true); }}>แก้ไข</button>
-                            <button className="btn-admin btn-admin-danger btn-sm" style={{ flex: 1 }} onClick={() => handleDelete(s.id)}>ลบ</button>
-                          </div>
-                          {s.status === 'DRAFT' ? (
-                            <button 
-                              className="btn-admin btn-sm" 
-                              style={{ backgroundColor: '#2563eb', color: 'white', border: 'none', fontWeight: 700 }}
-                              onClick={async () => {
-                                setLoading(true)
-                                await fetch(`/api/schedules/${s.id}`, {
-                                  method: 'PATCH',
-                                  headers: { 'Content-Type': 'application/json' },
-                                  body: JSON.stringify({ status: 'ACTIVE' })
-                                })
-                                fetchSchedules()
-                              }}
-                            >
-                              🚀 เผยแพร่รายการนี้
-                            </button>
-                          ) : (
-                            <button 
-                              className="btn-admin btn-sm" 
-                              style={{ backgroundColor: '#64748b', color: 'white', border: 'none', fontWeight: 700 }}
-                              onClick={async () => {
-                                setLoading(true)
-                                await fetch(`/api/schedules/${s.id}`, {
-                                  method: 'PATCH',
-                                  headers: { 'Content-Type': 'application/json' },
-                                  body: JSON.stringify({ status: 'DRAFT' })
-                                })
-                                fetchSchedules()
-                              }}
-                            >
-                              ⏪ กลับเป็นแบบร่าง
-                            </button>
-                          )}
+                        <div className="flex-actions" style={{ display: 'flex', gap: '6px' }}>
+                          <button className="btn-admin btn-admin-secondary btn-sm" style={{ flex: 1 }} onClick={() => { setCurrentSchedule(s); setIsEditing(true); }}>แก้ไข</button>
+                          <button className="btn-admin btn-admin-danger btn-sm" style={{ flex: 1 }} onClick={() => handleDelete(s.id)}>ลบ</button>
                         </div>
                       </td>
                     </tr>
@@ -1315,24 +1280,10 @@ export default function SchedulesAdmin() {
                     </div>
                   </div>
                   
-                  {/* Row 4: Status Selector & Action Buttons */}
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '8px', gap: '16px', flexWrap: 'wrap' }}>
-                    <div className="form-group" style={{ flex: 1, minWidth: '180px', marginBottom: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <label className="form-label" style={{ fontSize: '0.82rem', marginBottom: 0, whiteSpace: 'nowrap' }}>สถานะ:</label>
-                      <select 
-                        className="form-input"
-                        value={currentSchedule.status || 'DRAFT'} 
-                        onChange={e => setCurrentSchedule({...currentSchedule, status: e.target.value})}
-                        style={{ padding: '4px 8px', fontSize: '0.82rem' }}
-                      >
-                        <option value="DRAFT">แบบร่าง (Draft) - ยังไม่แสดงหน้าแรก</option>
-                        <option value="ACTIVE">เผยแพร่ (Live) - แสดงหน้าแรกทันที</option>
-                      </select>
-                    </div>
-                    <div className="actions" style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', flex: 1 }}>
-                      <button type="button" className="btn-admin btn-admin-secondary" style={{ width: '150px' }} onClick={() => setIsEditing(false)}>ยกเลิก</button>
-                      <button type="submit" className="btn-admin btn-admin-primary" style={{ width: '200px' }}>บันทึกวาระงาน</button>
-                    </div>
+                  {/* Action Buttons */}
+                  <div className="actions" style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '16px' }}>
+                    <button type="button" className="btn-admin btn-admin-secondary" style={{ width: '150px' }} onClick={() => setIsEditing(false)}>ยกเลิก</button>
+                    <button type="submit" className="btn-admin btn-admin-primary" style={{ width: '200px' }}>บันทึกวาระงาน</button>
                   </div>
                 </form>
               </div>
