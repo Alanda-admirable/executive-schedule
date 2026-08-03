@@ -576,13 +576,8 @@ export default function SchedulesAdmin() {
           </button>
         </div>
         
-        <div className="toolbar-grid">
-          {/* Column 1: Typography & Spacing */}
-          <div className="toolbar-col" style={{ display: 'flex', flexDirection: 'column', gap: '16px', borderRight: '1px solid #f1f5f9', paddingRight: '24px' }}>
-            <h4 style={{ fontSize: '0.82rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', margin: 0, borderBottom: '1px solid #f1f5f9', paddingBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <span>🔤</span> ลักษณะตัวอักษรและระยะห่าง (Typography & Spacing)
-            </h4>
-            
+        <div className="toolbar-full-width" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div className="toolbar-row-grid" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: '16px' }}>
             <div className="toolbar-section">
               <span className="section-label">รูปแบบฟอนต์เอกสาร</span>
               <select className="toolbar-select font-family-select" style={{ width: '100%' }} value={fontFamily} onChange={e => { setFontFamily(e.target.value); savePrintSettings({ fontFamily: e.target.value }); }}>
@@ -601,70 +596,68 @@ export default function SchedulesAdmin() {
               </select>
             </div>
 
-            <div className="toolbar-row" style={{ display: 'flex', gap: '12px' }}>
-              <div className="toolbar-section" style={{ flex: 1, minWidth: 0 }}>
-                <span className="section-label">ขนาดอักษรเนื้อหา</span>
-                <div style={{ display: 'flex', gap: '4px' }}>
-                  <input type="text" className="toolbar-input" style={{ width: '55px', padding: '6px', textAlign: 'center' }} value={fontSize} onChange={e => { setFontSize(e.target.value); savePrintSettings({ fontSize: e.target.value }); }} />
-                  <select className="toolbar-select" style={{ flex: 1 }} value={["12px", "14px", "16px", "18px", "20px", "24px"].includes(fontSize) ? fontSize : "custom"} onChange={e => { if (e.target.value !== "custom") { setFontSize(e.target.value); savePrintSettings({ fontSize: e.target.value }); } }}>
-                    <option value="12px">9pt (12px)</option>
-                    <option value="14px">10.5pt (14px)</option>
-                    <option value="16px">12pt (16px) *มาตรฐาน</option>
-                    <option value="18px">14pt (18px)</option>
-                    <option value="20px">16pt (20px)</option>
-                    <option value="24px">18pt (24px)</option>
-                    {!["12px", "14px", "16px", "18px", "20px", "24px"].includes(fontSize) && <option value="custom">กำหนดเอง ({fontSize})</option>}
-                  </select>
-                </div>
-              </div>
-              
-              <div className="toolbar-section" style={{ flex: 1, minWidth: 0 }}>
-                <span className="section-label">ขนาดอักษรหัวข้อ (Banner)</span>
-                <div style={{ display: 'flex', gap: '4px' }}>
-                  <input type="text" className="toolbar-input" style={{ width: '55px', padding: '6px', textAlign: 'center' }} value={bannerFontSize} onChange={e => { setBannerFontSize(e.target.value); savePrintSettings({ bannerFontSize: e.target.value }); }} />
-                  <select className="toolbar-select" style={{ flex: 1 }} value={["16px", "18px", "20px", "22px", "24px", "26px", "28px", "32px"].includes(bannerFontSize) ? bannerFontSize : "custom"} onChange={e => { if (e.target.value !== "custom") { setBannerFontSize(e.target.value); savePrintSettings({ bannerFontSize: e.target.value }); } }}>
-                    <option value="16px">10pt (16px)</option>
-                    <option value="18px">12pt (18px)</option>
-                    <option value="20px">13.5pt (20px) *มาตรฐาน</option>
-                    <option value="22px">15pt (22px)</option>
-                    <option value="24px">16.5pt (24px)</option>
-                    <option value="26px">18pt (26px)</option>
-                    <option value="28px">19.5pt (28px)</option>
-                    <option value="32px">22pt (32px)</option>
-                    {!["16px", "18px", "20px", "22px", "24px", "26px", "28px", "32px"].includes(bannerFontSize) && <option value="custom">กำหนดเอง ({bannerFontSize})</option>}
-                  </select>
-                </div>
+            <div className="toolbar-section" style={{ minWidth: 0 }}>
+              <span className="section-label">ขนาดอักษรเนื้อหา</span>
+              <div style={{ display: 'flex', gap: '4px' }}>
+                <input type="text" className="toolbar-input" style={{ width: '50px', padding: '6px', textAlign: 'center' }} value={fontSize} onChange={e => { setFontSize(e.target.value); savePrintSettings({ fontSize: e.target.value }); }} />
+                <select className="toolbar-select" style={{ flex: 1 }} value={["12px", "14px", "16px", "18px", "20px", "24px"].includes(fontSize) ? fontSize : "custom"} onChange={e => { if (e.target.value !== "custom") { setFontSize(e.target.value); savePrintSettings({ fontSize: e.target.value }); } }}>
+                  <option value="12px">9pt (12px)</option>
+                  <option value="14px">10.5pt (14px)</option>
+                  <option value="16px">12pt (16px) *มาตรฐาน</option>
+                  <option value="18px">14pt (18px)</option>
+                  <option value="20px">16pt (20px)</option>
+                  <option value="24px">18pt (24px)</option>
+                  {!["12px", "14px", "16px", "18px", "20px", "24px"].includes(fontSize) && <option value="custom">กำหนดเอง ({fontSize})</option>}
+                </select>
               </div>
             </div>
 
-            <div className="toolbar-row" style={{ display: 'flex', gap: '12px' }}>
-              <div className="toolbar-section" style={{ flex: 1, minWidth: 0 }}>
-                <span className="section-label">ระยะห่างบรรทัด</span>
-                <div style={{ display: 'flex', gap: '4px' }}>
-                  <input type="text" className="toolbar-input" style={{ width: '55px', padding: '6px', textAlign: 'center' }} value={lineHeight} onChange={e => { setLineHeight(e.target.value); savePrintSettings({ lineHeight: e.target.value }); }} placeholder="e.g. 1.2" />
-                  <select className="toolbar-select" style={{ flex: 1 }} value={["1.0", "1.15", "1.25", "1.5", "1.8", "2.0"].includes(lineHeight) ? lineHeight : "custom"} onChange={e => { if (e.target.value !== "custom") { setLineHeight(e.target.value); savePrintSettings({ lineHeight: e.target.value }); } }}>
-                    <option value="1.0">1.0 (เบียดสุด)</option>
-                    <option value="1.15">1.15 (กระชับ)</option>
-                    <option value="1.25">1.25 (กำลังดี)</option>
-                    <option value="1.5">1.5 (มาตรฐาน)</option>
-                    <option value="1.8">1.8</option>
-                    <option value="2.0">2.0 (ห่าง)</option>
-                    {!["1.0", "1.15", "1.25", "1.5", "1.8", "2.0"].includes(lineHeight) && <option value="custom">กำหนดเอง ({lineHeight})</option>}
-                  </select>
-                </div>
+            <div className="toolbar-section" style={{ minWidth: 0 }}>
+              <span className="section-label">ขนาดอักษรหัวข้อ (Banner)</span>
+              <div style={{ display: 'flex', gap: '4px' }}>
+                <input type="text" className="toolbar-input" style={{ width: '50px', padding: '6px', textAlign: 'center' }} value={bannerFontSize} onChange={e => { setBannerFontSize(e.target.value); savePrintSettings({ bannerFontSize: e.target.value }); }} />
+                <select className="toolbar-select" style={{ flex: 1 }} value={["16px", "18px", "20px", "22px", "24px", "26px", "28px", "32px"].includes(bannerFontSize) ? bannerFontSize : "custom"} onChange={e => { if (e.target.value !== "custom") { setBannerFontSize(e.target.value); savePrintSettings({ bannerFontSize: e.target.value }); } }}>
+                  <option value="16px">10pt (16px)</option>
+                  <option value="18px">12pt (18px)</option>
+                  <option value="20px">13.5pt (20px) *มาตรฐาน</option>
+                  <option value="22px">15pt (22px)</option>
+                  <option value="24px">16.5pt (24px)</option>
+                  <option value="26px">18pt (26px)</option>
+                  <option value="28px">19.5pt (28px)</option>
+                  <option value="32px">22pt (32px)</option>
+                  {!["16px", "18px", "20px", "22px", "24px", "26px", "28px", "32px"].includes(bannerFontSize) && <option value="custom">กำหนดเอง ({bannerFontSize})</option>}
+                </select>
               </div>
+            </div>
+          </div>
 
-              <div className="toolbar-section" style={{ flex: 1, minWidth: 0 }}>
-                <span className="section-label">ระยะขอบเซลล์ตาราง</span>
-                <div style={{ display: 'flex', gap: '4px' }}>
-                  <input type="text" className="toolbar-input" style={{ width: '85px', padding: '6px', textAlign: 'center' }} value={cellPadding === 'normal' ? '12px 10px' : cellPadding === 'compact' ? '6px 8px' : cellPadding === 'loose' ? '16px 14px' : cellPadding} onChange={e => { setCellPadding(e.target.value); savePrintSettings({ cellPadding: e.target.value }); }} placeholder="e.g. 8px หรือ 10px 12px" />
-                  <select className="toolbar-select" style={{ flex: 1 }} value={["compact", "normal", "loose"].includes(cellPadding) ? cellPadding : "custom"} onChange={e => { if (e.target.value !== "custom") { setCellPadding(e.target.value); savePrintSettings({ cellPadding: e.target.value }); } }}>
-                    <option value="compact">ชิดขอบ (6px 8px)</option>
-                    <option value="normal">ปกติ (12px 10px)</option>
-                    <option value="loose">ห่าง (16px 14px)</option>
-                    {!["compact", "normal", "loose"].includes(cellPadding) && <option value="custom">กำหนดเอง</option>}
-                  </select>
-                </div>
+          <div className="toolbar-row-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1.5fr', gap: '16px', alignItems: 'flex-end' }}>
+            <div className="toolbar-section" style={{ minWidth: 0 }}>
+              <span className="section-label">ระยะห่างบรรทัด</span>
+              <div style={{ display: 'flex', gap: '4px' }}>
+                <input type="text" className="toolbar-input" style={{ width: '50px', padding: '6px', textAlign: 'center' }} value={lineHeight} onChange={e => { setLineHeight(e.target.value); savePrintSettings({ lineHeight: e.target.value }); }} placeholder="e.g. 1.2" />
+                <select className="toolbar-select" style={{ flex: 1 }} value={["1.0", "1.15", "1.25", "1.5", "1.8", "2.0"].includes(lineHeight) ? lineHeight : "custom"} onChange={e => { if (e.target.value !== "custom") { setLineHeight(e.target.value); savePrintSettings({ lineHeight: e.target.value }); } }}>
+                  <option value="1.0">1.0 (เบียดสุด)</option>
+                  <option value="1.15">1.15 (กระชับ)</option>
+                  <option value="1.25">1.25 (กำลังดี)</option>
+                  <option value="1.5">1.5 (มาตรฐาน)</option>
+                  <option value="1.8">1.8</option>
+                  <option value="2.0">2.0 (ห่าง)</option>
+                  {!["1.0", "1.15", "1.25", "1.5", "1.8", "2.0"].includes(lineHeight) && <option value="custom">กำหนดเอง ({lineHeight})</option>}
+                </select>
+              </div>
+            </div>
+
+            <div className="toolbar-section" style={{ minWidth: 0 }}>
+              <span className="section-label">ระยะขอบเซลล์ตาราง</span>
+              <div style={{ display: 'flex', gap: '4px' }}>
+                <input type="text" className="toolbar-input" style={{ width: '80px', padding: '6px', textAlign: 'center' }} value={cellPadding === 'normal' ? '12px 10px' : cellPadding === 'compact' ? '6px 8px' : cellPadding === 'loose' ? '16px 14px' : cellPadding} onChange={e => { setCellPadding(e.target.value); savePrintSettings({ cellPadding: e.target.value }); }} placeholder="e.g. 8px" />
+                <select className="toolbar-select" style={{ flex: 1 }} value={["compact", "normal", "loose"].includes(cellPadding) ? cellPadding : "custom"} onChange={e => { if (e.target.value !== "custom") { setCellPadding(e.target.value); savePrintSettings({ cellPadding: e.target.value }); } }}>
+                  <option value="compact">ชิดขอบ (6px 8px)</option>
+                  <option value="normal">ปกติ (12px 10px)</option>
+                  <option value="loose">ห่าง (16px 14px)</option>
+                  {!["compact", "normal", "loose"].includes(cellPadding) && <option value="custom">กำหนดเอง</option>}
+                </select>
               </div>
             </div>
 
@@ -675,57 +668,6 @@ export default function SchedulesAdmin() {
                 <button className={`toolbar-btn ${fontStyle === 'italic' ? 'active' : ''}`} style={{ flex: 1 }} onClick={() => { const val = fontStyle === 'italic' ? 'normal' : 'italic'; setFontStyle(val); savePrintSettings({ fontStyle: val }); }} title="ตัวเอียง"><i>I (ตัวเอียง)</i></button>
                 <button className={`toolbar-btn ${textDecoration === 'underline' ? 'active' : ''}`} style={{ flex: 1 }} onClick={() => { const val = textDecoration === 'underline' ? 'none' : 'underline'; setTextDecoration(val); savePrintSettings({ textDecoration: val }); }} title="ขีดเส้นใต้"><u>U (ขีดเส้นใต้)</u></button>
               </div>
-            </div>
-          </div>
-
-          {/* Column 2: Column Visibility & Print Options */}
-          <div className="toolbar-col last" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <h4 style={{ fontSize: '0.82rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', margin: 0, borderBottom: '1px solid #f1f5f9', paddingBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <span>📊</span> การแสดงคอลัมน์และการพิมพ์ (Column & Print Options)
-            </h4>
-            
-            <div className="toolbar-section">
-              <span className="section-label">เลือกคอลัมน์ที่จะแสดงและพิมพ์ออกเอกสาร</span>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px 16px', marginTop: '6px', background: '#f8fafc', padding: '16px', borderRadius: '8px', border: '1px solid #f1f5f9' }}>
-                <label className="checkbox-label" style={{ userSelect: 'none' }}>
-                  <input type="checkbox" checked={colTimeVisible} onChange={e => { setColTimeVisible(e.target.checked); savePrintSettings({ visibleColumns: { time: e.target.checked, location: colLocationVisible, agency: colAgencyVisible, dress: colDressVisible } }); }} /> เวลา
-                </label>
-                <label className="checkbox-label" style={{ userSelect: 'none' }}>
-                  <input type="checkbox" checked={colLocationVisible} onChange={e => { setColLocationVisible(e.target.checked); savePrintSettings({ visibleColumns: { time: colTimeVisible, location: e.target.checked, agency: colAgencyVisible, dress: colDressVisible } }); }} /> สถานที่
-                </label>
-                <label className="checkbox-label" style={{ userSelect: 'none' }}>
-                  <input type="checkbox" checked={colAgencyVisible} onChange={e => { setColAgencyVisible(e.target.checked); savePrintSettings({ visibleColumns: { time: colTimeVisible, location: colLocationVisible, agency: e.target.checked, dress: colDressVisible } }); }} /> หน่วยงานเจ้าภาพ
-                </label>
-                <label className="checkbox-label" style={{ userSelect: 'none' }}>
-                  <input type="checkbox" checked={colDressVisible} onChange={e => { setColDressVisible(e.target.checked); savePrintSettings({ visibleColumns: { time: colTimeVisible, location: colLocationVisible, agency: colAgencyVisible, dress: e.target.checked } }); }} /> การแต่งกาย
-                </label>
-              </div>
-            </div>
-
-            <div style={{ marginTop: 'auto', paddingTop: '12px' }}>
-              <label className="checkbox-label" style={{ 
-                color: fitToPage ? '#059669' : '#475569', 
-                fontWeight: 'bold', 
-                backgroundColor: fitToPage ? '#ecfdf5' : '#f8fafc',
-                border: fitToPage ? '1px solid #a7f3d0' : '1px solid #e2e8f0',
-                borderRadius: '8px', 
-                padding: '14px 18px',
-                transition: 'all 0.2s',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px',
-                width: '100%',
-                userSelect: 'none',
-                cursor: 'pointer'
-              }}>
-                <input 
-                  type="checkbox" 
-                  checked={fitToPage} 
-                  style={{ width: '18px', height: '18px', cursor: 'pointer' }}
-                  onChange={e => { setFitToPage(e.target.checked); savePrintSettings({ fitToPage: e.target.checked }); }} 
-                />
-                <span style={{ fontSize: '0.88rem' }}>บีบตารางให้พอดีหน้าเดียว (Auto Fit Single Page)</span>
-              </label>
             </div>
           </div>
         </div>
@@ -1863,26 +1805,13 @@ export default function SchedulesAdmin() {
           cursor: pointer;
         }
 
-        @media (max-width: 1024px) {
-          .toolbar-grid {
-            grid-template-columns: repeat(2, 1fr);
-          }
-          .toolbar-col {
-            border-right: none !important;
-            padding-right: 0 !important;
-          }
-          .toolbar-col.last {
-            grid-column: span 2;
+        @media (max-width: 900px) {
+          .toolbar-row-grid {
+            grid-template-columns: 1fr !important;
           }
         }
 
         @media (max-width: 640px) {
-          .toolbar-grid {
-            grid-template-columns: 1fr;
-          }
-          .toolbar-col.last {
-            grid-column: span 1;
-          }
           .word-toolbar-card {
             padding: 16px !important;
           }
