@@ -14,6 +14,7 @@ export async function GET() {
     })
     return NextResponse.json(executives)
   } catch (error) {
+    console.error('Fetch executives error:', error)
     return NextResponse.json({ error: 'Failed to fetch executives' }, { status: 500 })
   }
 }

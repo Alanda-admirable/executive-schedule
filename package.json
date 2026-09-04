@@ -4,18 +4,23 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && next build",
+    "build": "prisma generate && node scripts/patch-opennext.js && next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "build:worker": "opennextjs-cloudflare build",
+    "deploy": "npm run build:worker && wrangler deploy",
+    "preview": "npm run build:worker && wrangler dev",
+    "postinstall": "node scripts/patch-opennext.js"
   },
   "prisma": {
     "seed": "node prisma/seed.js"
   },
   "dependencies": {
-    "@prisma/client": "^6.2.1",
+    "@opennextjs/cloudflare": "^1.20.6",
+    "@prisma/adapter-d1": "^6.19.3",
+    "@prisma/client": "^6.19.3",
     "html2canvas": "^1.4.1",
-    "next": "16.2.9",
-    "puppeteer": "^25.3.0",
+    "next": "16.3.4",
     "react": "19.2.4",
     "react-dom": "19.2.4"
   },
@@ -24,8 +29,9 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "16.2.9",
-    "prisma": "^6.2.1",
-    "typescript": "^5"
+    "eslint-config-next": "16.3.4",
+    "prisma": "^6.19.3",
+    "typescript": "^5",
+    "wrangler": "^4.129.0"
   }
 }

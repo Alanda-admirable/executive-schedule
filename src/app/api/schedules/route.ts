@@ -25,19 +25,34 @@ export async function GET(request: Request) {
 
     let where: any = {}
     if (dateStr) {
-      const date = new Date(dateStr)
-      const startOfDay = new Date(date.setHours(0, 0, 0, 0))
-      const endOfDay = new Date(new Date(date).setHours(23, 59, 59, 999))
-      
-      where = {
-        date: {
-          gte: startOfDay,
-          lte: endOfDay,
-        },
+      const parts = dateStr.split('T')[0].split('-').map(Number)
+      if (parts.length === 3 && !isNaN(parts[0]) && !isNaN(parts[1]) && !isNaN(parts[2])) {
+        const [y, m, d] = parts
+        // Thailand is UTC+7. Day runs from 17:00:00 UTC previous day to 16:59:59.999 UTC target day.
+        const startOfDay = new Date(Date.UTC(y, m - 1, d, 0, 0, 0) - 7 * 3600 * 1000)
+        const endOfDay = new Date(Date.UTC(y, m - 1, d, 23, 59, 59, 999) - 7 * 3600 * 1000)
+        where = {
+          date: {
+            gte: startOfDay,
+            lte: endOfDay,
+          },
+        }
+      } else {
+        const date = new Date(dateStr)
+        where = {
+          date: {
+            gte: new Date(date.setHours(0, 0, 0, 0)),
+            lte: new Date(new Date(date).setHours(23, 59, 59, 999)),
+          },
+        }
       }
     } else if (month && year) {
-      const startOfMonth = new Date(parseInt(year), parseInt(month), 1)
-      const endOfMonth = new Date(parseInt(year), parseInt(month) + 1, 0, 23, 59, 59, 999)
+      const y = parseInt(year)
+      const m = parseInt(month)
+      // Month start in Thailand (day 1 00:00:00 local = -7h UTC)
+      const startOfMonth = new Date(Date.UTC(y, m, 1, 0, 0, 0) - 7 * 3600 * 1000)
+      // Month end in Thailand (last day of month 23:59:59.999 local = -7h UTC)
+      const endOfMonth = new Date(Date.UTC(y, m + 1, 0, 23, 59, 59, 999) - 7 * 3600 * 1000)
       
       where = {
         date: {
@@ -90,10 +105,18 @@ export async function POST(request: Request) {
     }).catch(err => console.error('Activity update failed:', err))
 
     const body = await request.json()
+    let scheduleDate = new Date(body.date)
+    if (typeof body.date === 'string' && body.date.includes('-')) {
+      const parts = body.date.split('T')[0].split('-').map(Number)
+      if (parts.length === 3 && !isNaN(parts[0]) && !isNaN(parts[1]) && !isNaN(parts[2])) {
+        scheduleDate = new Date(Date.UTC(parts[0], parts[1] - 1, parts[2], 0, 0, 0) - 7 * 3600 * 1000)
+      }
+    }
+
     const schedule = await prisma.schedule.create({
       data: {
         executiveId: body.executiveId,
-        date: new Date(body.date),
+        date: scheduleDate,
         startTime: body.startTime,
         endTime: body.endTime,
         mission: body.mission,

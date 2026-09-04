@@ -37,11 +37,22 @@ export async function PATCH(
 
     const { id } = await params
     const body = await request.json()
+    let scheduleDate = undefined
+    if (body.date) {
+      scheduleDate = new Date(body.date)
+      if (typeof body.date === 'string' && body.date.includes('-')) {
+        const parts = body.date.split('T')[0].split('-').map(Number)
+        if (parts.length === 3 && !isNaN(parts[0]) && !isNaN(parts[1]) && !isNaN(parts[2])) {
+          scheduleDate = new Date(Date.UTC(parts[0], parts[1] - 1, parts[2], 0, 0, 0) - 7 * 3600 * 1000)
+        }
+      }
+    }
+
     const schedule = await prisma.schedule.update({
       where: { id },
       data: {
         executiveId: body.executiveId,
-        date: body.date ? new Date(body.date) : undefined,
+        date: scheduleDate,
         startTime: body.startTime,
         endTime: body.endTime,
         mission: body.mission,
