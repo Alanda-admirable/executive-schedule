@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma'
+import { Prisma } from '@prisma/client'
 import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 
@@ -18,12 +19,12 @@ export async function GET(request: Request) {
     const sessionCookie = cookieStore.get('admin_session')
     const isAdmin = !!sessionCookie
 
-    let statusFilter: any = undefined
+    let statusFilter: string | undefined = undefined
     if (isPublic || !isAdmin) {
       statusFilter = 'ACTIVE'
     }
 
-    let where: any = {}
+    let where: Prisma.ScheduleWhereInput = {}
     if (dateStr) {
       const parts = dateStr.split('T')[0].split('-').map(Number)
       if (parts.length === 3 && !isNaN(parts[0]) && !isNaN(parts[1]) && !isNaN(parts[2])) {

@@ -49,6 +49,7 @@ export async function PATCH(
     })
     return NextResponse.json(executive)
   } catch (error) {
+    console.error('Failed to update executive:', error)
     return NextResponse.json({ error: 'Failed to update executive' }, { status: 500 })
   }
 }
@@ -69,6 +70,7 @@ export async function DELETE(
     })
     return NextResponse.json({ message: 'Executive deleted' })
   } catch (error) {
+    console.error('Failed to delete executive:', error)
     return NextResponse.json({ error: 'Failed to delete executive' }, { status: 500 })
   }
 }

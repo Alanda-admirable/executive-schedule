@@ -26,14 +26,10 @@ interface Schedule {
 }
 
 import {
-  THAI_MONTHS,
-  THAI_DIGITS,
-  WEEKDAYS_TH,
   formatDateKey,
   toThaiDigits,
   thaiSmartBreak,
   formatThaiDateFull,
-  formatThaiTime,
   getSpans,
   getWeekdayHeaderStyle,
   getWeekdayBannerColor
@@ -48,18 +44,8 @@ export default function SchedulesAdmin() {
   const [isEditing, setIsEditing] = useState(false)
   const [downloadingImage, setDownloadingImage] = useState(false)
   const [currentSchedule, setCurrentSchedule] = useState<Partial<Schedule>>({})
-  const [activeField, setActiveField] = useState<'mission' | 'location' | 'agency' | 'dressCode' | null>(null)
 
-  // Suggestion states
-  const [historySuggestions, setHistorySuggestions] = useState<{
-    missions: string[],
-    locations: string[],
-    agencies: string[],
-    dressCodes: string[]
-  }>({ missions: [], locations: [], agencies: [], dressCodes: [] })
-  const [activeSuggestionField, setActiveSuggestionField] = useState<string | null>(null)
-
-  // Word-like Print Settings State
+  // Print Settings States (synced with localStorage & database)
   const [fontFamily, setFontFamily] = useState("'TH Sarabun New', 'TH Sarabun PSK', 'Sarabun', sans-serif")
   const [fontSize, setFontSize] = useState("16px")
   const [fontWeight, setFontWeight] = useState("normal")
@@ -71,16 +57,43 @@ export default function SchedulesAdmin() {
   const [cellPadding, setCellPadding] = useState("normal")
   const [fitToPage, setFitToPage] = useState(true)
   const [bannerFontSize, setBannerFontSize] = useState("20px")
-  const [columnLayout, setColumnLayout] = useState("auto")
-  
-  // Column Visibility State
+  const [columnLayout, setColumnLayout] = useState<'auto' | 'standard' | 'wide'>('auto')
+
+  // Column Visibility States (independent checkboxes)
   const [colTimeVisible, setColTimeVisible] = useState(true)
   const [colLocationVisible, setColLocationVisible] = useState(true)
   const [colAgencyVisible, setColAgencyVisible] = useState(true)
   const [colDressVisible, setColDressVisible] = useState(true)
 
+  // Smart suggestions history
+  const [historySuggestions, setHistorySuggestions] = useState<{
+    missions: string[],
+    locations: string[],
+    agencies: string[],
+    dressCodes: string[]
+  }>({ missions: [], locations: [], agencies: [], dressCodes: [] })
+
   // Live Print Preview Toggle
   const [printPreviewMode, setPrintPreviewMode] = useState(false)
+
+  // Suggestion field state
+  const [activeSuggestionField, setActiveSuggestionField] = useState<string | null>(null)
+
+  // Active focused input for context toolbar
+  const [activeField, setActiveField] = useState<'mission' | 'location' | 'agency' | 'dressCode' | null>(null)
+
+  // Get weekday index (0 = Sunday, 1 = Monday, ..., 6 = Saturday)
+  const getSelectedDayIndex = () => {
+    try {
+      const parts = selectedDate.split('-')
+      if (parts.length === 3) {
+        return new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2])).getDay()
+      }
+    } catch {}
+    return new Date().getDay()
+  }
+
+  const selectedDayIndex = getSelectedDayIndex();
 
   const getPreviewDateText = () => {
     if (!selectedDate) return ""
@@ -94,22 +107,12 @@ export default function SchedulesAdmin() {
     return formatThaiDateFull(date)
   }
 
-  const getSelectedDayIndex = () => {
-    if (!selectedDate) return 5;
-    const parts = selectedDate.split('-');
-    if (parts.length !== 3) return 5;
-    const date = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
-    return isNaN(date.getTime()) ? 5 : date.getDay();
-  }
-
-  const selectedDayIndex = getSelectedDayIndex();
-
   const insertTextAtCursor = (field: 'mission' | 'location' | 'agency' | 'dressCode', beforeStr: string, afterStr: string = '') => {
     const el = document.getElementById(`${field}-input`) as HTMLTextAreaElement;
     if (!el) return;
     const start = el.selectionStart;
     const end = el.selectionEnd;
-    const text = (currentSchedule as any)[field] || '';
+    const text = currentSchedule[field] || '';
     const selectedText = text.substring(start, end);
     const replacement = beforeStr + selectedText + afterStr;
     const newText = text.substring(0, start) + replacement + text.substring(end);
@@ -189,13 +192,6 @@ export default function SchedulesAdmin() {
 
   const headerStyle = getWeekdayHeaderStyle(selectedDayIndex);
 
-
-  useEffect(() => {
-    fetchExecutives()
-    loadPrintSettings()
-    fetchSuggestions()
-  }, [])
-
   const fetchSuggestions = async () => {
     try {
       const res = await fetch('/api/schedules/suggestions')
@@ -222,23 +218,19 @@ export default function SchedulesAdmin() {
     return list.filter(item => item.toLowerCase().includes(val)).slice(0, 6);
   }
 
-  useEffect(() => {
-    fetchSchedules()
-  }, [selectedDate])
-
   const fetchExecutives = async () => {
     const res = await fetch('/api/executives')
     const data = await res.json()
     setExecutives(data)
   }
 
-  const fetchSchedules = async () => {
+  const fetchSchedules = useCallback(async () => {
     setLoading(true)
     const res = await fetch(`/api/schedules?date=${selectedDate}`)
     const data = await res.json()
     setSchedules(data)
     setLoading(false)
-  }
+  }, [selectedDate])
 
   const loadPrintSettings = () => {
     const saved = localStorage.getItem('printSettings')
@@ -270,7 +262,7 @@ export default function SchedulesAdmin() {
     }
   }
 
-  const savePrintSettings = (updates: any) => {
+  const savePrintSettings = (updates: Record<string, unknown>) => {
     const currentConfig = {
       fontFamily,
       fontSize,
@@ -304,6 +296,18 @@ export default function SchedulesAdmin() {
     localStorage.setItem('printFontFamily', currentConfig.fontFamily)
     localStorage.setItem('printFontSize', currentConfig.fontSize)
   }
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchExecutives()
+    loadPrintSettings()
+    fetchSuggestions()
+  }, [])
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchSchedules()
+  }, [fetchSchedules])
 
   const handleResetSettings = () => {
     const defaultConfig = {
@@ -595,9 +599,6 @@ export default function SchedulesAdmin() {
     return '12px 10px' // normal
   }
 
-  // Count active columns
-  const activeColCount = 2 + (colTimeVisible ? 1 : 0) + (colLocationVisible ? 1 : 0) + (colAgencyVisible ? 1 : 0) + (colDressVisible ? 1 : 0)
-
   // Group schedules by executive for admin live preview
   const groupedPreviewSchedules = useMemo(() => {
     // Sort executives by order
@@ -612,10 +613,6 @@ export default function SchedulesAdmin() {
   }, [executives, schedules])
 
   // === SMART TABLE ALGORITHM ===
-
-  const totalVisibleRows = useMemo(() => {
-    return groupedPreviewSchedules.reduce((sum, g) => sum + Math.max(g.schedules.length, 1), 0)
-  }, [groupedPreviewSchedules])
 
   const smartColWidths = useMemo(() => {
     if (columnLayout === 'auto') {
@@ -892,7 +889,7 @@ export default function SchedulesAdmin() {
                         {(() => {
                           const { text: mText, align: mItemAlign } = extractItemAlign(s.mission);
                           const effectiveAlign = isDash(s.mission) ? 'center' : (mItemAlign || missionAlign || 'left');
-                          return <div style={{ whiteSpace: 'pre-wrap', textAlign: effectiveAlign as any }}>{renderText(mText)}</div>;
+                          return <div style={{ whiteSpace: 'pre-wrap', textAlign: effectiveAlign as 'left' | 'center' | 'right' }}>{renderText(mText)}</div>;
                         })()}
                       </td>
                       {colLocationVisible && locationSpans[index].show && (
@@ -903,7 +900,7 @@ export default function SchedulesAdmin() {
                           {(() => {
                             const { text: lText, align: lItemAlign } = extractItemAlign(s.location);
                             const effectiveAlign = isDash(s.location) ? 'center' : (lItemAlign || locationAlign || 'left');
-                            return <div style={{ whiteSpace: 'pre-wrap', textAlign: effectiveAlign as any }}>{renderText(lText)}</div>;
+                            return <div style={{ whiteSpace: 'pre-wrap', textAlign: effectiveAlign as 'left' | 'center' | 'right' }}>{renderText(lText)}</div>;
                           })()}
                         </td>
                       )}
@@ -915,7 +912,7 @@ export default function SchedulesAdmin() {
                           {(() => {
                             const { text: aText, align: aItemAlign } = extractItemAlign(s.agency);
                             const effectiveAlign = isDash(s.agency) ? 'center' : (aItemAlign || 'left');
-                            return <div style={{ whiteSpace: 'pre-wrap', textAlign: effectiveAlign as any }}>{renderText(aText)}</div>;
+                            return <div style={{ whiteSpace: 'pre-wrap', textAlign: effectiveAlign as 'left' | 'center' | 'right' }}>{renderText(aText)}</div>;
                           })()}
                         </td>
                       )}
@@ -927,7 +924,7 @@ export default function SchedulesAdmin() {
                           {(() => {
                             const { text: dText, align: dItemAlign } = extractItemAlign(s.dressCode);
                             const effectiveAlign = isDash(s.dressCode) ? 'center' : (dItemAlign || 'left');
-                            return <div style={{ whiteSpace: 'pre-wrap', textAlign: effectiveAlign as any }}>{renderText(dText)}</div>;
+                            return <div style={{ whiteSpace: 'pre-wrap', textAlign: effectiveAlign as 'left' | 'center' | 'right' }}>{renderText(dText)}</div>;
                           })()}
                         </td>
                       )}
@@ -1119,7 +1116,7 @@ export default function SchedulesAdmin() {
                       { key: 'center', label: '≡ กลาง', hint: 'จัดข้อความในช่องนี้ไว้กึ่งกลาง (ใส่ [center] ข้างหน้า)' },
                       { key: 'right', label: '≡ ขวา', hint: 'จัดข้อความในช่องนี้ชิดขวา (ใส่ [right] ข้างหน้า)' }
                     ].map(item => {
-                      const activeFieldVal = activeField ? (currentSchedule as any)[activeField] : '';
+                      const activeFieldVal = activeField ? (currentSchedule[activeField] || '') : '';
                       return (
                         <button 
                           key={item.key} 
@@ -1212,7 +1209,7 @@ export default function SchedulesAdmin() {
                             {(() => {
                               const { text: mText, align: mItemAlign } = extractItemAlign(mockSchedule.mission);
                               const effectiveAlign = isDash(mockSchedule.mission) ? 'center' : (mItemAlign || 'left');
-                              return <div style={{ whiteSpace: 'pre-wrap', textAlign: effectiveAlign as any }}>{renderText(mText)}</div>;
+                              return <div style={{ whiteSpace: 'pre-wrap', textAlign: effectiveAlign as 'left' | 'center' | 'right' }}>{renderText(mText)}</div>;
                             })()}
                           </td>
                           {colLocationVisible && (
@@ -1220,7 +1217,7 @@ export default function SchedulesAdmin() {
                               {(() => {
                                 const { text: lText, align: lItemAlign } = extractItemAlign(mockSchedule.location);
                                 const effectiveAlign = isDash(mockSchedule.location) ? 'center' : (lItemAlign || 'left');
-                                return <div style={{ whiteSpace: 'pre-wrap', textAlign: effectiveAlign as any }}>{renderText(lText)}</div>;
+                                return <div style={{ whiteSpace: 'pre-wrap', textAlign: effectiveAlign as 'left' | 'center' | 'right' }}>{renderText(lText)}</div>;
                               })()}
                             </td>
                           )}
@@ -1229,7 +1226,7 @@ export default function SchedulesAdmin() {
                               {(() => {
                                 const { text: aText, align: aItemAlign } = extractItemAlign(mockSchedule.agency);
                                 const effectiveAlign = isDash(mockSchedule.agency) ? 'center' : (aItemAlign || 'left');
-                                return <div style={{ whiteSpace: 'pre-wrap', textAlign: effectiveAlign as any }}>{renderText(aText)}</div>;
+                                return <div style={{ whiteSpace: 'pre-wrap', textAlign: effectiveAlign as 'left' | 'center' | 'right' }}>{renderText(aText)}</div>;
                               })()}
                             </td>
                           )}
@@ -1238,7 +1235,7 @@ export default function SchedulesAdmin() {
                               {(() => {
                                 const { text: dText, align: dItemAlign } = extractItemAlign(mockSchedule.dressCode);
                                 const effectiveAlign = isDash(mockSchedule.dressCode) ? 'center' : (dItemAlign || 'left');
-                                return <div style={{ whiteSpace: 'pre-wrap', textAlign: effectiveAlign as any }}>{renderText(dText)}</div>;
+                                return <div style={{ whiteSpace: 'pre-wrap', textAlign: effectiveAlign as 'left' | 'center' | 'right' }}>{renderText(dText)}</div>;
                               })()}
                             </td>
                           )}

@@ -56,6 +56,7 @@ export async function POST(request: Request) {
     })
     return NextResponse.json(executive)
   } catch (error) {
+    console.error('Failed to create executive:', error)
     return NextResponse.json({ error: 'Failed to create executive' }, { status: 500 })
   }
 }
