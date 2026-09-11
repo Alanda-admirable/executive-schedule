@@ -417,13 +417,18 @@ export default function SchedulesAdmin() {
       element.style.maxWidth = 'none';
       element.style.overflow = 'visible';
       
-      // Dynamic safe scale: Target true 4K Ultra HD (3.0x scale) for razor-sharp "ชัดตาแตก" output.
-      // Strictly ensure maximum canvas dimension does not exceed 3840px to stay safely under mobile GPU limits (4096px).
+      // Dynamic device-aware scale: 
+      // - Desktop: Canvas limit is 16,384px+, so we safely scale to 4.0x (5,120px / 5K Super Print Resolution) for maximum possible sharpness.
+      // - Mobile: Limited to 4,096px GPU limit, so we scale to 3.0x (3,840px / 4K Ultra HD).
+      const isMobile = typeof navigator !== 'undefined' && /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+      const targetMaxDim = isMobile ? 3840 : 5120;
+      const maxScale = isMobile ? 3.0 : 4.0;
+
       const actualHeight = element.scrollHeight || 600;
       const maxDim = Math.max(targetWidth, actualHeight);
-      const safeScale = maxDim * 3.0 <= 3840 
-        ? 3.0 
-        : Math.min(3.0, Math.max(2.0, Math.floor((3840 / maxDim) * 10) / 10));
+      const safeScale = maxDim * maxScale <= targetMaxDim 
+        ? maxScale 
+        : Math.min(maxScale, Math.max(2.0, Math.floor((targetMaxDim / maxDim) * 10) / 10));
 
       const canvas = await html2canvas(element, {
         scrollY: 0,
@@ -471,12 +476,13 @@ export default function SchedulesAdmin() {
             bannerEl.style.maxWidth = '100%';
           }
 
-          // Apply top-level font smoothing
+          // Apply top-level font smoothing and high contrast
           clonedDoc.body.style.setProperty('-webkit-font-smoothing', 'antialiased', 'important');
           clonedDoc.body.style.setProperty('-moz-osx-font-smoothing', 'grayscale', 'important');
           clonedDoc.body.style.setProperty('text-rendering', 'optimizeLegibility', 'important');
 
           // Force relative positioning and background-clip on all table cells to resolve html2canvas rowspan border bugs
+          // Apply subtle stroke reinforcement to prevent delicate Thai fonts (TH Sarabun New) from looking hairline-thin
           const cells = clonedDoc.querySelectorAll('.preview-table th, .preview-table td');
           cells.forEach(cell => {
             const el = cell as HTMLElement;
@@ -485,6 +491,7 @@ export default function SchedulesAdmin() {
             el.style.setProperty('-webkit-font-smoothing', 'antialiased', 'important');
             el.style.setProperty('-moz-osx-font-smoothing', 'grayscale', 'important');
             el.style.setProperty('text-rendering', 'optimizeLegibility', 'important');
+            el.style.setProperty('-webkit-text-stroke', '0.15px currentColor');
           });
 
           // Ensure all table rows are transparent during capture to prevent them from overlaying spanned cells
