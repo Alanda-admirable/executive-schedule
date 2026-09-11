@@ -80,33 +80,33 @@ export default function AdminLayoutClient({
           </div>
         </div>
 
-        <ul className="admin-nav-links" style={{ flex: 1 }}>
+        <ul className="admin-nav-links" style={{ flex: '1 0 auto' }}>
           <li>
-            <Link href="/admin" className={pathname === '/admin' ? 'active' : ''}>
+            <Link href="/admin" className={pathname === '/admin' ? 'active' : ''} onClick={() => { if (window.innerWidth < 1024) setIsCollapsed(true); }}>
               📊 ภาพรวมระบบ
             </Link>
           </li>
           {isAdmin && (
             <li>
-              <Link href="/admin/executives" className={pathname === '/admin/executives' ? 'active' : ''}>
+              <Link href="/admin/executives" className={pathname === '/admin/executives' ? 'active' : ''} onClick={() => { if (window.innerWidth < 1024) setIsCollapsed(true); }}>
                 👤 ข้อมูลผู้บริหาร
               </Link>
             </li>
           )}
           <li>
-            <Link href="/admin/schedules" className={pathname === '/admin/schedules' ? 'active' : ''}>
+            <Link href="/admin/schedules" className={pathname === '/admin/schedules' ? 'active' : ''} onClick={() => { if (window.innerWidth < 1024) setIsCollapsed(true); }}>
               📅 จัดการวาระงาน
             </Link>
           </li>
           {isAdmin && (
             <li>
-              <Link href="/admin/users" className={pathname === '/admin/users' ? 'active' : ''}>
+              <Link href="/admin/users" className={pathname === '/admin/users' ? 'active' : ''} onClick={() => { if (window.innerWidth < 1024) setIsCollapsed(true); }}>
                 🔑 จัดการสิทธิ์เจ้าหน้าที่
               </Link>
             </li>
           )}
           <li style={{ marginTop: '20px', borderTop: '1px solid #1e293b', paddingTop: '10px' }}>
-            <Link href="/">
+            <Link href="/" onClick={() => { if (window.innerWidth < 1024) setIsCollapsed(true); }}>
               🌐 ไปหน้าเว็บสาธารณะ
             </Link>
           </li>

@@ -356,7 +356,7 @@ export default function SchedulesAdmin() {
   }
 
   const handleDownloadImage = async () => {
-    const element = document.getElementById('admin-print-preview-container');
+    const element = document.getElementById('admin-print-preview-page');
     if (!element) return;
     
     try {
@@ -439,7 +439,7 @@ export default function SchedulesAdmin() {
             const el = cell as HTMLElement;
             el.style.position = 'relative';
             el.style.backgroundClip = 'padding-box';
-            (el.style as any).webkitFontSmoothing = 'antialiased';
+            el.style.setProperty('-webkit-font-smoothing', 'antialiased');
           });
           // Ensure all table rows are transparent during capture to prevent them from overlaying spanned cells
           const rows = clonedDoc.querySelectorAll('.preview-table tr');
@@ -475,8 +475,8 @@ export default function SchedulesAdmin() {
             });
             sharedSuccessfully = true;
           }
-        } catch (shareError: any) {
-          if (shareError?.name === 'AbortError') {
+        } catch (shareError: unknown) {
+          if ((shareError as Error)?.name === 'AbortError') {
             // User dismissed share sheet
             return;
           }
