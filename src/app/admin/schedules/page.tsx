@@ -389,8 +389,8 @@ export default function SchedulesAdmin() {
         exactWidth = contentWidth + paddingX;
       }
 
-      // Enforce standard minimum width of 1240px for clean landscape render
-      const targetWidth = Math.max(1240, exactWidth);
+      // Enforce standard minimum width of 1280px for clean landscape render
+      const targetWidth = Math.max(1280, exactWidth);
 
       // Save scroll positions and scroll to top
       const originalScrollTop = element.scrollTop;
@@ -402,20 +402,24 @@ export default function SchedulesAdmin() {
       element.scrollLeft = 0;
       window.scrollTo(0, 0);
 
-      // Force element to expand to full height
+      // Force element to expand to full height and snug padding (remove aspect-ratio and excessive 20mm margin)
       element.style.setProperty('height', 'auto', 'important');
+      element.style.setProperty('min-height', '0', 'important');
       element.style.setProperty('max-height', 'none', 'important');
       element.style.setProperty('aspect-ratio', 'auto', 'important');
+      element.style.setProperty('padding', '16px 20px', 'important');
 
       element.style.width = targetWidth + 'px';
       element.style.maxWidth = 'none';
       element.style.overflow = 'visible';
       
-      // Dynamic safe scale: keep maximum canvas dimension <= 3840px
-      // to avoid iOS WebKit / Android GPU 4096px downsampling/blur limit, while giving 2K/Retina sharpness.
-      const estimatedHeight = element.scrollHeight || 1500;
-      const maxDim = Math.max(targetWidth, estimatedHeight);
-      const safeScale = Math.min(2.5, Math.max(1.5, Math.floor((3840 / maxDim) * 10) / 10));
+      // Dynamic safe scale: Target true 4K Ultra HD (3.0x scale) for razor-sharp "ชัดตาแตก" output.
+      // Strictly ensure maximum canvas dimension does not exceed 3840px to stay safely under mobile GPU limits (4096px).
+      const actualHeight = element.scrollHeight || 600;
+      const maxDim = Math.max(targetWidth, actualHeight);
+      const safeScale = maxDim * 3.0 <= 3840 
+        ? 3.0 
+        : Math.min(3.0, Math.max(2.0, Math.floor((3840 / maxDim) * 10) / 10));
 
       const canvas = await html2canvas(element, {
         scrollY: 0,
@@ -424,28 +428,72 @@ export default function SchedulesAdmin() {
         useCORS: true,
         allowTaint: true,
         backgroundColor: '#ffffff',
-        windowWidth: 1280,
+        windowWidth: Math.max(1280, targetWidth + 64),
         onclone: (clonedDoc) => {
           const pageEl = clonedDoc.getElementById('admin-print-preview-page');
           if (pageEl) {
             pageEl.style.transform = 'none';
             pageEl.style.boxShadow = 'none';
+            pageEl.style.border = 'none';
+            pageEl.style.borderRadius = '0';
             pageEl.style.width = targetWidth + 'px';
+            pageEl.style.minWidth = targetWidth + 'px';
             pageEl.style.maxWidth = 'none';
+            pageEl.style.setProperty('height', 'auto', 'important');
+            pageEl.style.setProperty('min-height', '0', 'important');
+            pageEl.style.setProperty('max-height', 'none', 'important');
+            pageEl.style.setProperty('aspect-ratio', 'auto', 'important');
+            pageEl.style.setProperty('padding', '16px 20px', 'important');
+            pageEl.style.setProperty('margin', '0', 'important');
+            pageEl.style.setProperty('background', '#ffffff', 'important');
+            pageEl.style.setProperty('overflow', 'visible', 'important');
           }
+
+          // Ensure table and banner fill 100% of width
+          const tableEl = clonedDoc.querySelector('.preview-table') as HTMLElement;
+          if (tableEl) {
+            tableEl.style.width = '100%';
+            tableEl.style.maxWidth = '100%';
+          }
+          const bannerContainer = clonedDoc.querySelector('.preview-banner-container') as HTMLElement;
+          if (bannerContainer) {
+            bannerContainer.style.width = '100%';
+            bannerContainer.style.maxWidth = '100%';
+            bannerContainer.style.setProperty('margin-bottom', '12px', 'important');
+          }
+          const bannerEl = clonedDoc.querySelector('.preview-banner') as HTMLElement;
+          if (bannerEl) {
+            bannerEl.style.width = '100%';
+            bannerEl.style.maxWidth = '100%';
+          }
+
+          // Apply top-level font smoothing
+          clonedDoc.body.style.setProperty('-webkit-font-smoothing', 'antialiased', 'important');
+          clonedDoc.body.style.setProperty('-moz-osx-font-smoothing', 'grayscale', 'important');
+          clonedDoc.body.style.setProperty('text-rendering', 'optimizeLegibility', 'important');
+
           // Force relative positioning and background-clip on all table cells to resolve html2canvas rowspan border bugs
           const cells = clonedDoc.querySelectorAll('.preview-table th, .preview-table td');
           cells.forEach(cell => {
             const el = cell as HTMLElement;
             el.style.position = 'relative';
             el.style.backgroundClip = 'padding-box';
-            el.style.setProperty('-webkit-font-smoothing', 'antialiased');
+            el.style.setProperty('-webkit-font-smoothing', 'antialiased', 'important');
+            el.style.setProperty('-moz-osx-font-smoothing', 'grayscale', 'important');
+            el.style.setProperty('text-rendering', 'optimizeLegibility', 'important');
           });
+
           // Ensure all table rows are transparent during capture to prevent them from overlaying spanned cells
           const rows = clonedDoc.querySelectorAll('.preview-table tr');
           rows.forEach(row => {
             const el = row as HTMLElement;
             el.style.backgroundColor = 'transparent';
+          });
+
+          // Optimize images for contrast and sharpness
+          const imgs = clonedDoc.querySelectorAll('img');
+          imgs.forEach(img => {
+            img.style.imageRendering = '-webkit-optimize-contrast';
           });
         }
       });

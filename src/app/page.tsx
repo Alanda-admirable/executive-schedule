@@ -265,12 +265,16 @@ export default function PublicSchedulePage() {
       }
       
       // On mobile devices, width might be small (<1200px) which squeezes table columns.
-      // We enforce standard document width (minimum 1240px) for official landscape capture.
-      const targetWidth = Math.max(1240, exactWidth);
+      // Enforce standard document width (minimum 1280px) for clean landscape capture.
+      const targetWidth = Math.max(1280, exactWidth);
       
       element.style.width = targetWidth + 'px';
       element.style.maxWidth = 'none';
       element.style.overflow = 'visible';
+      element.style.setProperty('padding', '16px 20px', 'important');
+      element.style.setProperty('height', 'auto', 'important');
+      element.style.setProperty('min-height', '0', 'important');
+      element.style.setProperty('max-height', 'none', 'important');
       if (responsiveWrapper) {
         responsiveWrapper.style.overflowX = 'visible';
       }
@@ -279,11 +283,13 @@ export default function PublicSchedulePage() {
       element.scrollLeft = 0;
       window.scrollTo(0, 0);
       
-      // Dynamic safe scale: keep maximum canvas dimension <= 3840px
-      // to avoid iOS WebKit / Android GPU 4096px downsampling/blur limit, while giving 2K/Retina sharpness.
-      const estimatedHeight = element.scrollHeight || 1500;
-      const maxDim = Math.max(targetWidth, estimatedHeight);
-      const safeScale = Math.min(2.5, Math.max(1.5, Math.floor((3840 / maxDim) * 10) / 10));
+      // Dynamic safe scale: Target true 4K Ultra HD (3.0x scale) for razor-sharp "ชัดตาแตก" output.
+      // Strictly ensure maximum canvas dimension does not exceed 3840px to stay safely under mobile GPU limits (4096px).
+      const actualHeight = element.scrollHeight || 600;
+      const maxDim = Math.max(targetWidth, actualHeight);
+      const safeScale = maxDim * 3.0 <= 3840 
+        ? 3.0 
+        : Math.min(3.0, Math.max(2.0, Math.floor((3840 / maxDim) * 10) / 10));
       
       const canvas = await html2canvas(element, {
         scrollY: 0,
@@ -292,17 +298,28 @@ export default function PublicSchedulePage() {
         useCORS: true,
         allowTaint: true,
         backgroundColor: '#ffffff',
-        windowWidth: 1280,
+        windowWidth: Math.max(1280, targetWidth + 64),
         onclone: (clonedDoc) => {
           const container = clonedDoc.getElementById('schedule-table-container');
           if (container) {
             container.style.width = targetWidth + 'px';
+            container.style.minWidth = targetWidth + 'px';
             container.style.maxWidth = 'none';
             container.style.overflow = 'visible';
             container.style.border = 'none';
             container.style.borderRadius = '0';
+            container.style.boxShadow = 'none';
+            container.style.setProperty('padding', '16px 20px', 'important');
+            container.style.setProperty('height', 'auto', 'important');
+            container.style.setProperty('min-height', '0', 'important');
+            container.style.setProperty('background', '#ffffff', 'important');
           }
           
+          // Apply top-level font smoothing
+          clonedDoc.body.style.setProperty('-webkit-font-smoothing', 'antialiased', 'important');
+          clonedDoc.body.style.setProperty('-moz-osx-font-smoothing', 'grayscale', 'important');
+          clonedDoc.body.style.setProperty('text-rendering', 'optimizeLegibility', 'important');
+
           // Force all columns visible in clone even if mobile media query is active
           const allHiddenCells = clonedDoc.querySelectorAll('.th-agency, .td-agency, .th-dress, .td-dress');
           allHiddenCells.forEach(cell => {
@@ -314,12 +331,20 @@ export default function PublicSchedulePage() {
             const el = cell as HTMLElement;
             el.style.position = 'relative';
             el.style.backgroundClip = 'padding-box';
-            el.style.setProperty('-webkit-font-smoothing', 'antialiased');
+            el.style.setProperty('-webkit-font-smoothing', 'antialiased', 'important');
+            el.style.setProperty('-moz-osx-font-smoothing', 'grayscale', 'important');
+            el.style.setProperty('text-rendering', 'optimizeLegibility', 'important');
           });
           const rows = clonedDoc.querySelectorAll('.schedule-row');
           rows.forEach(row => {
             const el = row as HTMLElement;
             el.style.backgroundColor = 'transparent';
+          });
+
+          // Optimize images for contrast and sharpness
+          const imgs = clonedDoc.querySelectorAll('img');
+          imgs.forEach(img => {
+            img.style.imageRendering = '-webkit-optimize-contrast';
           });
         }
       });
