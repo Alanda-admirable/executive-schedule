@@ -320,10 +320,35 @@ export default function PublicSchedulePage() {
             container.style.setProperty('background', '#ffffff', 'important');
           }
           
+          // Explicitly inject font-face declarations into cloned iframe for crystal-clear glyph rendering
+          try {
+            const fontStyleEl = clonedDoc.createElement('style');
+            fontStyleEl.textContent = `
+              @font-face {
+                font-family: 'TH Sarabun New';
+                src: url('/fonts/THSarabunNew.ttf') format('truetype');
+                font-weight: normal;
+                font-style: normal;
+              }
+              @font-face {
+                font-family: 'TH Sarabun New';
+                src: url('/fonts/THSarabunNew-Bold.ttf') format('truetype');
+                font-weight: bold;
+                font-style: normal;
+              }
+              * {
+                -webkit-font-smoothing: antialiased !important;
+                -moz-osx-font-smoothing: grayscale !important;
+                text-rendering: geometricPrecision !important;
+              }
+            `;
+            clonedDoc.head.appendChild(fontStyleEl);
+          } catch {}
+
           // Apply top-level font smoothing and high contrast
           clonedDoc.body.style.setProperty('-webkit-font-smoothing', 'antialiased', 'important');
           clonedDoc.body.style.setProperty('-moz-osx-font-smoothing', 'grayscale', 'important');
-          clonedDoc.body.style.setProperty('text-rendering', 'optimizeLegibility', 'important');
+          clonedDoc.body.style.setProperty('text-rendering', 'geometricPrecision', 'important');
 
           // Force all columns visible in clone even if mobile media query is active
           const allHiddenCells = clonedDoc.querySelectorAll('.th-agency, .td-agency, .th-dress, .td-dress');
@@ -339,7 +364,7 @@ export default function PublicSchedulePage() {
             el.style.backgroundClip = 'padding-box';
             el.style.setProperty('-webkit-font-smoothing', 'antialiased', 'important');
             el.style.setProperty('-moz-osx-font-smoothing', 'grayscale', 'important');
-            el.style.setProperty('text-rendering', 'optimizeLegibility', 'important');
+            el.style.setProperty('text-rendering', 'geometricPrecision', 'important');
             el.style.setProperty('-webkit-text-stroke', '0.15px currentColor');
           });
           const rows = clonedDoc.querySelectorAll('.schedule-row');
@@ -685,7 +710,7 @@ export default function PublicSchedulePage() {
                                 <tr 
                                   key={`empty-${exec.id}`} 
                                   className="schedule-row" 
-                                  style={{ color: exec.color === '#000000' ? '#1e293b' : exec.color }}
+                                  style={{ color: exec.color || '#000000' }}
                                 >
                                   <td className="td-exec" style={{ padding: getPaddingStyle() }}>
                                     <div className="exec-name" style={{ whiteSpace: 'pre-wrap' }}>{renderText(exec.name)}</div>
@@ -712,7 +737,7 @@ export default function PublicSchedulePage() {
                               <tr 
                                 key={s.id} 
                                 className="schedule-row" 
-                                style={{ color: exec.color === '#000000' ? '#1e293b' : exec.color }}
+                                style={{ color: exec.color || '#000000' }}
                               >
                                 {index === 0 && (
                                   <td 

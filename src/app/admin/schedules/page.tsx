@@ -48,7 +48,7 @@ export default function SchedulesAdmin() {
   // Print Settings States (synced with localStorage & database)
   const [fontFamily, setFontFamily] = useState("'TH Sarabun New', 'TH Sarabun PSK', 'Sarabun', sans-serif")
   const [fontSize, setFontSize] = useState("16px")
-  const [fontWeight, setFontWeight] = useState("normal")
+  const [fontWeight, setFontWeight] = useState("bold")
   const [fontStyle, setFontStyle] = useState("normal")
   const [textDecoration, setTextDecoration] = useState("none")
   const [missionAlign, setMissionAlign] = useState("left")
@@ -313,7 +313,7 @@ export default function SchedulesAdmin() {
     const defaultConfig = {
       fontFamily: "'TH Sarabun New', 'TH Sarabun PSK', 'Sarabun', sans-serif",
       fontSize: "16px",
-      fontWeight: "normal",
+      fontWeight: "bold",
       fontStyle: "normal",
       textDecoration: "none",
       missionAlign: "left",
@@ -476,10 +476,35 @@ export default function SchedulesAdmin() {
             bannerEl.style.maxWidth = '100%';
           }
 
+          // Explicitly inject font-face declarations into cloned iframe for crystal-clear glyph rendering
+          try {
+            const fontStyleEl = clonedDoc.createElement('style');
+            fontStyleEl.textContent = `
+              @font-face {
+                font-family: 'TH Sarabun New';
+                src: url('/fonts/THSarabunNew.ttf') format('truetype');
+                font-weight: normal;
+                font-style: normal;
+              }
+              @font-face {
+                font-family: 'TH Sarabun New';
+                src: url('/fonts/THSarabunNew-Bold.ttf') format('truetype');
+                font-weight: bold;
+                font-style: normal;
+              }
+              * {
+                -webkit-font-smoothing: antialiased !important;
+                -moz-osx-font-smoothing: grayscale !important;
+                text-rendering: geometricPrecision !important;
+              }
+            `;
+            clonedDoc.head.appendChild(fontStyleEl);
+          } catch {}
+
           // Apply top-level font smoothing and high contrast
           clonedDoc.body.style.setProperty('-webkit-font-smoothing', 'antialiased', 'important');
           clonedDoc.body.style.setProperty('-moz-osx-font-smoothing', 'grayscale', 'important');
-          clonedDoc.body.style.setProperty('text-rendering', 'optimizeLegibility', 'important');
+          clonedDoc.body.style.setProperty('text-rendering', 'geometricPrecision', 'important');
 
           // Force relative positioning and background-clip on all table cells to resolve html2canvas rowspan border bugs
           // Apply subtle stroke reinforcement to prevent delicate Thai fonts (TH Sarabun New) from looking hairline-thin
@@ -490,7 +515,7 @@ export default function SchedulesAdmin() {
             el.style.backgroundClip = 'padding-box';
             el.style.setProperty('-webkit-font-smoothing', 'antialiased', 'important');
             el.style.setProperty('-moz-osx-font-smoothing', 'grayscale', 'important');
-            el.style.setProperty('text-rendering', 'optimizeLegibility', 'important');
+            el.style.setProperty('text-rendering', 'geometricPrecision', 'important');
             el.style.setProperty('-webkit-text-stroke', '0.15px currentColor');
           });
 
@@ -857,10 +882,10 @@ export default function SchedulesAdmin() {
                   
                   if (execSchedules.length === 0) {
                     return (
-                      <tr key={exec.id} style={{ color: exec.color === '#000000' ? '#1e293b' : exec.color }}>
+                      <tr key={exec.id} style={{ color: exec.color || '#000000' }}>
                         <td style={{ padding: getPaddingStyle(), textAlign: 'center', fontWeight: 'inherit', verticalAlign: 'top', whiteSpace: 'nowrap' }}>
-                          <div style={{ color: exec.color === '#000000' ? '#1e293b' : exec.color }}>{exec.name}</div>
-                          <div style={{ fontWeight: 'inherit', color: exec.color === '#000000' ? '#1e293b' : exec.color }}>{exec.title}</div>
+                          <div style={{ color: exec.color || '#000000' }}>{exec.name}</div>
+                          <div style={{ fontWeight: 'inherit', color: exec.color || '#000000' }}>{exec.title}</div>
                         </td>
                         {colTimeVisible && <td style={{ padding: getPaddingStyle(), textAlign: 'center', fontWeight: 'inherit', verticalAlign: 'top' }}>-</td>}
                         <td style={{ padding: getPaddingStyle(), textAlign: missionAlign === 'center' ? 'center' : 'left', fontWeight: 'inherit', verticalAlign: 'top' }}>ปฏิบัติราชการปกติ</td>
@@ -877,14 +902,14 @@ export default function SchedulesAdmin() {
                   const locationSpans = getSpans(execSchedules, 'location');
 
                   return execSchedules.map((s, index) => (
-                    <tr key={s.id} style={{ color: exec.color === '#000000' ? '#1e293b' : exec.color }}>
+                    <tr key={s.id} style={{ color: exec.color || '#000000' }}>
                       {index === 0 && (
                         <td 
                           rowSpan={execSchedules.length}
                           style={{ padding: getPaddingStyle(), textAlign: 'center', fontWeight: 'inherit', verticalAlign: 'middle', whiteSpace: 'nowrap' }}
                         >
-                          <div style={{ color: exec.color === '#000000' ? '#1e293b' : exec.color }}>{exec.name}</div>
-                          <div style={{ fontWeight: 'inherit', color: exec.color === '#000000' ? '#1e293b' : exec.color }}>{exec.title}</div>
+                          <div style={{ color: exec.color || '#000000' }}>{exec.name}</div>
+                          <div style={{ fontWeight: 'inherit', color: exec.color || '#000000' }}>{exec.title}</div>
                         </td>
                       )}
                       {colTimeVisible && (
