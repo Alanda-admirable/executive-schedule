@@ -39,16 +39,8 @@ import {
   THAI_DIGITS,
   WEEKDAYS_TH,
   WEEKDAYS_SHORT_TH,
-  formatDateKey,
-  toThaiDigits,
   thaiSmartBreak,
-  formatThaiDateFull,
-  formatThaiTime,
-  extractItemAlign,
-  isDash,
-  getSpans,
-  getWeekdayHeaderStyle,
-  getWeekdayBannerColor
+  getSpans
 } from '@/lib/thai-utils'
 
 export default function PublicSchedulePage() {
@@ -81,26 +73,27 @@ export default function PublicSchedulePage() {
   const [colAgencyVisible, setColAgencyVisible] = useState(true)
   const [colDressVisible, setColDressVisible] = useState(true)
 
-  const applyPrintSettings = (config: any) => {
+  const applyPrintSettings = (config: Record<string, unknown> | null | undefined) => {
     if (!config) return
-    if (config.fontFamily) setPrintFontFamily(config.fontFamily)
-    if (config.fontSize) setPrintFontSize(config.fontSize)
-    if (config.fontWeight) setPrintFontWeight(config.fontWeight)
-    if (config.fontStyle) setPrintFontStyle(config.fontStyle)
-    if (config.textDecoration) setPrintTextDecoration(config.textDecoration)
-    if (config.missionAlign) setPrintMissionAlign(config.missionAlign)
-    if (config.locationAlign) setPrintLocationAlign(config.locationAlign)
-    if (config.lineHeight) setPrintLineHeight(config.lineHeight)
-    if (config.cellPadding) setPrintCellPadding(config.cellPadding)
-    if (config.fitToPage !== undefined) setFitToPage(config.fitToPage)
-    if (config.bannerFontSize) setPrintBannerFontSize(config.bannerFontSize)
-    if (config.columnLayout) setPrintColumnLayout(config.columnLayout)
+    if (typeof config.fontFamily === 'string') setPrintFontFamily(config.fontFamily)
+    if (typeof config.fontSize === 'string') setPrintFontSize(config.fontSize)
+    if (typeof config.fontWeight === 'string') setPrintFontWeight(config.fontWeight)
+    if (typeof config.fontStyle === 'string') setPrintFontStyle(config.fontStyle)
+    if (typeof config.textDecoration === 'string') setPrintTextDecoration(config.textDecoration)
+    if (typeof config.missionAlign === 'string') setPrintMissionAlign(config.missionAlign)
+    if (typeof config.locationAlign === 'string') setPrintLocationAlign(config.locationAlign)
+    if (typeof config.lineHeight === 'string') setPrintLineHeight(config.lineHeight)
+    if (typeof config.cellPadding === 'string') setPrintCellPadding(config.cellPadding)
+    if (typeof config.fitToPage === 'boolean') setFitToPage(config.fitToPage)
+    if (typeof config.bannerFontSize === 'string') setPrintBannerFontSize(config.bannerFontSize)
+    if (typeof config.columnLayout === 'string') setPrintColumnLayout(config.columnLayout)
     
-    if (config.visibleColumns) {
-      setColTimeVisible(config.visibleColumns.time !== false)
-      setColLocationVisible(config.visibleColumns.location !== false)
-      setColAgencyVisible(config.visibleColumns.agency !== false)
-      setColDressVisible(config.visibleColumns.dress !== false)
+    if (config.visibleColumns && typeof config.visibleColumns === 'object') {
+      const vc = config.visibleColumns as Record<string, boolean | undefined>
+      setColTimeVisible(vc.time !== false)
+      setColLocationVisible(vc.location !== false)
+      setColAgencyVisible(vc.agency !== false)
+      setColDressVisible(vc.dress !== false)
     }
   }
 
@@ -155,49 +148,6 @@ export default function PublicSchedulePage() {
     return cleaned === '-';
   }
 
-  // Real-time settings synchronizer from Admin tab via LocalStorage event
-  useEffect(() => {
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'printSettings' && e.newValue) {
-        try {
-          applyPrintSettings(JSON.parse(e.newValue))
-        } catch (err) {
-          console.error("Error loading print settings from storage event", err)
-        }
-      }
-    }
-    window.addEventListener('storage', handleStorageChange)
-    return () => window.removeEventListener('storage', handleStorageChange)
-  }, [])
-
-  useEffect(() => {
-    fetchThemes()
-    fetchExecutives()
-    
-    // Load print settings from LocalStorage
-    const saved = localStorage.getItem('printSettings')
-    if (saved) {
-      try {
-        applyPrintSettings(JSON.parse(saved))
-      } catch (e) {
-        console.error("Error loading print settings", e)
-      }
-    } else {
-      const savedFont = localStorage.getItem('printFontFamily')
-      const savedSize = localStorage.getItem('printFontSize')
-      if (savedFont) setPrintFontFamily(savedFont)
-      if (savedSize) setPrintFontSize(savedSize)
-    }
-  }, [])
-
-  useEffect(() => {
-    fetchSchedules()
-  }, [selectedDate])
-
-  useEffect(() => {
-    fetchMonthSchedules()
-  }, [currentViewDate])
-
   const fetchThemes = async () => {
     const res = await fetch('/api/themes')
     const data = await res.json()
@@ -226,12 +176,69 @@ export default function PublicSchedulePage() {
     setMonthSchedules(data)
   }
 
+  // Real-time settings synchronizer from Admin tab via LocalStorage event
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'printSettings' && e.newValue) {
+        try {
+          applyPrintSettings(JSON.parse(e.newValue))
+        } catch (err) {
+          console.error("Error loading print settings from storage event", err)
+        }
+      }
+    }
+    window.addEventListener('storage', handleStorageChange)
+    return () => window.removeEventListener('storage', handleStorageChange)
+  }, [])
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchThemes()
+    fetchExecutives()
+    
+    // Load print settings from LocalStorage
+    const saved = localStorage.getItem('printSettings')
+    if (saved) {
+      try {
+        applyPrintSettings(JSON.parse(saved))
+      } catch (e) {
+        console.error("Error loading print settings", e)
+      }
+    } else {
+      const savedFont = localStorage.getItem('printFontFamily')
+      const savedSize = localStorage.getItem('printFontSize')
+      if (savedFont) setPrintFontFamily(savedFont)
+      if (savedSize) setPrintFontSize(savedSize)
+    }
+  }, [])
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchSchedules()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedDate])
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchMonthSchedules()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentViewDate])
+
   const handleDownloadImage = async () => {
     const element = document.getElementById('schedule-table-container');
     if (!element) return;
     
     try {
-      setDownloadingImage(true)
+      setDownloadingImage(true);
+
+      // Ensure Thai web fonts are fully loaded before capturing
+      if (typeof document !== 'undefined' && document.fonts && document.fonts.ready) {
+        try {
+          await document.fonts.ready;
+        } catch {
+          // Ignore font loading errors
+        }
+      }
       
       const responsiveWrapper = element.querySelector('.table-responsive') as HTMLElement;
       const originalResponsiveStyle = responsiveWrapper ? responsiveWrapper.getAttribute('style') || '' : '';
@@ -257,7 +264,11 @@ export default function PublicSchedulePage() {
         exactWidth = contentWidth + paddingX;
       }
       
-      element.style.width = exactWidth + 'px';
+      // On mobile devices, width might be small (<1200px) which squeezes table columns.
+      // We enforce standard document width (minimum 1240px) for official landscape capture.
+      const targetWidth = Math.max(1240, exactWidth);
+      
+      element.style.width = targetWidth + 'px';
       element.style.maxWidth = 'none';
       element.style.overflow = 'visible';
       if (responsiveWrapper) {
@@ -268,27 +279,42 @@ export default function PublicSchedulePage() {
       element.scrollLeft = 0;
       window.scrollTo(0, 0);
       
+      // Dynamic safe scale: keep maximum canvas dimension <= 3840px
+      // to avoid iOS WebKit / Android GPU 4096px downsampling/blur limit, while giving 2K/Retina sharpness.
+      const estimatedHeight = element.scrollHeight || 1500;
+      const maxDim = Math.max(targetWidth, estimatedHeight);
+      const safeScale = Math.min(2.5, Math.max(1.5, Math.floor((3840 / maxDim) * 10) / 10));
+      
       const canvas = await html2canvas(element, {
         scrollY: 0,
         scrollX: 0,
-        scale: 4,
+        scale: safeScale,
         useCORS: true,
         allowTaint: true,
         backgroundColor: '#ffffff',
-        windowWidth: 2400,
+        windowWidth: 1280,
         onclone: (clonedDoc) => {
           const container = clonedDoc.getElementById('schedule-table-container');
           if (container) {
+            container.style.width = targetWidth + 'px';
+            container.style.maxWidth = 'none';
+            container.style.overflow = 'visible';
             container.style.border = 'none';
             container.style.borderRadius = '0';
           }
           
+          // Force all columns visible in clone even if mobile media query is active
+          const allHiddenCells = clonedDoc.querySelectorAll('.th-agency, .td-agency, .th-dress, .td-dress');
+          allHiddenCells.forEach(cell => {
+            (cell as HTMLElement).style.setProperty('display', 'table-cell', 'important');
+          });
+
           const cells = clonedDoc.querySelectorAll('.schedule-table th, .schedule-table td');
           cells.forEach(cell => {
             const el = cell as HTMLElement;
             el.style.position = 'relative';
             el.style.backgroundClip = 'padding-box';
-            (el.style as any).webkitFontSmoothing = 'antialiased';
+            el.style.setProperty('-webkit-font-smoothing', 'antialiased');
           });
           const rows = clonedDoc.querySelectorAll('.schedule-row');
           rows.forEach(row => {
@@ -304,12 +330,44 @@ export default function PublicSchedulePage() {
         responsiveWrapper.setAttribute('style', originalResponsiveStyle);
       }
       
-      const dataUrl = canvas.toDataURL('image/png');
-      const link = document.createElement('a');
+      // Generate Blob instead of huge Base64 data URL to avoid mobile memory issues
+      const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/png'));
+      if (!blob) throw new Error('Canvas toBlob failed');
+
       const dateKey = formatDateKey(selectedDate);
-      link.download = `วาระงานผู้บริหารปทุมธานี_${dateKey}.png`;
-      link.href = dataUrl;
-      link.click();
+      const fileName = `วาระงานผู้บริหารปทุมธานี_${dateKey}.png`;
+      
+      // Check for Web Share API with files (native iOS Safari & Android Chrome save to Photos / share to LINE)
+      let sharedSuccessfully = false;
+      if (typeof navigator !== 'undefined' && navigator.canShare && typeof File !== 'undefined') {
+        try {
+          const file = new File([blob], fileName, { type: 'image/png' });
+          if (navigator.canShare({ files: [file] })) {
+            await navigator.share({
+              files: [file],
+              title: 'วาระงานผู้บริหารจังหวัดปทุมธานี',
+            });
+            sharedSuccessfully = true;
+          }
+        } catch (shareError: unknown) {
+          if ((shareError as Error)?.name === 'AbortError') {
+            // User dismissed share sheet
+            return;
+          }
+          console.warn('Navigator share error, falling back to download link:', shareError);
+        }
+      }
+
+      if (!sharedSuccessfully) {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.download = fileName;
+        link.href = url;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        setTimeout(() => URL.revokeObjectURL(url), 10000);
+      }
     } catch (error) {
       console.error('Failed to download image', error);
       alert('เกิดข้อผิดพลาดในการสร้างไฟล์รูปภาพ');
@@ -560,7 +618,7 @@ export default function PublicSchedulePage() {
                       style={{ 
                         fontFamily: printFontFamily,
                         fontSize: printFontSize,
-                        fontWeight: 'bold',
+                        fontWeight: (printFontWeight as React.CSSProperties['fontWeight']) || 'bold',
                         fontStyle: printFontStyle,
                         textDecoration: printTextDecoration,
                         lineHeight: printLineHeight,
@@ -598,64 +656,66 @@ export default function PublicSchedulePage() {
                                   style={{ color: exec.color === '#000000' ? '#1e293b' : exec.color }}
                                 >
                                   <td className="td-exec" style={{ padding: getPaddingStyle() }}>
-                                    <div className="exec-name-cell">
-                                      <div className="exec-name" style={{ color: exec.color === '#000000' ? '#1e293b' : exec.color }}>
-                                        {exec.name}
-                                      </div>
-                                      <div className="exec-title" style={{ color: exec.color === '#000000' ? '#1e293b' : exec.color }}>{exec.title}</div>
-                                    </div>
+                                    <div className="exec-name" style={{ whiteSpace: 'pre-wrap' }}>{renderText(exec.name)}</div>
+                                    <div className="exec-title" style={{ whiteSpace: 'pre-wrap' }}>{renderText(exec.title)}</div>
                                   </td>
-                                  {colTimeVisible && <td className="td-time text-center font-bold" style={{ padding: getPaddingStyle() }}>-</td>}
-                                  <td className="td-mission" style={{ padding: getPaddingStyle(), textAlign: printMissionAlign === 'center' ? 'center' : 'left' }}>ปฏิบัติราชการปกติ</td>
-                                  {colLocationVisible && <td className="td-location" style={{ padding: getPaddingStyle(), textAlign: printLocationAlign === 'center' ? 'center' : 'left' }}>ศาลากลางจังหวัดปทุมธานี</td>}
+                                  {colTimeVisible && <td className="td-time text-center" style={{ padding: getPaddingStyle() }}>-</td>}
+                                  <td className="td-mission text-center" style={{ padding: getPaddingStyle() }}>
+                                    <span className="badge-normal">ปฏิบัติราชการปกติ</span>
+                                  </td>
+                                  {colLocationVisible && <td className="td-location text-center" style={{ padding: getPaddingStyle() }}>-</td>}
                                   {colAgencyVisible && <td className="td-agency text-center" style={{ padding: getPaddingStyle() }}>-</td>}
                                   {colDressVisible && <td className="td-dress text-center" style={{ padding: getPaddingStyle() }}>-</td>}
                                 </tr>
                               );
                             }
 
-                            // Precalculate spans for location, agency, and dressCode within this executive's list
-                            const agencySpans = getSpans(execSchedules, 'agency');
-                            const dressSpans = getSpans(execSchedules, s => s.dressCode);
-                            const locationSpans = getSpans(execSchedules, 'location');
+                            // Calculate identical spans for merging duplicate content
+                            const timeSpans = getSpans(execSchedules, s => `${s.startTime || ''}-${s.endTime || ''}`);
+                            const locationSpans = getSpans(execSchedules, s => s.location || '');
+                            const agencySpans = getSpans(execSchedules, s => s.agency || '');
+                            const dressSpans = getSpans(execSchedules, s => s.dressCode || '');
 
                             return execSchedules.map((s, index) => (
                               <tr 
                                 key={s.id} 
                                 className="schedule-row" 
-                                style={{ 
-                                  color: exec.color === '#000000' ? '#1e293b' : exec.color
-                                }}
+                                style={{ color: exec.color === '#000000' ? '#1e293b' : exec.color }}
                               >
                                 {index === 0 && (
                                   <td 
                                     className="td-exec" 
                                     rowSpan={execSchedules.length}
-                                    style={{ padding: getPaddingStyle() }}
+                                    style={{ padding: getPaddingStyle(), verticalAlign: execSchedules.length > 1 ? 'middle' : 'top' }}
                                   >
-                                    <div className="exec-name-cell">
-                                      <div className="exec-name" style={{ color: exec.color === '#000000' ? '#1e293b' : exec.color }}>
-                                        {exec.name}
-                                      </div>
-                                      <div className="exec-title" style={{ color: exec.color === '#000000' ? '#1e293b' : exec.color }}>{exec.title}</div>
-                                    </div>
+                                    <div className="exec-name" style={{ whiteSpace: 'pre-wrap' }}>{renderText(exec.name)}</div>
+                                    <div className="exec-title" style={{ whiteSpace: 'pre-wrap' }}>{renderText(exec.title)}</div>
                                   </td>
                                 )}
-                                {colTimeVisible && (
-                                  <td className="td-time text-center font-bold" style={{ padding: getPaddingStyle() }}>
-                                    {formatThaiTime(s.startTime)}
-                                    {s.endTime && s.endTime.trim() !== '-' && s.endTime.trim() !== '' && (
-                                      <div className="time-end-text">
-                                        ถึง {formatThaiTime(s.endTime)}
-                                      </div>
-                                    )}
+                                {colTimeVisible && timeSpans[index].show && (
+                                  <td 
+                                    className="td-time" 
+                                    rowSpan={timeSpans[index].span}
+                                    style={{ padding: getPaddingStyle(), verticalAlign: timeSpans[index].span > 1 ? 'middle' : 'top' }}
+                                  >
+                                    <div className="time-container">
+                                      <span className="time-start">{formatThaiTime(s.startTime)}</span>
+                                      {s.endTime && (
+                                        <span className="time-end-text">
+                                          ถึง {formatThaiTime(s.endTime)} น.
+                                        </span>
+                                      )}
+                                      {!s.endTime && s.startTime && !isDash(s.startTime) && (
+                                        <span className="time-end-text">น.</span>
+                                      )}
+                                    </div>
                                   </td>
                                 )}
                                 <td className="td-mission" style={{ padding: getPaddingStyle() }}>
                                   {(() => {
                                     const { text: mText, align: mItemAlign } = extractItemAlign(s.mission);
                                     const effectiveAlign = isDash(s.mission) ? 'center' : (mItemAlign || (printMissionAlign === 'center' ? 'center' : 'left'));
-                                    return <div style={{ whiteSpace: 'pre-wrap', textAlign: effectiveAlign as any }}>{renderText(mText)}</div>;
+                                    return <div style={{ whiteSpace: 'pre-wrap', textAlign: effectiveAlign as React.CSSProperties['textAlign'] }}>{renderText(mText)}</div>;
                                   })()}
                                 </td>
                                 {colLocationVisible && locationSpans[index].show && (
@@ -667,7 +727,7 @@ export default function PublicSchedulePage() {
                                     {(() => {
                                       const { text: lText, align: lItemAlign } = extractItemAlign(s.location);
                                       const effectiveAlign = isDash(s.location) ? 'center' : (lItemAlign || (printLocationAlign === 'center' ? 'center' : 'left'));
-                                      return <div style={{ whiteSpace: 'pre-wrap', textAlign: effectiveAlign as any }}>{renderText(lText)}</div>;
+                                      return <div style={{ whiteSpace: 'pre-wrap', textAlign: effectiveAlign as React.CSSProperties['textAlign'] }}>{renderText(lText)}</div>;
                                     })()}
                                   </td>
                                 )}
@@ -680,7 +740,7 @@ export default function PublicSchedulePage() {
                                     {(() => {
                                       const { text: aText, align: aItemAlign } = extractItemAlign(s.agency);
                                       const effectiveAlign = isDash(s.agency) ? 'center' : (aItemAlign || 'left');
-                                      return <div className="agency-text" style={{ whiteSpace: 'pre-wrap', textAlign: effectiveAlign as any }}>{renderText(aText)}</div>;
+                                      return <div className="agency-text" style={{ whiteSpace: 'pre-wrap', textAlign: effectiveAlign as React.CSSProperties['textAlign'] }}>{renderText(aText)}</div>;
                                     })()}
                                   </td>
                                 )}
@@ -693,7 +753,7 @@ export default function PublicSchedulePage() {
                                     {(() => {
                                       const { text: dText, align: dItemAlign } = extractItemAlign(s.dressCode);
                                       const effectiveAlign = isDash(s.dressCode) ? 'center' : (dItemAlign || 'left');
-                                      return <div className="dress-text" style={{ whiteSpace: 'pre-wrap', textAlign: effectiveAlign as any }}>{renderText(dText)}</div>;
+                                      return <div className="dress-text" style={{ whiteSpace: 'pre-wrap', textAlign: effectiveAlign as React.CSSProperties['textAlign'] }}>{renderText(dText)}</div>;
                                     })()}
                                   </td>
                                 )}

@@ -356,11 +356,20 @@ export default function SchedulesAdmin() {
   }
 
   const handleDownloadImage = async () => {
-    const element = document.getElementById('admin-print-preview-page');
+    const element = document.getElementById('admin-print-preview-container');
     if (!element) return;
     
     try {
-      setDownloadingImage(true)
+      setDownloadingImage(true);
+
+      // Ensure Thai web fonts are fully loaded before capturing
+      if (typeof document !== 'undefined' && document.fonts && document.fonts.ready) {
+        try {
+          await document.fonts.ready;
+        } catch {
+          // Ignore font loading errors
+        }
+      }
       
       const originalStyle = element.getAttribute('style') || '';
 
@@ -380,6 +389,9 @@ export default function SchedulesAdmin() {
         exactWidth = contentWidth + paddingX;
       }
 
+      // Enforce standard minimum width of 1240px for clean landscape render
+      const targetWidth = Math.max(1240, exactWidth);
+
       // Save scroll positions and scroll to top
       const originalScrollTop = element.scrollTop;
       const originalScrollLeft = element.scrollLeft;
@@ -395,23 +407,31 @@ export default function SchedulesAdmin() {
       element.style.setProperty('max-height', 'none', 'important');
       element.style.setProperty('aspect-ratio', 'auto', 'important');
 
-      element.style.width = exactWidth + 'px';
+      element.style.width = targetWidth + 'px';
       element.style.maxWidth = 'none';
       element.style.overflow = 'visible';
       
+      // Dynamic safe scale: keep maximum canvas dimension <= 3840px
+      // to avoid iOS WebKit / Android GPU 4096px downsampling/blur limit, while giving 2K/Retina sharpness.
+      const estimatedHeight = element.scrollHeight || 1500;
+      const maxDim = Math.max(targetWidth, estimatedHeight);
+      const safeScale = Math.min(2.5, Math.max(1.5, Math.floor((3840 / maxDim) * 10) / 10));
+
       const canvas = await html2canvas(element, {
         scrollY: 0,
         scrollX: 0,
-        scale: 4,
+        scale: safeScale,
         useCORS: true,
         allowTaint: true,
         backgroundColor: '#ffffff',
-        windowWidth: 2400,
+        windowWidth: 1280,
         onclone: (clonedDoc) => {
           const pageEl = clonedDoc.getElementById('admin-print-preview-page');
           if (pageEl) {
             pageEl.style.transform = 'none';
             pageEl.style.boxShadow = 'none';
+            pageEl.style.width = targetWidth + 'px';
+            pageEl.style.maxWidth = 'none';
           }
           // Force relative positioning and background-clip on all table cells to resolve html2canvas rowspan border bugs
           const cells = clonedDoc.querySelectorAll('.preview-table th, .preview-table td');
@@ -437,12 +457,43 @@ export default function SchedulesAdmin() {
       element.scrollLeft = originalScrollLeft;
       window.scrollTo(originalWindowScrollX, originalWindowScrollY);
       
-      // Export as Lossless HD PNG for razor-sharp text
-      const dataUrl = canvas.toDataURL('image/png');
-      const link = document.createElement('a');
-      link.download = `วาระงานผู้บริหารปทุมธานี_${selectedDate}.png`;
-      link.href = dataUrl;
-      link.click();
+      // Generate Blob instead of huge Base64 data URL
+      const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/png'));
+      if (!blob) throw new Error('Canvas toBlob failed');
+
+      const fileName = `วาระงานผู้บริหารปทุมธานี_${selectedDate}.png`;
+
+      // Check for Web Share API with files (native iOS Safari & Android Chrome save to Photos / share to LINE)
+      let sharedSuccessfully = false;
+      if (typeof navigator !== 'undefined' && navigator.canShare && typeof File !== 'undefined') {
+        try {
+          const file = new File([blob], fileName, { type: 'image/png' });
+          if (navigator.canShare({ files: [file] })) {
+            await navigator.share({
+              files: [file],
+              title: 'วาระงานผู้บริหารจังหวัดปทุมธานี',
+            });
+            sharedSuccessfully = true;
+          }
+        } catch (shareError: any) {
+          if (shareError?.name === 'AbortError') {
+            // User dismissed share sheet
+            return;
+          }
+          console.warn('Navigator share error, falling back to download link:', shareError);
+        }
+      }
+
+      if (!sharedSuccessfully) {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.download = fileName;
+        link.href = url;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        setTimeout(() => URL.revokeObjectURL(url), 10000);
+      }
     } catch (error) {
       console.error('Failed to download image', error);
       alert('เกิดข้อผิดพลาดในการสร้างไฟล์รูปภาพ');
@@ -688,7 +739,7 @@ export default function SchedulesAdmin() {
                 disabled={downloadingImage}
                 style={{ background: '#0284c7', color: 'white', borderColor: '#0369a1' }}
               >
-                🖼️ {downloadingImage ? 'กำลังสร้างรูป...' : 'ดาวน์โหลดเป็นรูปภาพ (.jpg)'}
+                🖼️ {downloadingImage ? 'กำลังสร้างรูป...' : 'ดาวน์โหลดเป็นรูปภาพ (.png)'}
               </button>
             </div>
           </div>
