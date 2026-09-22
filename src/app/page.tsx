@@ -39,17 +39,32 @@ import {
   THAI_DIGITS,
   WEEKDAYS_TH,
   WEEKDAYS_SHORT_TH,
-  formatDateKey,
-  toThaiDigits,
   thaiSmartBreak,
-  formatThaiDateFull,
-  formatThaiTime,
-  extractItemAlign,
-  isDash,
   getSpans,
-  getWeekdayHeaderStyle,
-  getWeekdayBannerColor
 } from '@/lib/thai-utils'
+
+interface PrintSettings {
+  fontFamily?: string
+  fontSize?: string
+  fontWeight?: string
+  fontStyle?: string
+  textDecoration?: string
+  missionAlign?: string
+  locationAlign?: string
+  lineHeight?: string
+  cellPadding?: string
+  fitToPage?: boolean
+  bannerFontSize?: string
+  columnLayout?: string
+  visibleColumns?: {
+    time?: boolean
+    location?: boolean
+    agency?: boolean
+    dress?: boolean
+  }
+}
+
+type TextAlign = 'left' | 'center' | 'right'
 
 export default function PublicSchedulePage() {
   const [schedules, setSchedules] = useState<Schedule[]>([])
@@ -64,7 +79,7 @@ export default function PublicSchedulePage() {
   // Settings loaded from Admin Panel via LocalStorage
   const [printFontFamily, setPrintFontFamily] = useState("'TH Sarabun New', 'TH Sarabun PSK', 'Sarabun', sans-serif")
   const [printFontSize, setPrintFontSize] = useState("16px")
-  const [printFontWeight, setPrintFontWeight] = useState("normal")
+  const [, setPrintFontWeight] = useState("normal")
   const [printFontStyle, setPrintFontStyle] = useState("normal")
   const [printTextDecoration, setPrintTextDecoration] = useState("none")
   const [printMissionAlign, setPrintMissionAlign] = useState("left")
@@ -75,13 +90,13 @@ export default function PublicSchedulePage() {
   const [printBannerFontSize, setPrintBannerFontSize] = useState("20px")
   const [printColumnLayout, setPrintColumnLayout] = useState("auto")
   const [downloadingImage, setDownloadingImage] = useState(false)
-  
+
   const [colTimeVisible, setColTimeVisible] = useState(true)
   const [colLocationVisible, setColLocationVisible] = useState(true)
   const [colAgencyVisible, setColAgencyVisible] = useState(true)
   const [colDressVisible, setColDressVisible] = useState(true)
 
-  const applyPrintSettings = (config: any) => {
+  const applyPrintSettings = (config: PrintSettings) => {
     if (!config) return
     if (config.fontFamily) setPrintFontFamily(config.fontFamily)
     if (config.fontSize) setPrintFontSize(config.fontSize)
@@ -95,7 +110,7 @@ export default function PublicSchedulePage() {
     if (config.fitToPage !== undefined) setFitToPage(config.fitToPage)
     if (config.bannerFontSize) setPrintBannerFontSize(config.bannerFontSize)
     if (config.columnLayout) setPrintColumnLayout(config.columnLayout)
-    
+
     if (config.visibleColumns) {
       setColTimeVisible(config.visibleColumns.time !== false)
       setColLocationVisible(config.visibleColumns.location !== false)
@@ -155,12 +170,63 @@ export default function PublicSchedulePage() {
     return cleaned === '-';
   }
 
+  // --- Fetch functions (declared before useEffect hooks) ---
+  const fetchThemes = async () => {
+    try {
+      const res = await fetch('/api/themes')
+      const data = await res.json()
+      setThemes(Array.isArray(data) ? data : [])
+    } catch (err) {
+      console.error('Failed to fetch themes:', err)
+      setThemes([])
+    }
+  }
+
+  const fetchExecutives = async () => {
+    try {
+      const res = await fetch('/api/executives')
+      const data = await res.json()
+      setExecutives(Array.isArray(data) ? data : [])
+    } catch (err) {
+      console.error('Failed to fetch executives:', err)
+      setExecutives([])
+    }
+  }
+
+  const fetchSchedules = async () => {
+    setLoading(true)
+    try {
+      const res = await fetch(`/api/schedules?date=${formatDateKey(selectedDate)}&public=true`)
+      const data = await res.json()
+      setSchedules(Array.isArray(data) ? data : [])
+    } catch (err) {
+      console.error('Failed to fetch schedules:', err)
+      setSchedules([])
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const fetchMonthSchedules = async () => {
+    try {
+      const month = currentViewDate.getMonth()
+      const year = currentViewDate.getFullYear()
+      const res = await fetch(`/api/schedules?month=${month}&year=${year}&public=true`)
+      const data = await res.json()
+      setMonthSchedules(Array.isArray(data) ? data : [])
+    } catch (err) {
+      console.error('Failed to fetch month schedules:', err)
+      setMonthSchedules([])
+    }
+  }
+
+  // --- Effects ---
   // Real-time settings synchronizer from Admin tab via LocalStorage event
   useEffect(() => {
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === 'printSettings' && e.newValue) {
         try {
-          applyPrintSettings(JSON.parse(e.newValue))
+          applyPrintSettings(JSON.parse(e.newValue) as PrintSettings)
         } catch (err) {
           console.error("Error loading print settings from storage event", err)
         }
@@ -170,125 +236,124 @@ export default function PublicSchedulePage() {
     return () => window.removeEventListener('storage', handleStorageChange)
   }, [])
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     fetchThemes()
     fetchExecutives()
-    
+
     // Load print settings from LocalStorage
     const saved = localStorage.getItem('printSettings')
     if (saved) {
       try {
-        applyPrintSettings(JSON.parse(saved))
+        const parsed = JSON.parse(saved) as PrintSettings
+        // Use queueMicrotask to avoid synchronous setState in effect body
+        queueMicrotask(() => applyPrintSettings(parsed))
       } catch (e) {
         console.error("Error loading print settings", e)
       }
     } else {
       const savedFont = localStorage.getItem('printFontFamily')
       const savedSize = localStorage.getItem('printFontSize')
-      if (savedFont) setPrintFontFamily(savedFont)
-      if (savedSize) setPrintFontSize(savedSize)
+      queueMicrotask(() => {
+        if (savedFont) setPrintFontFamily(savedFont)
+        if (savedSize) setPrintFontSize(savedSize)
+      })
     }
   }, [])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     fetchSchedules()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedDate])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     fetchMonthSchedules()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentViewDate])
-
-  const fetchThemes = async () => {
-    const res = await fetch('/api/themes')
-    const data = await res.json()
-    setThemes(data)
-  }
-
-  const fetchExecutives = async () => {
-    const res = await fetch('/api/executives')
-    const data = await res.json()
-    setExecutives(data)
-  }
-
-  const fetchSchedules = async () => {
-    setLoading(true)
-    const res = await fetch(`/api/schedules?date=${formatDateKey(selectedDate)}&public=true`)
-    const data = await res.json()
-    setSchedules(data)
-    setLoading(false)
-  }
-
-  const fetchMonthSchedules = async () => {
-    const month = currentViewDate.getMonth()
-    const year = currentViewDate.getFullYear()
-    const res = await fetch(`/api/schedules?month=${month}&year=${year}&public=true`)
-    const data = await res.json()
-    setMonthSchedules(data)
-  }
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const handleDownloadImage = async () => {
     const element = document.getElementById('schedule-table-container');
     if (!element) return;
-    
+
     try {
       setDownloadingImage(true)
-      
+
       const responsiveWrapper = element.querySelector('.table-responsive') as HTMLElement;
       const originalResponsiveStyle = responsiveWrapper ? responsiveWrapper.getAttribute('style') || '' : '';
       const originalContainerStyle = element.getAttribute('style') || '';
       const originalClass = element.className;
-      
+
       if (fitToPage && !element.classList.contains('print-fit-to-page')) {
         element.classList.add('print-fit-to-page');
       }
-      
+
       const table = element.querySelector('table');
       const banner = element.querySelector('.official-banner, .official-banner-container');
-      
+
       const contentWidth = Math.max(
         table ? (table as HTMLElement).offsetWidth : 0,
         banner ? (banner as HTMLElement).offsetWidth : 0
       );
-      
+
       let exactWidth = element.scrollWidth;
       if (contentWidth > 0) {
         const computed = window.getComputedStyle(element);
         const paddingX = (parseFloat(computed.paddingLeft) || 0) + (parseFloat(computed.paddingRight) || 0);
         exactWidth = contentWidth + paddingX;
       }
-      
+
       element.style.width = exactWidth + 'px';
       element.style.maxWidth = 'none';
       element.style.overflow = 'visible';
       if (responsiveWrapper) {
         responsiveWrapper.style.overflowX = 'visible';
       }
-      
+
       element.scrollTop = 0;
       element.scrollLeft = 0;
       window.scrollTo(0, 0);
-      
+
+      // Detect device type and calculate safe canvas scale
+      const ua = navigator.userAgent;
+      const isMobile = /iPhone|iPod|Android/i.test(ua);
+      const isIPad = /iPad/i.test(ua) || (/Macintosh/i.test(ua) && 'ontouchend' in document);
+      const isIOSDevice = isMobile || isIPad;
+
+      // iOS Safari canvas pixel limits: iPhone ~16.7MP, iPad ~67MP
+      // Use conservative limits to avoid silent quality degradation
+      const maxCanvasPixels = isMobile ? 12_000_000 : (isIPad ? 40_000_000 : 100_000_000);
+      const elWidth = element.scrollWidth || 1200;
+      const elHeight = element.scrollHeight || 800;
+      const maxSafeScale = Math.max(1, Math.floor(Math.sqrt(maxCanvasPixels / (elWidth * elHeight))));
+      const targetScale = isIOSDevice ? Math.min(2, maxSafeScale) : 4;
+      const safeWindowWidth = isIOSDevice ? Math.min(1400, window.innerWidth * 2) : 2400;
+
       const canvas = await html2canvas(element, {
         scrollY: 0,
         scrollX: 0,
-        scale: 4,
+        scale: targetScale,
         useCORS: true,
         allowTaint: true,
         backgroundColor: '#ffffff',
-        windowWidth: 2400,
+        windowWidth: safeWindowWidth,
         onclone: (clonedDoc) => {
           const container = clonedDoc.getElementById('schedule-table-container');
           if (container) {
             container.style.border = 'none';
             container.style.borderRadius = '0';
           }
-          
+
           const cells = clonedDoc.querySelectorAll('.schedule-table th, .schedule-table td');
           cells.forEach(cell => {
             const el = cell as HTMLElement;
             el.style.position = 'relative';
             el.style.backgroundClip = 'padding-box';
-            (el.style as any).webkitFontSmoothing = 'antialiased';
+            el.style.setProperty('-webkit-font-smoothing', 'antialiased');
           });
           const rows = clonedDoc.querySelectorAll('.schedule-row');
           rows.forEach(row => {
@@ -297,19 +362,40 @@ export default function PublicSchedulePage() {
           });
         }
       });
-      
+
       element.setAttribute('style', originalContainerStyle);
       element.className = originalClass;
       if (responsiveWrapper) {
         responsiveWrapper.setAttribute('style', originalResponsiveStyle);
       }
-      
-      const dataUrl = canvas.toDataURL('image/png');
-      const link = document.createElement('a');
+
+      // Use toBlob instead of toDataURL to reduce memory usage on mobile
       const dateKey = formatDateKey(selectedDate);
-      link.download = `วาระงานผู้บริหารปทุมธานี_${dateKey}.png`;
-      link.href = dataUrl;
-      link.click();
+      const fileName = `วาระงานผู้บริหารปทุมธานี_${dateKey}.png`;
+
+      if (canvas.toBlob) {
+        canvas.toBlob((blob) => {
+          if (!blob) {
+            console.error('Failed to create blob from canvas');
+            alert('เกิดข้อผิดพลาดในการสร้างไฟล์รูปภาพ');
+            return;
+          }
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.download = fileName;
+          link.href = url;
+          link.click();
+          // Clean up object URL after a short delay
+          setTimeout(() => URL.revokeObjectURL(url), 5000);
+        }, 'image/png');
+      } else {
+        // Fallback for older browsers
+        const dataUrl = canvas.toDataURL('image/png');
+        const link = document.createElement('a');
+        link.download = fileName;
+        link.href = dataUrl;
+        link.click();
+      }
     } catch (error) {
       console.error('Failed to download image', error);
       alert('เกิดข้อผิดพลาดในการสร้างไฟล์รูปภาพ');
@@ -349,11 +435,11 @@ export default function PublicSchedulePage() {
   const calendarDays = useMemo(() => {
     const year = currentViewDate.getFullYear()
     const month = currentViewDate.getMonth()
-    
+
     const firstDayOfMonth = new Date(year, month, 1)
     const startDay = new Date(firstDayOfMonth)
     startDay.setDate(firstDayOfMonth.getDate() - firstDayOfMonth.getDay())
-    
+
     const days = []
     for (let i = 0; i < 42; i++) {
       const d = new Date(startDay)
@@ -486,12 +572,12 @@ export default function PublicSchedulePage() {
                     const isSelected = formatDateKey(date) === formatDateKey(selectedDate)
                     const daySchedules = getSchedulesForDate(date)
                     const dayTheme = themes.find(t => t.dayIndex === date.getDay())
-                    
+
                     const uniqueColors = Array.from(new Set(daySchedules.map(s => s.executive?.color).filter(Boolean)))
 
                     return (
-                      <div 
-                        key={idx} 
+                      <div
+                        key={idx}
                         className={`day-cell ${isOutside ? 'is-outside' : ''} ${isToday ? 'is-today' : ''} ${isSelected ? 'is-selected' : ''}`}
                         onClick={() => setSelectedDate(date)}
                       >
@@ -500,12 +586,12 @@ export default function PublicSchedulePage() {
                             {toThaiDigits(date.getDate())}
                           </span>
                         </div>
-                        
+
                         <div className="day-events-dots">
                           {uniqueColors.map((color, colorIdx) => (
-                            <span 
-                              key={colorIdx} 
-                              className="day-event-dot" 
+                            <span
+                              key={colorIdx}
+                              className="day-event-dot"
                               style={{ backgroundColor: color }}
                             />
                           ))}
@@ -534,9 +620,9 @@ export default function PublicSchedulePage() {
                         <img src="/seal.jpg" alt="ตราจังหวัดปทุมธานี" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                       </div>
                     </div>
-                    <div 
-                      className="official-banner" 
-                      style={{ 
+                    <div
+                      className="official-banner"
+                      style={{
                         backgroundColor: getWeekdayBannerColor(selectedDate.getDay()),
                         fontFamily: printFontFamily
                       }}
@@ -544,10 +630,10 @@ export default function PublicSchedulePage() {
                       <h2 className="banner-title" style={{ fontFamily: printFontFamily, fontSize: printBannerFontSize, fontWeight: 'bold', whiteSpace: 'pre-wrap' }}>
                         {renderText(`วาระงานผู้ว่าราชการจังหวัดและผู้บริหารของจังหวัดปทุมธานี ${formatThaiDateFull(selectedDate)}`)}
                       </h2>
-                      <div className="banner-footer" style={{ 
-                        fontFamily: printFontFamily, 
-                        fontSize: `calc(${printBannerFontSize} * 0.72)`, 
-                        whiteSpace: 'pre-wrap' 
+                      <div className="banner-footer" style={{
+                        fontFamily: printFontFamily,
+                        fontSize: `calc(${printBannerFontSize} * 0.72)`,
+                        whiteSpace: 'pre-wrap'
                       }}>
                         {renderText(`จัดทำโดย สำนักงานจังหวัดปทุมธานี สามารถดาวน์โหลดข้อมูลได้ที่ www.pathumthani.go.th หัวข้อ "วาระงานผู้ว่าราชการจังหวัดและผู้บริหารของจังหวัดปทุมธานี"`)}
                       </div>
@@ -555,9 +641,9 @@ export default function PublicSchedulePage() {
                   </div>
 
                   <div className="table-responsive">
-                    <table 
-                      className="schedule-table" 
-                      style={{ 
+                    <table
+                      className="schedule-table"
+                      style={{
                         fontFamily: printFontFamily,
                         fontSize: printFontSize,
                         fontWeight: 'bold',
@@ -588,13 +674,13 @@ export default function PublicSchedulePage() {
                           groupedSchedules.map(group => {
                             const exec = group.executive;
                             const execSchedules = group.schedules;
-                            
+
                             // If no schedules for this executive, show "ปฏิบัติราชการปกติ"
                             if (execSchedules.length === 0) {
                               return (
-                                <tr 
-                                  key={`empty-${exec.id}`} 
-                                  className="schedule-row" 
+                                <tr
+                                  key={`empty-${exec.id}`}
+                                  className="schedule-row"
                                   style={{ color: exec.color === '#000000' ? '#1e293b' : exec.color }}
                                 >
                                   <td className="td-exec" style={{ padding: getPaddingStyle() }}>
@@ -614,22 +700,23 @@ export default function PublicSchedulePage() {
                               );
                             }
 
-                            // Precalculate spans for location, agency, and dressCode within this executive's list
+                            // Precalculate spans for mission, location, agency, and dressCode within this executive's list
+                            const missionSpans = getSpans(execSchedules, 'mission');
                             const agencySpans = getSpans(execSchedules, 'agency');
                             const dressSpans = getSpans(execSchedules, s => s.dressCode);
                             const locationSpans = getSpans(execSchedules, 'location');
 
                             return execSchedules.map((s, index) => (
-                              <tr 
-                                key={s.id} 
-                                className="schedule-row" 
-                                style={{ 
+                              <tr
+                                key={s.id}
+                                className="schedule-row"
+                                style={{
                                   color: exec.color === '#000000' ? '#1e293b' : exec.color
                                 }}
                               >
                                 {index === 0 && (
-                                  <td 
-                                    className="td-exec" 
+                                  <td
+                                    className="td-exec"
                                     rowSpan={execSchedules.length}
                                     style={{ padding: getPaddingStyle() }}
                                   >
@@ -651,49 +738,58 @@ export default function PublicSchedulePage() {
                                     )}
                                   </td>
                                 )}
-                                <td className="td-mission" style={{ padding: getPaddingStyle() }}>
-                                  {(() => {
-                                    const { text: mText, align: mItemAlign } = extractItemAlign(s.mission);
-                                    const effectiveAlign = isDash(s.mission) ? 'center' : (mItemAlign || (printMissionAlign === 'center' ? 'center' : 'left'));
-                                    return <div style={{ whiteSpace: 'pre-wrap', textAlign: effectiveAlign as any }}>{renderText(mText)}</div>;
-                                  })()}
-                                </td>
+                                {missionSpans[index].show && (
+                                  <td
+                                    className="td-mission"
+                                    rowSpan={missionSpans[index].span}
+                                    style={{
+                                      padding: getPaddingStyle(),
+                                      verticalAlign: missionSpans[index].span > 1 ? 'middle' : 'top'
+                                    }}
+                                  >
+                                    {(() => {
+                                      const { text: mText, align: mItemAlign } = extractItemAlign(s.mission);
+                                      const effectiveAlign = isDash(s.mission) ? 'center' : (mItemAlign || (printMissionAlign === 'center' ? 'center' : 'left'));
+                                      return <div style={{ whiteSpace: 'pre-wrap', textAlign: effectiveAlign as TextAlign }}>{renderText(mText)}</div>;
+                                    })()}
+                                  </td>
+                                )}
                                 {colLocationVisible && locationSpans[index].show && (
-                                  <td 
-                                    className="td-location" 
+                                  <td
+                                    className="td-location"
                                     rowSpan={locationSpans[index].span}
                                     style={{ padding: getPaddingStyle(), verticalAlign: locationSpans[index].span > 1 ? 'middle' : 'top' }}
                                   >
                                     {(() => {
                                       const { text: lText, align: lItemAlign } = extractItemAlign(s.location);
                                       const effectiveAlign = isDash(s.location) ? 'center' : (lItemAlign || (printLocationAlign === 'center' ? 'center' : 'left'));
-                                      return <div style={{ whiteSpace: 'pre-wrap', textAlign: effectiveAlign as any }}>{renderText(lText)}</div>;
+                                      return <div style={{ whiteSpace: 'pre-wrap', textAlign: effectiveAlign as TextAlign }}>{renderText(lText)}</div>;
                                     })()}
                                   </td>
                                 )}
                                 {colAgencyVisible && agencySpans[index].show && (
-                                  <td 
-                                    className="td-agency" 
+                                  <td
+                                    className="td-agency"
                                     rowSpan={agencySpans[index].span}
                                     style={{ padding: getPaddingStyle(), verticalAlign: agencySpans[index].span > 1 ? 'middle' : 'top' }}
                                   >
                                     {(() => {
                                       const { text: aText, align: aItemAlign } = extractItemAlign(s.agency);
                                       const effectiveAlign = isDash(s.agency) ? 'center' : (aItemAlign || 'left');
-                                      return <div className="agency-text" style={{ whiteSpace: 'pre-wrap', textAlign: effectiveAlign as any }}>{renderText(aText)}</div>;
+                                      return <div className="agency-text" style={{ whiteSpace: 'pre-wrap', textAlign: effectiveAlign as TextAlign }}>{renderText(aText)}</div>;
                                     })()}
                                   </td>
                                 )}
                                 {colDressVisible && dressSpans[index].show && (
-                                  <td 
-                                    className="td-dress" 
+                                  <td
+                                    className="td-dress"
                                     rowSpan={dressSpans[index].span}
                                     style={{ padding: getPaddingStyle(), verticalAlign: dressSpans[index].span > 1 ? 'middle' : 'top' }}
                                   >
                                     {(() => {
                                       const { text: dText, align: dItemAlign } = extractItemAlign(s.dressCode);
                                       const effectiveAlign = isDash(s.dressCode) ? 'center' : (dItemAlign || 'left');
-                                      return <div className="dress-text" style={{ whiteSpace: 'pre-wrap', textAlign: effectiveAlign as any }}>{renderText(dText)}</div>;
+                                      return <div className="dress-text" style={{ whiteSpace: 'pre-wrap', textAlign: effectiveAlign as TextAlign }}>{renderText(dText)}</div>;
                                     })()}
                                   </td>
                                 )}
