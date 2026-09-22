@@ -768,7 +768,8 @@ export default function SchedulesAdmin() {
                     );
                   }
 
-                  // Precalculate spans for location, agency, and dressCode within this executive's list
+                  // Precalculate spans for mission, location, agency, and dressCode within this executive's list
+                  const missionSpans = getSpans(execSchedules, 'mission');
                   const agencySpans = getSpans(execSchedules, 'agency');
                   const dressSpans = getSpans(execSchedules, s => s.dressCode);
                   const locationSpans = getSpans(execSchedules, 'location');
@@ -789,13 +790,18 @@ export default function SchedulesAdmin() {
                           {isDash(s.startTime) ? '-' : toThaiDigits(s.startTime)}
                         </td>
                       )}
-                      <td style={{ padding: getPaddingStyle(), overflowWrap: 'break-word', wordBreak: 'break-word', verticalAlign: 'top', fontWeight: 'inherit' }}>
+                      {missionSpans[index].show && (
+                        <td
+                          rowSpan={missionSpans[index].span}
+                          style={{ padding: getPaddingStyle(), overflowWrap: 'break-word', wordBreak: 'break-word', verticalAlign: missionSpans[index].span > 1 ? 'middle' : 'top', fontWeight: 'inherit' }}
+                        >
                         {(() => {
                           const { text: mText, align: mItemAlign } = extractItemAlign(s.mission);
                           const effectiveAlign = isDash(s.mission) ? 'center' : (mItemAlign || missionAlign || 'left');
                           return <div style={{ whiteSpace: 'pre-wrap', textAlign: effectiveAlign as any }}>{renderText(mText)}</div>;
                         })()}
-                      </td>
+                        </td>
+                      )}
                       {colLocationVisible && locationSpans[index].show && (
                         <td 
                           rowSpan={locationSpans[index].span}
