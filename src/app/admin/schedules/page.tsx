@@ -399,28 +399,88 @@ export default function SchedulesAdmin() {
       element.style.maxWidth = 'none';
       element.style.overflow = 'visible';
       
+      // Detect device type and calculate safe canvas scale
+      // iPadOS 13+ reports as Macintosh with multi-touch support
+      const ua = navigator.userAgent;
+      const isMobile = /iPhone|iPod|Android/i.test(ua);
+      const isIPad = /iPad/i.test(ua) || (typeof navigator !== 'undefined' && (navigator.platform === 'MacIntel' || /Macintosh/i.test(ua)) && navigator.maxTouchPoints > 1);
+      const isIOSDevice = isMobile || isIPad || (typeof navigator !== 'undefined' && /iPhone|iPad|iPod/i.test(navigator.platform));
+
+      const elWidth = element.scrollWidth || 1200;
+      const elHeight = element.scrollHeight || 800;
+
+      const maxDim = isIOSDevice ? 3840 : 6000;
+      const maxPixels = isIOSDevice ? 12_000_000 : 40_000_000;
+
+      const scaleByDim = Math.min(maxDim / elWidth, maxDim / elHeight);
+      const scaleByPixels = Math.sqrt(maxPixels / (elWidth * elHeight));
+      const safeScale = Math.min(scaleByDim, scaleByPixels);
+
+      const targetScale = isIOSDevice
+        ? Math.max(1.8, Math.min(2.5, Math.floor(safeScale * 10) / 10))
+        : Math.max(2.0, Math.min(3.0, Math.floor(safeScale * 10) / 10));
+
+      const safeWindowWidth = Math.max(exactWidth, 1400);
+
       const canvas = await html2canvas(element, {
         scrollY: 0,
         scrollX: 0,
-        scale: 4,
+        scale: targetScale,
         useCORS: true,
         allowTaint: true,
         backgroundColor: '#ffffff',
-        windowWidth: 2400,
+        windowWidth: safeWindowWidth,
         onclone: (clonedDoc) => {
           const pageEl = clonedDoc.getElementById('admin-print-preview-page');
           if (pageEl) {
             pageEl.style.transform = 'none';
             pageEl.style.boxShadow = 'none';
+            pageEl.style.backgroundColor = '#ffffff';
           }
-          // Force relative positioning and background-clip on all table cells to resolve html2canvas rowspan border bugs
+
+          // Strip Apple Data Detectors and any auto-injected links/underlines
+          const dataDetectors = clonedDoc.querySelectorAll(
+            '[x-apple-data-detectors], a[x-apple-data-detectors], a[href^="tel:"], a[href^="maps:"], a[href*="maps.apple.com"], a'
+          );
+          dataDetectors.forEach(el => {
+            const htmlEl = el as HTMLElement;
+            htmlEl.style.setProperty('text-decoration', 'none', 'important');
+            htmlEl.style.setProperty('border-bottom', 'none', 'important');
+            htmlEl.style.setProperty('outline', 'none', 'important');
+            htmlEl.style.setProperty('color', 'inherit', 'important');
+            htmlEl.style.setProperty('background', 'transparent', 'important');
+            if (htmlEl.tagName.toLowerCase() === 'a') {
+              htmlEl.removeAttribute('href');
+            }
+          });
+
+          // Prevent any dotted underlines or spellcheck
+          const allEls = clonedDoc.querySelectorAll('#admin-print-preview-page, #admin-print-preview-page *');
+          allEls.forEach(el => {
+            const htmlEl = el as HTMLElement;
+            htmlEl.setAttribute('spellcheck', 'false');
+            if (htmlEl.style) {
+              htmlEl.style.setProperty('text-decoration', 'none', 'important');
+              htmlEl.style.setProperty('-webkit-text-decoration', 'none', 'important');
+              htmlEl.style.setProperty('text-decoration-line', 'none', 'important');
+              htmlEl.style.setProperty('outline', 'none', 'important');
+            }
+          });
+
+          // Force relative positioning, background-clip, and crisp font smoothing
           const cells = clonedDoc.querySelectorAll('.preview-table th, .preview-table td');
           cells.forEach(cell => {
             const el = cell as HTMLElement;
             el.style.position = 'relative';
             el.style.backgroundClip = 'padding-box';
-            (el.style as any).webkitFontSmoothing = 'antialiased';
+            el.style.boxShadow = 'none';
+            el.style.setProperty('-webkit-font-smoothing', 'subpixel-antialiased');
+            el.style.setProperty('text-rendering', 'geometricPrecision');
+            if (!el.style.backgroundColor || el.style.backgroundColor === 'transparent') {
+              el.style.backgroundColor = '#ffffff';
+            }
           });
+
           // Ensure all table rows are transparent during capture to prevent them from overlaying spanned cells
           const rows = clonedDoc.querySelectorAll('.preview-table tr');
           rows.forEach(row => {
@@ -437,12 +497,29 @@ export default function SchedulesAdmin() {
       element.scrollLeft = originalScrollLeft;
       window.scrollTo(originalWindowScrollX, originalWindowScrollY);
       
-      // Export as Lossless HD PNG for razor-sharp text
-      const dataUrl = canvas.toDataURL('image/png');
-      const link = document.createElement('a');
-      link.download = `วาระงานผู้บริหารปทุมธานี_${selectedDate}.png`;
-      link.href = dataUrl;
-      link.click();
+      const fileName = `วาระงานผู้บริหารปทุมธานี_${selectedDate}.png`;
+
+      if (canvas.toBlob) {
+        canvas.toBlob((blob) => {
+          if (!blob) {
+            console.error('Failed to create blob from canvas');
+            alert('เกิดข้อผิดพลาดในการสร้างไฟล์รูปภาพ');
+            return;
+          }
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.download = fileName;
+          link.href = url;
+          link.click();
+          setTimeout(() => URL.revokeObjectURL(url), 5000);
+        }, 'image/png');
+      } else {
+        const dataUrl = canvas.toDataURL('image/png');
+        const link = document.createElement('a');
+        link.download = fileName;
+        link.href = dataUrl;
+        link.click();
+      }
     } catch (error) {
       console.error('Failed to download image', error);
       alert('เกิดข้อผิดพลาดในการสร้างไฟล์รูปภาพ');

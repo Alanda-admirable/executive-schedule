@@ -97,3 +97,29 @@ a {
     color-scheme: dark;
   }
 }
+
+/* Disable Apple Data Detectors (underlines for phone, address, date) */
+[x-apple-data-detectors],
+a[x-apple-data-detectors],
+[x-apple-data-detectors-type] {
+  color: inherit !important;
+  text-decoration: none !important;
+  font-size: inherit !important;
+  font-family: inherit !important;
+  font-weight: inherit !important;
+  line-height: inherit !important;
+  border-bottom: none !important;
+  background: none !important;
+  cursor: default !important;
+}
+
+/* Ensure no spellcheck or dotted underlines appear in tables */
+.schedule-table,
+.schedule-table *,
+.preview-table,
+.preview-table * {
+  text-decoration: none !important;
+  text-decoration-line: none !important;
+  -webkit-text-decoration: none !important;
+  -webkit-text-decoration-line: none !important;
+}

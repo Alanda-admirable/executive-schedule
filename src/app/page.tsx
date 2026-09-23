@@ -283,6 +283,11 @@ export default function PublicSchedulePage() {
     try {
       setDownloadingImage(true)
 
+      // Ensure all web fonts are fully loaded before rendering canvas
+      if (typeof document !== 'undefined' && document.fonts && document.fonts.ready) {
+        await document.fonts.ready;
+      }
+
       const responsiveWrapper = element.querySelector('.table-responsive') as HTMLElement;
       const originalResponsiveStyle = responsiveWrapper ? responsiveWrapper.getAttribute('style') || '' : '';
       const originalContainerStyle = element.getAttribute('style') || '';
@@ -319,19 +324,30 @@ export default function PublicSchedulePage() {
       window.scrollTo(0, 0);
 
       // Detect device type and calculate safe canvas scale
+      // iPadOS 13+ reports as Macintosh with multi-touch support
       const ua = navigator.userAgent;
       const isMobile = /iPhone|iPod|Android/i.test(ua);
-      const isIPad = /iPad/i.test(ua) || (/Macintosh/i.test(ua) && 'ontouchend' in document);
-      const isIOSDevice = isMobile || isIPad;
+      const isIPad = /iPad/i.test(ua) || (typeof navigator !== 'undefined' && (navigator.platform === 'MacIntel' || /Macintosh/i.test(ua)) && navigator.maxTouchPoints > 1);
+      const isIOSDevice = isMobile || isIPad || (typeof navigator !== 'undefined' && /iPhone|iPad|iPod/i.test(navigator.platform));
 
-      // iOS Safari canvas pixel limits: iPhone ~16.7MP, iPad ~67MP
-      // Use conservative limits to avoid silent quality degradation
-      const maxCanvasPixels = isMobile ? 12_000_000 : (isIPad ? 40_000_000 : 100_000_000);
+      // iOS Safari safe limits: max 4096px per dimension, max 14MP total memory
       const elWidth = element.scrollWidth || 1200;
       const elHeight = element.scrollHeight || 800;
-      const maxSafeScale = Math.max(1, Math.floor(Math.sqrt(maxCanvasPixels / (elWidth * elHeight))));
-      const targetScale = isIOSDevice ? Math.min(2, maxSafeScale) : 4;
-      const safeWindowWidth = isIOSDevice ? Math.min(1400, window.innerWidth * 2) : 2400;
+
+      const maxDim = isIOSDevice ? 3840 : 6000;
+      const maxPixels = isIOSDevice ? 12_000_000 : 40_000_000;
+
+      const scaleByDim = Math.min(maxDim / elWidth, maxDim / elHeight);
+      const scaleByPixels = Math.sqrt(maxPixels / (elWidth * elHeight));
+      const safeScale = Math.min(scaleByDim, scaleByPixels);
+
+      // Target scale: on iOS 2.0 to 2.5 gives crisp Retina without hitting iOS memory ceiling
+      // On Desktop: 2.5 to 3.0 provides excellent HD quality
+      const targetScale = isIOSDevice
+        ? Math.max(1.8, Math.min(2.5, Math.floor(safeScale * 10) / 10))
+        : Math.max(2.0, Math.min(3.0, Math.floor(safeScale * 10) / 10));
+
+      const safeWindowWidth = Math.max(exactWidth, 1400);
 
       const canvas = await html2canvas(element, {
         scrollY: 0,
@@ -346,15 +362,55 @@ export default function PublicSchedulePage() {
           if (container) {
             container.style.border = 'none';
             container.style.borderRadius = '0';
+            container.style.backgroundColor = '#ffffff';
+            container.style.boxShadow = 'none';
           }
 
+          // 1. Remove Apple Data Detectors (addresses, phone numbers, dates) and auto-injected links
+          const dataDetectors = clonedDoc.querySelectorAll(
+            '[x-apple-data-detectors], a[x-apple-data-detectors], a[href^="tel:"], a[href^="maps:"], a[href*="maps.apple.com"], a'
+          );
+          dataDetectors.forEach(el => {
+            const htmlEl = el as HTMLElement;
+            htmlEl.style.setProperty('text-decoration', 'none', 'important');
+            htmlEl.style.setProperty('border-bottom', 'none', 'important');
+            htmlEl.style.setProperty('outline', 'none', 'important');
+            htmlEl.style.setProperty('color', 'inherit', 'important');
+            htmlEl.style.setProperty('background', 'transparent', 'important');
+            if (htmlEl.tagName.toLowerCase() === 'a') {
+              htmlEl.removeAttribute('href');
+            }
+          });
+
+          // 2. Clear any spellcheck, text-decoration, or dotted underlines across entire container
+          const allEls = clonedDoc.querySelectorAll('#schedule-table-container, #schedule-table-container *');
+          allEls.forEach(el => {
+            const htmlEl = el as HTMLElement;
+            htmlEl.setAttribute('spellcheck', 'false');
+            if (htmlEl.style) {
+              htmlEl.style.setProperty('text-decoration', 'none', 'important');
+              htmlEl.style.setProperty('-webkit-text-decoration', 'none', 'important');
+              htmlEl.style.setProperty('text-decoration-line', 'none', 'important');
+              htmlEl.style.setProperty('outline', 'none', 'important');
+            }
+          });
+
+          // 3. Crisp font smoothing & opaque background to ensure rich, vibrant colors
           const cells = clonedDoc.querySelectorAll('.schedule-table th, .schedule-table td');
           cells.forEach(cell => {
             const el = cell as HTMLElement;
             el.style.position = 'relative';
             el.style.backgroundClip = 'padding-box';
-            el.style.setProperty('-webkit-font-smoothing', 'antialiased');
+            el.style.boxShadow = 'none';
+            // Enhance text contrast and sharpness for WebKit
+            el.style.setProperty('-webkit-font-smoothing', 'subpixel-antialiased');
+            el.style.setProperty('text-rendering', 'geometricPrecision');
+            // Ensure cell background is solid white if transparent, preserving rich contrast
+            if (!el.style.backgroundColor || el.style.backgroundColor === 'transparent') {
+              el.style.backgroundColor = '#ffffff';
+            }
           });
+
           const rows = clonedDoc.querySelectorAll('.schedule-row');
           rows.forEach(row => {
             const el = row as HTMLElement;
