@@ -79,7 +79,7 @@ export default function PublicSchedulePage() {
   // Settings loaded from Admin Panel via LocalStorage
   const [printFontFamily, setPrintFontFamily] = useState("'TH Sarabun New', 'TH Sarabun PSK', 'Sarabun', sans-serif")
   const [printFontSize, setPrintFontSize] = useState("16px")
-  const [, setPrintFontWeight] = useState("normal")
+  const [printFontWeight, setPrintFontWeight] = useState("bold")
   const [printFontStyle, setPrintFontStyle] = useState("normal")
   const [printTextDecoration, setPrintTextDecoration] = useState("none")
   const [printMissionAlign, setPrintMissionAlign] = useState("left")
@@ -702,7 +702,7 @@ export default function PublicSchedulePage() {
                       style={{
                         fontFamily: printFontFamily,
                         fontSize: printFontSize,
-                        fontWeight: 'bold',
+                        fontWeight: printFontWeight || 'bold',
                         fontStyle: printFontStyle,
                         textDecoration: printTextDecoration,
                         lineHeight: printLineHeight,

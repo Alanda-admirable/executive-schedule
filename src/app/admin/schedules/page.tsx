@@ -62,7 +62,7 @@ export default function SchedulesAdmin() {
   // Word-like Print Settings State
   const [fontFamily, setFontFamily] = useState("'TH Sarabun New', 'TH Sarabun PSK', 'Sarabun', sans-serif")
   const [fontSize, setFontSize] = useState("16px")
-  const [fontWeight, setFontWeight] = useState("normal")
+  const [fontWeight, setFontWeight] = useState("bold")
   const [fontStyle, setFontStyle] = useState("normal")
   const [textDecoration, setTextDecoration] = useState("none")
   const [missionAlign, setMissionAlign] = useState("left")
@@ -309,7 +309,7 @@ export default function SchedulesAdmin() {
     const defaultConfig = {
       fontFamily: "'TH Sarabun New', 'TH Sarabun PSK', 'Sarabun', sans-serif",
       fontSize: "16px",
-      fontWeight: "normal",
+      fontWeight: "bold",
       fontStyle: "normal",
       textDecoration: "none",
       missionAlign: "left",
