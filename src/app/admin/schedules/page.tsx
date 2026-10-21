@@ -838,7 +838,7 @@ export default function SchedulesAdmin() {
                         </td>
                         {colTimeVisible && <td style={{ padding: getPaddingStyle(), textAlign: 'center', fontWeight: 'inherit', verticalAlign: 'top' }}>-</td>}
                         <td style={{ padding: getPaddingStyle(), textAlign: missionAlign === 'center' ? 'center' : 'left', fontWeight: 'inherit', verticalAlign: 'top' }}>ปฏิบัติราชการปกติ</td>
-                        {colLocationVisible && <td style={{ padding: getPaddingStyle(), textAlign: locationAlign === 'center' ? 'center' : 'left', fontWeight: 'inherit', verticalAlign: 'top' }}>ศาลากลางจังหวัดปทุมธานี</td>}
+                        {colLocationVisible && <td style={{ padding: getPaddingStyle(), textAlign: 'center', fontWeight: 'inherit', verticalAlign: 'top' }}>ศาลากลางจังหวัดปทุมธานี</td>}
                         {colAgencyVisible && <td style={{ padding: getPaddingStyle(), textAlign: 'center', fontWeight: 'inherit', verticalAlign: 'top' }}>-</td>}
                         {colDressVisible && <td style={{ padding: getPaddingStyle(), textAlign: 'center', fontWeight: 'inherit', verticalAlign: 'top' }}>-</td>}
                       </tr>
@@ -886,7 +886,7 @@ export default function SchedulesAdmin() {
                         >
                           {(() => {
                             const { text: lText, align: lItemAlign } = extractItemAlign(s.location);
-                            const effectiveAlign = isDash(s.location) ? 'center' : (lItemAlign || locationAlign || 'left');
+                            const effectiveAlign = isDash(s.location) ? 'center' : (lItemAlign || 'center');
                             return <div style={{ whiteSpace: 'pre-wrap', textAlign: effectiveAlign as any }}>{renderText(lText)}</div>;
                           })()}
                         </td>
@@ -898,7 +898,7 @@ export default function SchedulesAdmin() {
                         >
                           {(() => {
                             const { text: aText, align: aItemAlign } = extractItemAlign(s.agency);
-                            const effectiveAlign = isDash(s.agency) ? 'center' : (aItemAlign || 'left');
+                            const effectiveAlign = isDash(s.agency) ? 'center' : (aItemAlign || 'center');
                             return <div style={{ whiteSpace: 'pre-wrap', textAlign: effectiveAlign as any }}>{renderText(aText)}</div>;
                           })()}
                         </td>
@@ -910,7 +910,7 @@ export default function SchedulesAdmin() {
                         >
                           {(() => {
                             const { text: dText, align: dItemAlign } = extractItemAlign(s.dressCode);
-                            const effectiveAlign = isDash(s.dressCode) ? 'center' : (dItemAlign || 'left');
+                            const effectiveAlign = isDash(s.dressCode) ? 'center' : (dItemAlign || 'center');
                             return <div style={{ whiteSpace: 'pre-wrap', textAlign: effectiveAlign as any }}>{renderText(dText)}</div>;
                           })()}
                         </td>
@@ -1095,27 +1095,13 @@ export default function SchedulesAdmin() {
                 </div>
                 
                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                  <span style={{ fontSize: '0.78rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase' }} title="เลือกจัดแนวนอนข้อความเฉพาะช่องที่เลือก">จัดตำแหน่ง (Alignment):</span>
-                  <div className="align-toggle-group" style={{ opacity: activeField ? 1 : 0.5, pointerEvents: activeField ? 'auto' : 'none' }}>
-                    {[
-                      { key: 'default', label: 'ค่าเดิม', hint: 'จัดวางข้อความตามค่าเริ่มต้นของตาราง (ชิดซ้าย)' },
-                      { key: 'left', label: '≡ ซ้าย', hint: 'จัดข้อความในช่องนี้ชิดซ้าย (ลบคีย์เวิร์ดจัดตำแหน่งออก)' },
-                      { key: 'center', label: '≡ กลาง', hint: 'จัดข้อความในช่องนี้ไว้กึ่งกลาง (ใส่ [center] ข้างหน้า)' },
-                      { key: 'right', label: '≡ ขวา', hint: 'จัดข้อความในช่องนี้ชิดขวา (ใส่ [right] ข้างหน้า)' }
-                    ].map(item => {
-                      const activeFieldVal = activeField ? (currentSchedule as any)[activeField] : '';
-                      return (
-                        <button 
-                          key={item.key} 
-                          type="button" 
-                          className={`align-toggle-btn ${activeField && getFieldAlign(activeFieldVal) === item.key ? 'active' : ''}`}
-                          title={item.hint}
-                          onClick={() => activeField && setCurrentSchedule({...currentSchedule, [activeField]: setFieldAlign(activeFieldVal, item.key)})}
-                        >
-                          {item.label}
-                        </button>
-                      );
-                    })}
+                  <span style={{ fontSize: '0.78rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase' }} title="ตำแหน่งการจัดวางของแต่ละคอลัมน์ในตารางถูกล็อคตามมาตรฐาน">📌 การจัดตำแหน่งคงที่:</span>
+                  <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
+                    <span style={{ backgroundColor: '#ffffff', border: '1px solid #cbd5e1', borderRadius: '4px', padding: '3px 8px', fontSize: '0.75rem', color: '#334155', fontWeight: 600 }}>ผู้บริหาร: <b>กลาง</b></span>
+                    <span style={{ backgroundColor: '#ffffff', border: '1px solid #cbd5e1', borderRadius: '4px', padding: '3px 8px', fontSize: '0.75rem', color: '#334155', fontWeight: 600 }}>เวลา: <b>กลาง</b></span>
+                    <span style={{ backgroundColor: '#eff6ff', border: '1px solid #93c5fd', borderRadius: '4px', padding: '3px 8px', fontSize: '0.75rem', color: '#1d4ed8', fontWeight: 700 }}>วาระงาน: <b>ซ้าย</b></span>
+                    <span style={{ backgroundColor: '#ffffff', border: '1px solid #cbd5e1', borderRadius: '4px', padding: '3px 8px', fontSize: '0.75rem', color: '#334155', fontWeight: 600 }}>สถานที่: <b>กลาง</b></span>
+                    <span style={{ backgroundColor: '#ffffff', border: '1px solid #cbd5e1', borderRadius: '4px', padding: '3px 8px', fontSize: '0.75rem', color: '#334155', fontWeight: 600 }}>หน่วยงาน: <b>กลาง</b></span>
                   </div>
                 </div>
               </div>
@@ -1125,9 +1111,6 @@ export default function SchedulesAdmin() {
                 <span style={{ fontWeight: 800, color: '#1d4ed8', display: 'flex', alignItems: 'center', gap: '4px' }}>💡 ตัวอย่างวิธีพิมพ์จัดรูปแบบ:</span>
                 <span style={{ backgroundColor: 'white', padding: '3px 8px', borderRadius: '4px', border: '1px solid #cbd5e1', boxShadow: '0 1px 2px rgba(0,0,0,0.03)' }} title="ตัวอย่างการแสดงผลตัวเลขไทย vs อารบิก">
                   <b>เลขไทย/อารบิก:</b> พิมพ์ <code style={{ backgroundColor: '#f1f5f9', padding: '1px 4px', borderRadius: '3px' }}>9</code> ➔ <span style={{ color: '#059669', fontWeight: 'bold' }}>๙</span> | พิมพ์ <code style={{ backgroundColor: '#f1f5f9', padding: '1px 4px', borderRadius: '3px' }}>*9*</code> ➔ <span style={{ color: '#2563eb', fontWeight: 'bold' }}>9 (บังคับอารบิก)</span>
-                </span>
-                <span style={{ backgroundColor: 'white', padding: '3px 8px', borderRadius: '4px', border: '1px solid #cbd5e1', boxShadow: '0 1px 2px rgba(0,0,0,0.03)' }} title="ตัวอย่างการใส่คีย์เวิร์ดจัดข้อความกึ่งกลาง">
-                  <b>จัดกึ่งกลาง:</b> พิมพ์ <code style={{ backgroundColor: '#f1f5f9', padding: '1px 4px', borderRadius: '3px' }}>[center]ข้อความ</code> ➔ <span style={{ color: '#2563eb', fontWeight: 'bold' }}>≡ ข้อความอยู่ตรงกลาง</span>
                 </span>
                 <span style={{ backgroundColor: 'white', padding: '3px 8px', borderRadius: '4px', border: '1px solid #cbd5e1', boxShadow: '0 1px 2px rgba(0,0,0,0.03)' }} title="ตัวอย่างการใส่เครื่องหมาย - กรณีไม่มีข้อมูล">
                   <b>เว้นว่าง (-):</b> พิมพ์ <code style={{ backgroundColor: '#f1f5f9', padding: '1px 4px', borderRadius: '3px' }}>-</code> ➔ <span style={{ color: '#64748b', fontWeight: 'bold' }}>แสดง - ไว้ตรงกลาง</span>
@@ -1203,7 +1186,7 @@ export default function SchedulesAdmin() {
                             <td style={{ padding: getPaddingStyle(), borderBottom: '1px solid black', borderRight: '1px solid black', verticalAlign: 'top', overflowWrap: 'break-word', wordBreak: 'break-word' }}>
                               {(() => {
                                 const { text: lText, align: lItemAlign } = extractItemAlign(mockSchedule.location);
-                                const effectiveAlign = isDash(mockSchedule.location) ? 'center' : (lItemAlign || 'left');
+                                const effectiveAlign = isDash(mockSchedule.location) ? 'center' : (lItemAlign || 'center');
                                 return <div style={{ whiteSpace: 'pre-wrap', textAlign: effectiveAlign as any }}>{renderText(lText)}</div>;
                               })()}
                             </td>
@@ -1212,7 +1195,7 @@ export default function SchedulesAdmin() {
                             <td style={{ padding: getPaddingStyle(), borderBottom: '1px solid black', borderRight: '1px solid black', verticalAlign: 'top', overflowWrap: 'break-word', wordBreak: 'break-word' }}>
                               {(() => {
                                 const { text: aText, align: aItemAlign } = extractItemAlign(mockSchedule.agency);
-                                const effectiveAlign = isDash(mockSchedule.agency) ? 'center' : (aItemAlign || 'left');
+                                const effectiveAlign = isDash(mockSchedule.agency) ? 'center' : (aItemAlign || 'center');
                                 return <div style={{ whiteSpace: 'pre-wrap', textAlign: effectiveAlign as any }}>{renderText(aText)}</div>;
                               })()}
                             </td>
@@ -1221,7 +1204,7 @@ export default function SchedulesAdmin() {
                             <td style={{ padding: getPaddingStyle(), borderBottom: '1px solid black', borderRight: '1px solid black', verticalAlign: 'top', overflowWrap: 'break-word', wordBreak: 'break-word' }}>
                               {(() => {
                                 const { text: dText, align: dItemAlign } = extractItemAlign(mockSchedule.dressCode);
-                                const effectiveAlign = isDash(mockSchedule.dressCode) ? 'center' : (dItemAlign || 'left');
+                                const effectiveAlign = isDash(mockSchedule.dressCode) ? 'center' : (dItemAlign || 'center');
                                 return <div style={{ whiteSpace: 'pre-wrap', textAlign: effectiveAlign as any }}>{renderText(dText)}</div>;
                               })()}
                             </td>
